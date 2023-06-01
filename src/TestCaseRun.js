@@ -415,6 +415,12 @@ class RunTest extends Common {
         if (scope == 'one') {
             let testcase_file_relative_path = selectedFile.slice(projectPath.length + 1);
             projectTestMatch = `<rootDir>/${testcase_file_relative_path}`;
+
+            // 用于dcloud-uts和uni-api自动化测试
+            let test_js_path = path.basename(selectedFile) + ".test.js";
+            if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
+                projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
+            };
         } else {
             projectTestMatch = projectTestMatch;
         };
