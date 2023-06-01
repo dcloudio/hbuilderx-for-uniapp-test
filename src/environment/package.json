@@ -1,0 +1,17 @@
+{
+    "name": "hbuilderx-for-uniapp-test-lib",
+    "displayName": "uni-app自动化测试环境依赖",
+    "description": "uni-app自动化测试环境依赖",
+    "version": "1.0.0",
+    "dependencies": {
+        "@playwright/test": "1.15.2",
+        "adbkit": "^2.11.1",
+        "cross-env": "^7.0.3",
+        "jest": "^27.0.4",
+        "jest-environment-node": "^27.4.4",
+        "jest-image-snapshot": "6.1.0",
+        "node-simctl": "^6.4.1",
+        "playwright": "1.15.2",
+        "puppeteer": "^10.0.0"
+    }
+}

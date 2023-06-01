@@ -1,0 +1,395 @@
+{
+    "id": "hbuilderx-for-uniapp-test",
+    "name": "hbuilderx-for-uniapp-test",
+    "description": "uni-app自动化测试，支持初始化测试环境，运行测试到android、ios、h5、微信小程序",
+    "displayName": "HBuilderX uni-app自动化测试",
+    "version": "0.3.0",
+    "publisher": "hbuilderx",
+    "engines": {
+        "HBuilderX": "^3.7.3"
+    },
+    "categories": [
+        "Other"
+    ],
+    "main": "./extension",
+    "activationEvents": [
+        "onCommand:unitest.initialization",
+        "onCommand:unitest.createTestCase",
+        "onCommand:unitest.runTestAll",
+        "onCommand:unitest.runTestH5",
+        "onCommand:unitest.runTestH5Safari",
+        "onCommand:unitest.runTestH5Firefox",
+        "onCommand:unitest.runTestWeiXin",
+        "onCommand:unitest.runTestIOS",
+        "onCommand:unitest.runTestAndroid",
+        "onCommand:unitest.runCurrentTestAll",
+        "onCommand:unitest.runCurrentTestH5",
+        "onCommand:unitest.runCurrentTestH5Safari",
+        "onCommand:unitest.runCurrentTestH5Firefox",
+        "onCommand:unitest.runCurrentTestWeiXin",
+        "onCommand:unitest.runCurrentTestIOS",
+        "onCommand:unitest.runCurrentTestAndroid",
+        "onCommand:unitest.reportHistory",
+        "onCommand:unitest.reloadEnv",
+        "onCommand:unitest.about",
+        "onCommand:unitest.stopRunTest",
+        "onCommand:unitest.isAutotestMatch"
+    ],
+    "contributes": {
+        "expressions": {
+            "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
+            "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
+            "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
+            "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
+            "isCheckTestEnv": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig",
+            "isUniPageDir": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/[^\\/]*$/",
+            "isUniPageFile": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.[vue|nvue]$/",
+            "isTestConfigFile": "workspaceFolderRelativePath == 'env.js' || workspaceFolderRelativePath == 'jest.config.js'",
+            "isShowCreateTestCase": "expression.isCheckTestEnv && (expression.isUniPageDir || expression.isUniPageFile)",
+            "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/",
+            "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)"
+        },
+        "snippets": [{
+            "language": "javascript",
+            "path": "./snippets/jest.json"
+        }, {
+            "language": "typescript",
+            "path": "./snippets/jest.json"
+        }],
+        "commands": [
+            {
+                "command": "unitest.initialization",
+                "title": "初始uni-app自动化测试环境(&I)"
+            },
+            {
+                "command": "unitest.createTestCase",
+                "title": "新建自动化测试用例(&N)"
+            },
+            {
+                "command": "unitest.stopRunTest",
+                "title": "停止运行测试"
+            },
+            {
+                "command": "unitest.runTestAll",
+                "title": "运行测试到全部平台"
+            },
+            {
+                "command": "unitest.runTestH5",
+                "title": "运行测试到H5-Chrome"
+            },
+            {
+                "command": "unitest.runTestH5Safari",
+                "title": "运行测试到H5-Safari"
+            },
+            {
+                "command": "unitest.runTestH5Firefox",
+                "title": "运行测试到H5-Firefox"
+            },
+            {
+                "command": "unitest.runTestWeiXin",
+                "title": "运行测试到微信小程序"
+            },
+            {
+                "command": "unitest.runTestIOS",
+                "title": "运行测试到ios模拟器"
+            },
+            {
+                "command": "unitest.runTestAndroid",
+                "title": "运行测试到android"
+            },
+            {
+                "command": "unitest.runCurrentTestAll",
+                "title": "运行当前测试到全部平台"
+            },
+            {
+                "command": "unitest.runCurrentTestH5",
+                "title": "运行当前测试到H5-Chrome"
+            },
+            {
+                "command": "unitest.runCurrentTestH5Safari",
+                "title": "运行当前测试到H5-Safari"
+            },
+            {
+                "command": "unitest.runCurrentTestH5Firefox",
+                "title": "运行当前测试到H5-Firefox"
+            },
+            {
+                "command": "unitest.runCurrentTestWeiXin",
+                "title": "运行当前测试到微信小程序"
+            },
+            {
+                "command": "unitest.runCurrentTestIOS",
+                "title": "运行当前测试到ios"
+            },
+            {
+                "command": "unitest.runCurrentTestAndroid",
+                "title": "运行当前测试到android"
+            },
+            {
+                "command": "unitest.reportHistory",
+                "title": "查看历史测试报告"
+            },
+            {
+                "command": "unitest.isAutotestMatch",
+                "title": "是否自动修改testMatch"
+            },
+            {
+                "command": "unitest.reloadEnv",
+                "title": "重装测试环境依赖"
+            },
+            {
+                "command": "unitest.about",
+                "title": "关于"
+            }
+        ],
+        "configuration": {
+            "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
+            "properties": {
+                "hbuilderx-for-uniapp-test.testReportOutPutDir": {
+                    "type": "string",
+                    "default": "",
+                    "description": "uni-app自动化测试插件，测试报告输出路径。"
+                },
+                "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "自动修改jest.config.js文件中的testMatch。"
+                },
+                "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "使用HBuilderX内置的Node运行自动化测试（修改后重启生效）。"
+                },
+                "hbuilderx-for-uniapp-test.isDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "是否正在调试，当勾选后，将会在控制台输出更多日志（修改后重启生效）。"
+                }
+            }
+        },
+        "keybindings":[
+            {
+                "command":"unitest.createTestCase",
+                "key":"Ctrl + Shift + C",
+                "when":"expression.isShowCreateTestCase",
+                "macosx":"command+Shift+C"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "unitest.initialization",
+                    "group": "openInExplorer",
+                    "when": "explorerResourceCount == 1 && expression.isUniApp && !expression.isCheckTestEnv  && explorerResourceIsWorkspaceFolder"
+                },
+                {
+                    "command": "unitest.createTestCase",
+                    "group": "new",
+                    "when": "expression.isShowCreateTestCase"
+                },
+                {
+                    "group": "new"
+                },
+                {
+                    "title": "uni-app 运行自动化测试(&R)",
+                    "group": "openInExplorer",
+                    "when": "expression.isShowRunALLTestCaseMenu",
+                    "id": "unitest"
+                },
+                {
+                    "command": "unitest.runTestAndroid",
+                    "title": "Android(&A)",
+                    "group": "unitest@1"
+                },
+                {
+                    "command": "unitest.runTestIOS",
+                    "title": "iOS模拟器(&I)",
+                    "when": "isMac",
+                    "group": "unitest@2"
+                },
+                {
+                    "group": "unitest@2"
+                },
+                {
+                    "command": "unitest.runTestWeiXin",
+                    "title": "微信小程序(&M)",
+                    "group": "unitest@3"
+                },
+                {
+                    "group": "unitest@3"
+                },
+                {
+                    "command": "unitest.runTestH5",
+                    "title": "H5-Chrome(&H)",
+                    "group": "unitest@4"
+                },
+                {
+                    "command": "unitest.runTestH5Firefox",
+                    "title": "H5-Firefox(&H)",
+                    "group": "unitest@5"
+                },
+                {
+                    "command": "unitest.runTestH5Safari",
+                    "title": "H5-Safari(&H)",
+                    "group": "unitest@6",
+                    "when": "isMac"
+                },
+                {
+                    "group": "unitest@7"
+                },
+                {
+                    "command": "unitest.runTestAll",
+                    "title": "全部平台(&A)",
+                    "group": "unitest@8"
+                },
+                {
+                    "group": "openInExplorer"
+                },
+                {
+                    "title": "uni-app 运行当前测试用例",
+                    "group": "openInExplorer",
+                    "when": "explorerResourceCount == 1 && expression.isCheckTestEnv && expression.isShowRunCurrentTestCaseMenu",
+                    "id": "unitestForCurrent"
+                },
+                {
+                    "command": "unitest.runCurrentTestAndroid",
+                    "title": "Android(&A)",
+                    "group": "unitestForCurrent@1"
+                },
+                {
+                    "command": "unitest.runCurrentTestIOS",
+                    "title": "iOS模拟器(&I)",
+                    "when": "isMac",
+                    "group": "unitestForCurrent@2"
+                },
+                {
+                    "group": "unitestForCurrent@2"
+                },
+                {
+                    "command": "unitest.runCurrentTestWeiXin",
+                    "title": "微信小程序(&M)",
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5",
+                    "title": "H5-Chrome(&H)",
+                    "group": "unitestForCurrent@4"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5Firefox",
+                    "title": "H5-Firefox(&H)",
+                    "group": "unitestForCurrent@4"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5Safari",
+                    "title": "H5-Safari(&H)",
+                    "group": "unitestForCurrent@4",
+                    "when": "isMac"
+                },
+                {
+                    "group": "unitestForCurrent@5"
+                },
+                {
+                    "command": "unitest.runCurrentTestAll",
+                    "title": "全部平台(&A)",
+                    "group": "unitestForCurrent@6"
+                },
+                {
+                    "group": "openInExplorer"
+                }
+            ],
+            "editor/context": [
+                {
+                    "title": "uni-app 运行当前测试用例",
+                    "group": "copy",
+                    "when": "expression.isShowRunCurrentTestCaseMenu",
+                    "id": "unitestForCurrent"
+                },
+                {
+                    "group": "copy"
+                },
+                {
+                    "command": "unitest.runCurrentTestAndroid",
+                    "title": "Android(&A)",
+                    "group": "unitestForCurrent@1"
+                },
+                {
+                    "command": "unitest.runCurrentTestIOS",
+                    "title": "iOS模拟器(&I)",
+                    "when": "isMac",
+                    "group": "unitestForCurrent@2"
+                },
+                {
+                    "group": "unitestForCurrent@2"
+                },
+                {
+                    "command": "unitest.runCurrentTestWeiXin",
+                    "title": "微信小程序(&M)",
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5",
+                    "title": "H5-Chrome(&H)",
+                    "group": "unitestForCurrent@4"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5Firefox",
+                    "title": "H5-Firefox(&H)",
+                    "group": "unitestForCurrent@4"
+                },
+                {
+                    "command": "unitest.runCurrentTestH5Safari",
+                    "title": "H5-Safari(&H)",
+                    "group": "unitestForCurrent@4",
+                    "when": "isMac"
+                },
+                {
+                    "group": "unitestForCurrent@5"
+                },
+                {
+                    "command": "unitest.runCurrentTestAll",
+                    "title": "全部平台(&A)",
+                    "group": "unitestForCurrent@6"
+                }
+            ],
+            "menubar/run": [
+                {
+                    "title": "uni-app自动化测试辅助插件",
+                    "group": "0_foot",
+                    "id": "unitest"
+                },
+                {
+                    "command": "unitest.isAutotestMatch",
+                    "checked": "expression.isAutoTestMatch",
+                    "group": "unitest@1"
+                },
+                {
+                    "command": "unitest.reportHistory",
+                    "group": "unitest@2"
+                },
+                {
+                    "command": "unitest.reloadEnv",
+                    "title": "重装测试环境依赖",
+                    "group": "unitest@3"
+                },
+                {
+                    "group": "unitest@4"
+                },
+                {
+                    "command": "unitest.about",
+                    "title": "关于",
+                    "group": "unitest@5"
+                }
+            ]
+        }
+    },
+    "extensionDependencies": [
+        "plugin-manager"
+    ]
+}

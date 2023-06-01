@@ -1,0 +1,128 @@
+{   "describe": {
+        "prefix": "describe",
+        "body": [
+            "describe('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest describe"
+    },
+    "describe.only": {
+        "prefix": "describe.only",
+        "body": [
+            "describe.only('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest describe.only"
+    },
+    "describe.skip": {
+        "prefix": "describe.skip",
+        "body": [
+            "describe.only('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest describe.skip"
+    },
+    "test": {
+        "prefix": "test",
+        "body": [
+            "test('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test"
+    },
+    "test async": {
+        "prefix": "ta",
+        "body": [
+            "test('$1', async () => {",
+            "\tawait $0",
+            "});"
+        ],
+        "description": "jest test Async/Await"
+    },
+    "test.only": {
+        "prefix": "test.only",
+        "body": [
+            "test.only('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test.only"
+    },
+    "test.skip": {
+        "prefix": "test.skip",
+        "body": [
+            "test.only('$1', () => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test.skip"
+    },
+    "beforeEach": {
+        "prefix": "beforeEach",
+        "body": [
+            "beforeEach(() => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test beforeEach"
+    },
+    "afterEach": {
+        "prefix": "afterEach",
+        "body": [
+            "afterEach(() => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test afterEach"
+    },
+    "beforeAll": {
+        "prefix": "beforeAll",
+        "body": [
+            "beforeAll(() => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test beforeAll"
+    },
+    "afterAll": {
+        "prefix": "afterAll",
+        "body": [
+            "afterAll(() => {",
+            "\t$0",
+            "});"
+        ],
+        "description": "jest test afterAll"
+    },
+    "page.$": {
+        "prefix": "p$",
+        "body": [
+            "await page.$('$0')"
+        ],
+        "description": "获取页面元素"
+    },
+    "page.$$": {
+        "prefix": "p$$",
+        "body": [
+            "await page.$$('$0')"
+        ],
+        "description": "获取页面元素数组"
+    },
+    "element.$": {
+        "prefix": "e$",
+        "body": [
+            "await page.$('$0')"
+        ],
+        "description": "在元素范围内获取元素"
+    },
+    "element.$$": {
+        "prefix": "e$$",
+        "body": [
+            "await element.$$('$0')"
+        ],
+        "description": "在元素范围内获取元素数组"
+    }
+}
