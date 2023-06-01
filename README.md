@@ -20,7 +20,6 @@
 
 ## 扩展
 
-- [完整文档教程](https://static-0c1fa337-7340-4755-9bec-f766d7d31833.bspapp.com/markdown-share-docs/cdf2a7abd25bf2568276c1cc7472136b/)
 - [uni-app自动化测试API](https://uniapp.dcloud.io/collocation/auto/quick-start)
 - [jest官方文档](https://www.jestjs.cn/)
 - [QQ交流群 695557932](https://qm.qq.com/cgi-bin/qm/qr?k=7uTgM9atb5lWFbZyoMiVtHrYz4DuQbt4&jump_from=webapi)
