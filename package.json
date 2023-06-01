@@ -46,7 +46,7 @@
             "isUniPageFile": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.[vue|nvue]$/",
             "isTestConfigFile": "workspaceFolderRelativePath == 'env.js' || workspaceFolderRelativePath == 'jest.config.js'",
             "isShowCreateTestCase": "expression.isCheckTestEnv && (expression.isUniPageDir || expression.isUniPageFile)",
-            "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/",
+            "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && (workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/ || workspaceFolderRelativePath =~ /^\\pages\\/autotest\\/uni.*/)",
             "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)"
         },
         "snippets": [{
