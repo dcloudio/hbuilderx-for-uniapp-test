@@ -549,7 +549,7 @@ class RunTest extends Common {
             cmdOpts["env"]["UNI_NODE_PATH"] = path.join(HBuilderX_BuiltIn_Node_Dir, node_program_name) ;
         } else {
             const log_for_node = `当前自动化测试使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
-            createOutputChannel(log_for_node, 'warning');
+            createOutputChannel(log_for_node, 'info');
         };
 
         // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
