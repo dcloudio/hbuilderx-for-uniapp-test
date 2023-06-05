@@ -104,10 +104,19 @@ async function getUIDataForDevices() {
 /**
  *@description 窗口控件
  */
-async function getUIData(testPlatform, devicesList) {
+async function getUIData(testPlatform) {
     // 重新获取手机列表
     let RawDevicesList = await getUIDataForDevices();
     let {AndroidList, iOSList} = RawDevicesList;
+
+    let height = testPlatform != "all" ? 410 : 660;
+    if (osName != "darwin") {
+        height = testPlatform != "all" ? 410 : 450;
+    };
+
+    let subtitle = "选择要测试的手机设备或模拟器";
+    subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
+    subtitle = subtitle + '<a href="https://hx.dcloud.net.cn/Tutorial/App/installSimulator">如何安装?</a>'
 
     // 构造：h5数据
     let h5List = [
@@ -147,20 +156,6 @@ async function getUIData(testPlatform, devicesList) {
             "multiSelection": true,
             // "searchable": true,
             // "searchColumns":[1, 2],
-            // "refreshable": true,
-            // onRefresh: async function () {
-            //     let devicesList = await getUIDataForDevices();
-            //     var starttime = new Date().getTime();
-            //     var endtime = new Date().getTime();
-            //     var difftime = endtime - starttime;
-            //     if (difftime < 150) {
-            //       function sleep(time) {
-            //         return new Promise((resolve) => setTimeout(resolve, time));
-            //       }
-            //       await sleep(150 - difftime);
-            //     };
-            //     return devicesList.iOSList;
-            // }
         };
         formItems.push(ui_ios);
     };
@@ -182,6 +177,15 @@ async function getUIData(testPlatform, devicesList) {
         formItems.push(ui_iandroid);
     };
 
+    let refreshBtn = {
+        type: 'widgetGroup',
+        name: 'refreshWidget',
+        widgets: [
+            {type: 'button',name: 'refreshButton', text: '刷新手机设备',size: 'small'}
+        ]
+    };
+    formItems.push(refreshBtn);
+
     if (testPlatform == "all" || testPlatform == "ios" || testPlatform == "android") {
         let prompt = {
             type: 'label',name: 'prompt',text: "备注：如果Android设备没有显示，请先确保HBuilderX可以检测到Android设备。或关闭窗口重新打开。"
@@ -189,6 +193,13 @@ async function getUIData(testPlatform, devicesList) {
         formItems.push(prompt);
     };
     return {
+        title: "uni-app 自动化测试设备选择",
+        subtitle: subtitle,
+        width: 600,
+        height: height,
+        submitButtonText: "提交(&S)",
+        cancelButtonText: "取消(&C)",
+        footer: '<a href="https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/">自动化测试教程</a>',
         formItems: formItems
     };
 };
@@ -235,27 +246,12 @@ function validateInput(testPlatform, formData, that) {
  * @description showFormDialog
  * @return {Array} ["ios:A8790C48-4986-4303-B235-D8AFA95402D4","android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"]
  */
-async function showTestDeviceWindows(testPlatform, devicesList) {
+async function showTestDeviceWindows(testPlatform) {
     // 获取默认UI数据
-    var uidata = await getUIData(testPlatform, devicesList)
-
-    let height = testPlatform != "all" ? 410 : 660;
-    if (osName != "darwin") {
-        height = testPlatform != "all" ? 410 : 450;
-    };
-    let subtitle = "选择要测试的手机设备或模拟器";
-    subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
-    subtitle = subtitle + '<a href="https://hx.dcloud.net.cn/Tutorial/App/installSimulator">如何安装?</a>'
+    var uidata = await getUIData(testPlatform)
 
     let result = await hx.window.showFormDialog({
         ...uidata,
-        title: "uni-app 自动化测试设备选择",
-        subtitle: subtitle,
-        width: 600,
-        height: height,
-        submitButtonText: "提交(&S)",
-        cancelButtonText: "取消(&C)",
-        footer: '<a href="https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/">自动化测试教程</a>',
         validate: function(formData) {
             let result = validateInput(testPlatform, formData, this);
             return result;
@@ -264,7 +260,12 @@ async function showTestDeviceWindows(testPlatform, devicesList) {
         //     var forms = await getUIData(testPlatform, devicesList);
         //     await this.updateForm(forms)
         // },
-        onChanged: async function(field, value) {}
+        onChanged: async function(field, value) {
+            if (field == "refreshWidget") {
+                let updateData = await getUIData(testPlatform);
+                this.updateForm(updateData);
+            };
+        }
     }).then((res) => {
         return res;
     }).catch( error => {
