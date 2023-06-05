@@ -5,11 +5,11 @@ const path = require('path');
 const process = require('process');
 
 const cmp_hx_version = require('./lib/cmp_version.js');
-let hxVersion = hx.env.appVersion;
-hxVersion = hxVersion.replace('-alpha', '').replace(/.\d{8}/, '');
+const hxVersion = hx.env.appVersion;
 
 // 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
-const cmpVerionForH5 = cmp_hx_version(hxVersion, '3.2.10');
+const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{8}/, '');
+const cmpVerionForH5 = cmp_hx_version(hxVersionForDiff, '3.2.10');
 
 let {
     HBuilderX_PATH,
@@ -507,6 +507,7 @@ class RunTest extends Common {
                 "UNI_CLI_PATH": UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
+                "HX_Version": hxVersion
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
