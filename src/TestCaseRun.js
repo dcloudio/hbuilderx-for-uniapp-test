@@ -59,7 +59,10 @@ const {
 
 const Initialize = require('./Initialize.js');
 
-const getTestDevices = require('./lib/showTestDeviceWindows.js');
+const {
+    getTestDevices,
+    get_uniTestPlatformInfo
+} = require('./lib/showTestDeviceWindows.js');
 
 const osName = os.platform();
 
@@ -489,6 +492,9 @@ class RunTest extends Common {
         createOutputChannel(`${consoleMessagePrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
         createOutputChannel(`${consoleMessagePrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
 
+        // 环境变量
+        let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
+
         // UNI_OS_NAME字段用于android、ios平台测试
         let UNI_OS_NAME;
         let UNI_PLATFORM = testPlatform;
@@ -507,7 +513,9 @@ class RunTest extends Common {
                 "UNI_CLI_PATH": UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
-                "HX_Version": hxVersion
+                "HX_Version": hxVersion,
+                "uniTestProjectName": this.projectName,
+                "uniTestPlatformInfo": uniTestPlatformInfo
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024

@@ -4,7 +4,41 @@ const os = require('os');
 const osName = os.platform();
 
 // 测试设备
-let global_devicesList = [];
+global.global_devicesList = [];
+
+/**
+ * @description 内部使用。返回具体的测试设备信息
+ */
+async function get_uniTestPlatformInfo(platform, deviceID) {
+    let uniTestPlatformInfo = "";
+    if (platform == "h5") return 'web chrome';
+    if (platform == "h5-safari") return 'web safari';
+    if (platform == "h5-firefox") return 'web firefox';
+
+    try{
+        if (!platform.toLowerCase().includes("android") && !platform.toLowerCase().includes("ios")) {
+            return platform;
+        };
+        let phoneOS = platform.toLowerCase();
+        if (phoneOS == "ios") {
+            phoneOS = "ios_simulator";
+        };
+        for (let s of global_devicesList[phoneOS]) {
+            if (s.uuid == deviceID && phoneOS == "android") {
+                uniTestPlatformInfo = s.platform + " " + s.version;
+                break;
+            };
+            if (s.uuid == deviceID && phoneOS == "ios_simulator") {
+                uniTestPlatformInfo = s.platform + " " + s.version;
+                // uniTestPlatformInfo = s.platform + " " + s.name;
+                break;
+            };
+        };
+        return uniTestPlatformInfo;
+    }catch(e){
+        return platform;
+    };
+};
 
 /**
  * @description 通过Api hx.app.getMobileList, 获取当前电脑连接的手机设备
@@ -345,7 +379,6 @@ async function showTestDeviceWindows(testPlatform) {
  */
 async function getTestDevices(testPlatform) {
     global_devicesList = await getPhoneDevicesList(testPlatform)
-
     // 如果当前连接的Android设备只有一个，则不弹出测试设备选择窗口，直接运行。
     if (testPlatform == 'android') {
         let {
@@ -366,4 +399,7 @@ async function getTestDevices(testPlatform) {
 };
 
 
-module.exports = getTestDevices;
+module.exports = {
+    get_uniTestPlatformInfo,
+    getTestDevices
+};
