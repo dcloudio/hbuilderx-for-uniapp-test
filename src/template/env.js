@@ -1,4 +1,5 @@
 module.exports = {
+    "is-custom-runtime": false,
     "compile": true,
     "h5": {
         "options": {

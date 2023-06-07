@@ -124,9 +124,15 @@ class Common {
         };
 
         // 检查是否安装uniapp-cli、launcher
-        var plugin_list = {
-            "uniapp-cli": UNI_CLI_PATH,
+        var plugin_list = {};
+
+        // check：运行自动化测试需要安装的插件
+        if (is_uniapp_3) {
+            plugin_list["uniapp-cli-vite"] = UNI_CLI_VITE_PATH;
+        } else {
+            plugin_list["uniapp-cli"] = UNI_CLI_PATH;
         };
+
         if (["android", "ios", "all"].includes(platform)) {
             plugin_list["launcher"] = LAUNCHER_ANDROID;
         };
@@ -140,23 +146,23 @@ class Common {
         if (is_uniapp_x) {
             plugin_list["uniappx-launcher"] = UNIAPP_X_LAUNCHER_PATH;
         };
-
+        
+        // 判断是否安装测试环境必须的插件
         for (let e of Object.keys(plugin_list)) {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
-                if (["uniapp-cli", "launcher", "uniapp-cli-vite", "uniappx-launcher"].includes(e)) {
-                    const log_for_plugin = `测试环境检查：${e}插件未安装或安装不完整，请在HBuilderX内点击菜单【工具 - 插件安装】，安装相关插件。`;
-                    createOutputChannel(log_for_plugin, 'error')
-                };
-                if (["uniappx-launcher"].includes(e)) {
-                    const log_for_plugin = `测试环境检查：当前项目是uni-app-x，相关插件${e}未安装或安装不完整，请在HBuilderX内点击菜单【工具 - 插件安装】，安装相关插件。`;
-                    createOutputChannel(log_for_plugin, 'error')
-                };
-                if (["uniapp-uts-v1", "uniapp-runextension"].includes(e)) {
-                    const log_for_uts = `缺失UTS运行环境。请选择UTS项目，然后运行到手机设备，此时会自动安装UTS相关插件。如果没有自动安装，请删除项目unpackage/cache目录。`;
-                    createOutputChannel(log_for_uts, 'error')
-                };
+                const log_for_plugin = `测试环境检查：${e}  插件未安装、或安装不完整，请在HBuilderX内点击菜单【工具 - 插件安装】，安装相关插件。`;
+                createOutputChannel(log_for_plugin, 'error');
             };
+        };
+
+        if (testEnv == false && is_uniapp_x) {
+            const log_for_plugin = `[提示]：缺失测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件`;
+            createOutputChannel(log_for_plugin, 'warning');
+        };
+        if (testEnv == false && is_uts_project) {
+            const log_for_uts = `[提示]：缺失UTS运行环境。请选择UTS项目，然后运行到手机设备，此时会自动安装UTS相关插件。如果没有自动安装，请删除项目unpackage/cache目录。`;
+            createOutputChannel(log_for_uts, 'warning');
         };
 
         // 检查测试报告
@@ -358,6 +364,10 @@ class RunTest extends Common {
             return false;
         };
 
+        // 设置自动化测试基座类型：自定义基座、标准基座。自定义基座需要用户手动设置基座路径。不再修改executablePath路径。
+        // 当isCustomRuntime = false 和 undefined 时，默认修改executablePath为标准基座路径
+        let isCustomRuntime = envjs["is-custom-runtime"];
+
         if (is_uniapp_x) {
             let oldLauncherVersion = envjs["app-plus"]?.["uni-app-x"]?.version;
             if (oldLauncherVersion == undefined || oldLauncherVersion.trim() == '' || oldLauncherVersion != UNIAPP_X_LAUNCHER_VERSION_TXT) {
@@ -382,13 +392,15 @@ class RunTest extends Common {
         if (id != deviceId || executablePath != launcherExecutablePath) {
 
             if (is_uniapp_x) {
-                envjs['app-plus']['uni-app-x'][devicePlatform] = {
-                    "id": deviceId,
-                    "executablePath": launcherExecutablePath
+                envjs['app-plus']['uni-app-x'][devicePlatform]["id"] = deviceId;
+                if (isCustomRuntime == false || isCustomRuntime == undefined) {
+                    envjs['app-plus']['uni-app-x'][devicePlatform]["executablePath"] = launcherExecutablePath;
                 };
             } else {
                 envjs['app-plus'][devicePlatform]['id'] = deviceId;
-                envjs['app-plus'][devicePlatform]['executablePath'] = launcherExecutablePath;
+                if (isCustomRuntime == false || isCustomRuntime == undefined) {
+                    envjs['app-plus'][devicePlatform]['executablePath'] = launcherExecutablePath;
+                };
             };
 
             // 将修改的配置写入文件
