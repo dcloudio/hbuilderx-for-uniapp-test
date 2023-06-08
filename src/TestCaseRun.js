@@ -146,12 +146,12 @@ class Common {
         if (is_uniapp_x) {
             plugin_list["uniappx-launcher"] = UNIAPP_X_LAUNCHER_PATH;
         };
-        
+
         // 判断是否安装测试环境必须的插件
         for (let e of Object.keys(plugin_list)) {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
-                const log_for_plugin = `测试环境检查：${e}  插件未安装、或安装不完整，请在HBuilderX内点击菜单【工具 - 插件安装】，安装相关插件。`;
+                const log_for_plugin = `测试环境检查：${e}  插件未安装、或安装不完整，请在HBuilderX内点击菜单【工具 - 插件安装】，安装uni-app编译及运行相关插件。`;
                 createOutputChannel(log_for_plugin, 'error');
             };
         };
