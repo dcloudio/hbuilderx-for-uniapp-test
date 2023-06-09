@@ -51,11 +51,24 @@ let UTS_APP_ROOT = hx.env.appRoot;
 // uts插件编译所需, 可随意指定目录
 let UTS_USER_DATA_PATH = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test_cache');
 
+const HX_PLUGINS_DISPLAYNAME_LIST = {
+    "uniapp-cli-vite": "uni-app (vue3)编译器",
+    "uniapp-cli": "uni-app (vue2)编译器",
+    "launcher": "App真机运行",
+    "uniappx-launcher": "App真机运行(uni-app x)",
+    "uts-development-android": "uts开发扩展-Android",
+    "uts-development-ios": "uts开发扩展-iOS",
+    "uniapp-uts-v1": "uniapp-uts-v1",
+    "uniapp-runextension": "uniapp-runextension"
+}
+
 module.exports = {
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
     HBuilderX_NPM_PATH,
-
+    
+    HX_PLUGINS_DISPLAYNAME_LIST,
+    
     LAUNCHER_PATH,
     LAUNCHER_ANDROID,
     LAUNCHER_IOS,

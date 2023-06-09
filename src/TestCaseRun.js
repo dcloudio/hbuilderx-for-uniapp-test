@@ -14,6 +14,9 @@ const cmpVerionForH5 = cmp_hx_version(hxVersionForDiff, '3.2.10');
 let {
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
+
+    HX_PLUGINS_DISPLAYNAME_LIST,
+
     LAUNCHER_ANDROID,
     LAUNCHER_IOS,
     LAUNCHER_VERSION_TXT,
@@ -151,13 +154,14 @@ class Common {
         for (let e of Object.keys(plugin_list)) {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
-                const log_for_plugin = `测试环境检查：${e}  插件未安装，请在HBuilderX内点击菜单【工具 - 插件安装】，安装uni-app编译及运行相关插件。`;
+                const pluginDisplayName = HX_PLUGINS_DISPLAYNAME_LIST[e] ? HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
+                const log_for_plugin = `测试环境检查：未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'error');
             };
         };
 
         if (testEnv == false && is_uniapp_x) {
-            const log_for_plugin = `[提示]：缺失测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件`;
+            const log_for_plugin = `[提示]：缺失uniapp-x测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件`;
             createOutputChannel(log_for_plugin, 'warning');
         };
         if (testEnv == false && is_uts_project) {
@@ -182,12 +186,12 @@ class Common {
      */
     async checkAndSetUTSTestEnv() {
         let path_gradleHome = await getPluginConfig('uts-development-android.gradleHome');
-        if (path_gradleHome == undefined && path_gradleHome.trim() == "") {
+        if (path_gradleHome != undefined && path_gradleHome.trim() != "" && fs.existsSync(path_gradleHome)) {
             UTS_GRADLE_HOME = path_gradleHome;
         };
 
         let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
-        if (path_Android_sdkDir == undefined && path_Android_sdkDir.trim() == "") {
+        if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
             UTS_JDK_PATH = path_Android_sdkDir;
         };
     };
@@ -404,7 +408,7 @@ class RunTest extends Common {
             };
 
             // 将修改的配置写入文件
-            let tmp_data = JSON.stringify(envjs);
+            let tmp_data = JSON.stringify(envjs, null, 4);
             let lastContent = `module.exports = ${tmp_data}`;
             let writeResult = await writeFile(this.UNI_AUTOMATOR_CONFIG, lastContent);
 
@@ -462,7 +466,7 @@ class RunTest extends Common {
                 return true;
             };
 
-            // 读取文件内容
+            // 读取jest.config.js文件内容
             let jestFileContent = fs.readFileSync(jest_config_js_path, 'utf-8');
             // 替换testMatch
             let replaceText = `testMatch: ["${projectTestMatch}"]`;
@@ -527,7 +531,9 @@ class RunTest extends Common {
                 "UNI_PLATFORM": UNI_PLATFORM,
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
-                "uniTestPlatformInfo": uniTestPlatformInfo
+                "uniTestPlatformInfo": uniTestPlatformInfo,
+                // "LANG": "en_US.UTF-8",
+                // "LC_ALL": "en_US.UTF-8"
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024

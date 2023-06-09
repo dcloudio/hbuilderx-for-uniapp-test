@@ -160,6 +160,14 @@ async function getPluginConfig(options) {
  */
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
+
+    // try{
+    //     let isExist = await hx.test.hasView("hbuilderx.uniapp.test.log");
+    //     if (msg.includes("测试运行结束。原因：手动结束、或其它意外结束。") && isExist == false) {
+    //         return;
+    //     };
+    // }catch(e){};
+
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
     let output = hx.window.createOutputView({
         id: oID,
@@ -336,6 +344,7 @@ function runCmd(cmd = '', opts = {}, testInfo = {}) {
             });
         };
 
+        let is_port_9520_error = false;
         let runDir = opts.cwd;
         if (child.stderr) {
             child.stderr.on('data', data => {
@@ -344,7 +353,10 @@ function runCmd(cmd = '', opts = {}, testInfo = {}) {
                 if (msg.includes('Test results written to:') && osName == 'darwin') {
                     createOutputViewForHyperLinks(msg, 'info', "log", runDir);
                 } else {
-                    printTestRunLog(MessagePrefix, msg)
+                    printTestRunLog(MessagePrefix, msg);
+                    if (msg.includes('Port 9520 is in use, please specify another port') && osName == 'darwin') {
+                        is_port_9520_error = true;
+                    };
                 };
             })
         };
@@ -356,8 +368,12 @@ function runCmd(cmd = '', opts = {}, testInfo = {}) {
         });
 
         child.on('close', code => {
+            if (is_port_9520_error) {
+                createOutputChannel(`${MessagePrefix} 如果您遇到错误 Port 9520 is in use, please specify another port , 解决方法: 打开终端，输入命令 lsof -i:9520 | awk '{print $2}' | tail -n +2 | xargs kill -9`, "error", "log");
+            };
+
             child_pid = undefined;
-            let endMsg = code == null ? `${MessagePrefix}测试运行结束。原因：手动结束、或其它意外结束。\n\n` : `${MessagePrefix}测试运行结束。\n\n`;
+            let endMsg = code == null ? `${MessagePrefix} 测试运行结束。原因：手动结束、或其它意外结束。\n\n` : `${MessagePrefix} 测试运行结束。\n\n`;
             createOutputChannel(endMsg, "success", "log");
             // createOutputChannel(endMsg, "success");
             resolve('run_end');

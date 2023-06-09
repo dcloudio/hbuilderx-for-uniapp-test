@@ -157,7 +157,7 @@
                 },
                 "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "使用HBuilderX内置的Node运行自动化测试（修改后重启生效）。"
                 },
                 "hbuilderx-for-uniapp-test.isDebug": {
