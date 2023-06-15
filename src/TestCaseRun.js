@@ -396,6 +396,9 @@ class RunTest extends Common {
         if (id != deviceId || executablePath != launcherExecutablePath) {
 
             if (is_uniapp_x) {
+                if (envjs['app-plus']['uni-app-x'][devicePlatform] == undefined) {
+                    envjs['app-plus']['uni-app-x'][devicePlatform] = {};
+                };
                 envjs['app-plus']['uni-app-x'][devicePlatform]["id"] = deviceId;
                 if (isCustomRuntime == false || isCustomRuntime == undefined) {
                     envjs['app-plus']['uni-app-x'][devicePlatform]["executablePath"] = launcherExecutablePath;

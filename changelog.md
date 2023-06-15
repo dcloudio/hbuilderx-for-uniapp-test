@@ -1,5 +1,8 @@
 # 更新日志
 
+## 1.4.1
+* 修复 某些情况下，env.js文件编辑出错的Bug
+
 ## 1.4.0
 * 优化 env.js文件 以格式化方式写入内容
 * 新增 env.js文件 增加is-custom-runtime字段，默认为false。当等于true时，不在自动修改executablePath字段
