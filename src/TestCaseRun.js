@@ -11,37 +11,7 @@ const hxVersion = hx.env.appVersion;
 const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{8}/, '');
 const cmpVerionForH5 = cmp_hx_version(hxVersionForDiff, '3.2.10');
 
-let {
-    HBuilderX_PATH,
-    HBuilderX_BuiltIn_Node_Dir,
-
-    HX_PLUGINS_DISPLAYNAME_LIST,
-
-    LAUNCHER_ANDROID,
-    LAUNCHER_IOS,
-    LAUNCHER_VERSION_TXT,
-
-    UNIAPP_X_LAUNCHER_PATH,
-    UNIAPP_X_LAUNCHER_ANDROID,
-    UNIAPP_X_LAUNCHER_IOS,
-    UNIAPP_X_LAUNCHER_VERSION_TXT,
-
-    UNI_CLI_PATH,
-    UNI_CLI_VITE_PATH,
-    UNI_CLI_ENV,
-    UNI_CLI_teardown,
-    testReportOutPutDir,
-    NODE_LIB_PATH,
-    CROSS_ENV_PATH,
-    JEST_PATH,
-    UNIAPP_RUNEXTENSION_PATH,
-    UNIAPP_UTS_V1_PATH,
-    UTS_DEVELOPMENT_ANDROID_PATH,
-    UTS_JDK_PATH,
-    UTS_GRADLE_HOME,
-    UTS_APP_ROOT,
-    UTS_USER_DATA_PATH
-} = require('./config.js');
+let config = require('./config.js');
 
 const {
     isUniAppCli,
@@ -119,11 +89,11 @@ class Common {
         };
 
         // 检查测试报告目录是否存在，如不存在则创建
-        await mkdirsSync(testReportOutPutDir);
+        await mkdirsSync(config.testReportOutPutDir);
 
         // 检查uts cache目录，如不存在则自动创建
         if (is_uts_project) {
-            await mkdirsSync(UTS_USER_DATA_PATH);
+            await mkdirsSync(config.UTS_USER_DATA_PATH);
         };
 
         // 检查是否安装uniapp-cli、launcher
@@ -131,30 +101,30 @@ class Common {
 
         // check：运行自动化测试需要安装的插件
         if (is_uniapp_3) {
-            plugin_list["uniapp-cli-vite"] = UNI_CLI_VITE_PATH;
+            plugin_list["uniapp-cli-vite"] = config.UNI_CLI_VITE_PATH;
         } else {
-            plugin_list["uniapp-cli"] = UNI_CLI_PATH;
+            plugin_list["uniapp-cli"] = config.UNI_CLI_PATH;
         };
 
         if (["android", "ios", "all"].includes(platform)) {
-            plugin_list["launcher"] = LAUNCHER_ANDROID;
+            plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
 
         if (is_uts_project) {
-            plugin_list["uniapp-runextension"] = UNIAPP_RUNEXTENSION_PATH;
-            plugin_list["uniapp-uts-v1"] = UNIAPP_UTS_V1_PATH;
-            plugin_list["uts-development-android"] = UTS_DEVELOPMENT_ANDROID_PATH;
+            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
+            plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
 
         if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = UNIAPP_X_LAUNCHER_PATH;
+            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
         };
 
         // 判断是否安装测试环境必须的插件
         for (let e of Object.keys(plugin_list)) {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
-                const pluginDisplayName = HX_PLUGINS_DISPLAYNAME_LIST[e] ? HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
+                const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
                 const log_for_plugin = `测试环境检查：未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'error');
             };
@@ -187,12 +157,12 @@ class Common {
     async checkAndSetUTSTestEnv() {
         let path_gradleHome = await getPluginConfig('uts-development-android.gradleHome');
         if (path_gradleHome != undefined && path_gradleHome.trim() != "" && fs.existsSync(path_gradleHome)) {
-            UTS_GRADLE_HOME = path_gradleHome;
+            config.UTS_GRADLE_HOME = path_gradleHome;
         };
 
         let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
         if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
-            UTS_JDK_PATH = path_Android_sdkDir;
+            config.UTS_JDK_PATH = path_Android_sdkDir;
         };
     };
 
@@ -253,7 +223,7 @@ class Common {
     // 获取测试报告目录
     async getReportOutputDir(projectName, testPlatform) {
         // 创建默认的测试报告目录
-        let projectReportDir = path.join(testReportOutPutDir, projectName, testPlatform);
+        let projectReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
         mkdirsSync(projectReportDir);
 
         let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
@@ -334,9 +304,9 @@ class RunTest extends Common {
     async setTestCustomEnvironmentVariables() {
         let isCustom = await checkCustomTestEnvironmentDependency();
         if (isCustom) {
-            NODE_LIB_PATH = isCustom;
-            CROSS_ENV_PATH = path.join(isCustom, "cross-env/src/bin/cross-env.js");
-            JEST_PATH = path.join(isCustom, "jest/bin/jest.js");
+            config.NODE_LIB_PATH = isCustom;
+            config.CROSS_ENV_PATH = path.join(isCustom, "cross-env/src/bin/cross-env.js");
+            config.JEST_PATH = path.join(isCustom, "jest/bin/jest.js");
         };
     };
 
@@ -352,12 +322,12 @@ class RunTest extends Common {
 
         let launcherExecutablePath;
         if (devicePlatform == 'android') {
-            launcherExecutablePath = is_uniapp_x ? UNIAPP_X_LAUNCHER_ANDROID : LAUNCHER_ANDROID;
+            launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_ANDROID : config.LAUNCHER_ANDROID;
         };
 
         // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
         if (devicePlatform == 'ios') {
-            launcherExecutablePath = is_uniapp_x ? UNIAPP_X_LAUNCHER_IOS : LAUNCHER_IOS;;
+            launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_IOS : config.LAUNCHER_IOS;;
         };
 
         try {
@@ -374,14 +344,14 @@ class RunTest extends Common {
 
         if (is_uniapp_x) {
             let oldLauncherVersion = envjs["app-plus"]?.["uni-app-x"]?.version;
-            if (oldLauncherVersion == undefined || oldLauncherVersion.trim() == '' || oldLauncherVersion != UNIAPP_X_LAUNCHER_VERSION_TXT) {
+            if (oldLauncherVersion == undefined || oldLauncherVersion.trim() == '' || oldLauncherVersion != config.UNIAPP_X_LAUNCHER_VERSION_TXT) {
                 envjs['app-plus']['uni-app-x'] = {};
-                envjs['app-plus']['uni-app-x']['version'] = UNIAPP_X_LAUNCHER_VERSION_TXT;
+                envjs['app-plus']['uni-app-x']['version'] = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
             };
         } else {
             let oldLauncherVersion = envjs['app-plus']['version'];
-            if (oldLauncherVersion.trim() == '' || oldLauncherVersion == undefined || oldLauncherVersion != LAUNCHER_VERSION_TXT) {
-                envjs['app-plus']['version'] = LAUNCHER_VERSION_TXT;
+            if (oldLauncherVersion.trim() == '' || oldLauncherVersion == undefined || oldLauncherVersion != config.LAUNCHER_VERSION_TXT) {
+                envjs['app-plus']['version'] = config.LAUNCHER_VERSION_TXT;
             };
         };
         let oldPhoneData = is_uniapp_x
@@ -528,13 +498,14 @@ class RunTest extends Common {
             env: {
                 "HOME": process.env.HOME,
                 "PATH": process.env.PATH,
-                "NODE_PATH": NODE_LIB_PATH,
-                "UNI_CLI_PATH": UNI_CLI_PATH,
+                "NODE_PATH": config.NODE_LIB_PATH,
+                "UNI_CLI_PATH": config.UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
+                // "DEBUG": "automator:*",
                 // "LANG": "en_US.UTF-8",
                 // "LC_ALL": "en_US.UTF-8"
                 // "UNI_APP_X": false
@@ -542,27 +513,32 @@ class RunTest extends Common {
             maxBuffer: 2000 * 1024
         };
 
+        if (isDebug) {
+            cmdOpts.env.DEBUG = "automator:*";
+        };
+
         // 是否是vue3，决定UNI_CLI_PATH值
         if (is_uniapp_3) {
-            cmdOpts.env.UNI_CLI_PATH = UNI_CLI_VITE_PATH;
-            UNI_CLI_ENV = path.join(UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/environment.js');
-            UNI_CLI_teardown = path.join(UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/teardown.js');
+            cmdOpts.env.UNI_CLI_PATH = config.UNI_CLI_VITE_PATH;
+            config.UNI_CLI_ENV = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/environment.js');
+            config.UNI_CLI_teardown = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/teardown.js');
         };
+        
         // if (is_uniapp_x) {
         //     cmdOpts.env.UNI_APP_X = true;
         // };
 
         // 判断是否是uts项目，如果是，则传递uts需要的变量
         if (is_uts_project) {
-            cmdOpts.env.JDK_PATH = UTS_JDK_PATH;
-            cmdOpts.env.GRADLE_HOME = UTS_GRADLE_HOME;
-            cmdOpts.env.APP_ROOT = UTS_APP_ROOT;
-            cmdOpts.env.HX_APP_ROOT = UTS_APP_ROOT;
-            cmdOpts.env.USER_DATA_PATH = UTS_USER_DATA_PATH;
+            cmdOpts.env.JDK_PATH = config.UTS_JDK_PATH;
+            cmdOpts.env.GRADLE_HOME = config.UTS_GRADLE_HOME;
+            cmdOpts.env.APP_ROOT = config.UTS_APP_ROOT;
+            cmdOpts.env.HX_APP_ROOT = config.UTS_APP_ROOT;
+            cmdOpts.env.USER_DATA_PATH = config.UTS_USER_DATA_PATH;
 
             // 2023-01-31 如下两个参数，暂时无用。以后可能用得到。先不清除。
-            cmdOpts.env.UNIAPP_RUNEXTENSION_PATH = UNIAPP_RUNEXTENSION_PATH;
-            cmdOpts.env.UNIAPP_UTS_V1_PATH = UNIAPP_UTS_V1_PATH;
+            cmdOpts.env.UNIAPP_RUNEXTENSION_PATH = config.UNIAPP_RUNEXTENSION_PATH;
+            cmdOpts.env.UNIAPP_UTS_V1_PATH = config.UNIAPP_UTS_V1_PATH;
         };
 
         // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
@@ -582,7 +558,7 @@ class RunTest extends Common {
         // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH
         if (isUseBuiltNodeCompileUniapp) {
             let node_program_name = osName == 'win32' ? 'node.exe' : 'node';
-            cmdOpts["env"]["UNI_NODE_PATH"] = path.join(HBuilderX_BuiltIn_Node_Dir, node_program_name) ;
+            cmdOpts["env"]["UNI_NODE_PATH"] = path.join(config.HBuilderX_BuiltIn_Node_Dir, node_program_name) ;
         } else {
             const log_for_node = `当前自动化测试使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
             createOutputChannel(log_for_node, 'info');
@@ -590,12 +566,12 @@ class RunTest extends Common {
 
         // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
         if (nodeStatus == 'N' || nodeStatus == undefined) {
-            let PATH = osName == 'darwin' ? process.env.PATH + ":" + HBuilderX_BuiltIn_Node_Dir : process.env.path + ";" + HBuilderX_BuiltIn_Node_Dir;
+            let PATH = osName == 'darwin' ? process.env.PATH + ":" + config.HBuilderX_BuiltIn_Node_Dir : process.env.path + ";" + config.HBuilderX_BuiltIn_Node_Dir;
             cmdOpts["env"]["PATH"] = PATH;
         };
 
         // 适用于uni-app普通项目
-        let cmd = `node ${JEST_PATH} -i --forceExit --json --outputFile="${outputFile}" --env="${UNI_CLI_ENV}" --globalTeardown="${UNI_CLI_teardown}"`;
+        let cmd = `node ${config.JEST_PATH} -i --forceExit --json --outputFile="${outputFile}" --env="${config.UNI_CLI_ENV}" --globalTeardown="${config.UNI_CLI_teardown}"`;
         console.log(`自动化测试运行的命令：-------------- \n`, JSON.stringify(cmdOpts, null, 4));
 
         // 适用于uniapp-cli项目
@@ -700,7 +676,7 @@ class RunTest extends Common {
         };
 
         // 判断：HBuilderX路径空格
-        if (HBuilderX_PATH.indexOf(" ") != -1) {
+        if (config.HBuilderX_PATH.indexOf(" ") != -1) {
             createOutputChannel(`提示：HBuilderX程序所在路径存在空格，可能导致uni-app自动化测试无法运行，请修正。`, 'warning');
             return;
         };
