@@ -35,7 +35,6 @@ function showUpgradeBox(localVersion, marketPluginVersion) {
     let lastChar = marketPluginVersion.charAt(marketPluginVersion.length - 1);
     let versiondescription = `【hbuilderx-for-uniapp-test】发布 ${marketPluginVersion} 版本！`;
     let msg = versiondescription
-        + `当前 ${localVersion} 版本。`
         + `<a href="https://ext.dcloud.net.cn/plugin?name=hbuilderx-for-uniapp-test">更新日志</a>`
         + '<br/><br/>注意：更新后，重启HBuilderX才能生效。';
     let btn = ['直接升级', '以后再说'];
