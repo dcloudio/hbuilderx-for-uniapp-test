@@ -63,6 +63,9 @@ var is_uts_project = false;
 // 是否正在调试，当勾选后，将会在控制台输出更多日志
 var isDebug = false;
 
+// unicloud服务信息
+let unicloud_spaces_info = [];
+
 class Common {
     /**
      * @description 检查电脑环境
@@ -146,7 +149,6 @@ class Common {
             createOutputChannel(log_for_wrp, 'error');
             return false;
         };
-
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
         return testEnv;
     };
@@ -163,6 +165,31 @@ class Common {
         let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
         if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
             config.UTS_JDK_PATH = path_Android_sdkDir;
+        };
+    };
+
+    async getProjectUniCloudInfo(projectPath, param) {
+        unicloud_spaces_info = [];
+        if ( !fs.existsSync(path.join(projectPath, "uniCloud-tcb")) && !fs.existsSync(path.join(projectPath, "uniCloud-aliyun")) ) {
+            return;
+        };
+
+        let workspaceFolder = param.workspaceFolder;
+        if (!workspaceFolder) {
+            workspaceFolder = param.document.workspaceFolder
+        };
+        if (!workspaceFolder) { return };
+
+        let uniCloud_info = await hx.unicloud.getExistsUnicloudAndBindSpace({"workspaceFolder": workspaceFolder});
+        let allSpaces = uniCloud_info.allSpaces;
+        if (allSpaces && allSpaces.length > 0) {
+            for (let s of allSpaces) {
+                let provider_info = { "provider": s.provider, "spaceId": s.id }
+                if (s.provider == "aliyun") {
+                    provider_info.clientSecret = s.clientSecret;
+                };
+                unicloud_spaces_info.push(provider_info);
+            };
         };
     };
 
@@ -185,6 +212,8 @@ class Common {
             selectedFile = param.document.uri.fsPath;
             projectType = param.document.workspaceFolder.nature;
         };
+
+        await this.getProjectUniCloudInfo(projectPath, param);
 
         // 判断项目类型：uni-app普通项目、uniapp-cli项目
         is_uniapp_cli = await isUniAppCli(projectPath);
@@ -505,12 +534,15 @@ class RunTest extends Common {
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
-                // "DEBUG": "automator:*",
                 // "LANG": "en_US.UTF-8",
                 // "LC_ALL": "en_US.UTF-8"
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        if (unicloud_spaces_info.length > 0) {
+            cmdOpts.env.UNI_CLOUD_PROVIDER = JSON.stringify(unicloud_spaces_info);
         };
 
         if (isDebug) {
@@ -523,10 +555,6 @@ class RunTest extends Common {
             config.UNI_CLI_ENV = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/environment.js');
             config.UNI_CLI_teardown = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/teardown.js');
         };
-        
-        // if (is_uniapp_x) {
-        //     cmdOpts.env.UNI_APP_X = true;
-        // };
 
         // 判断是否是uts项目，如果是，则传递uts需要的变量
         if (is_uts_project) {
