@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.6.0
+* 新增 配置项 hbuilderx-for-uniapp-test.jestNodeType，可以设置使用何种Node运行jest程序（HBuilderX内置Node、操作系统环境变量）
+* 修复 windows 某些情况下，控制台结束测试进程，无法结束的Bug
+
 ## 1.5.0
 * 新增 自动化测试 补充部分Node环境变量
 
