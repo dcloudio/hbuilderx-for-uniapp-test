@@ -57,6 +57,9 @@ var isStopAllTest = false;
 // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
 var isUseBuiltNodeCompileUniapp;
 
+// 配置项：获取用户是否设置使用HBuilderX内置的Node运行jest测试程序
+var isUseBuiltNodeRunJest;
+
 // 临时变量，判断是否是uts项目
 var is_uts_project = false;
 
@@ -332,6 +335,12 @@ class RunTest extends Common {
      * @description 设置自定义测试环境变量, 如下: NODE_LIB_PATH、CROSS_ENV_PATH、JEST_PATH
      */
     async setTestCustomEnvironmentVariables() {
+        // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
+        isUseBuiltNodeCompileUniapp = await getPluginConfig('hbuilderx-for-uniapp-test.uniappCompileNodeType');
+
+        // 配置项：获取用户是否设置使用内置Node版本进行jest测试
+        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+
         let isCustom = await checkCustomTestEnvironmentDependency();
         if (isCustom) {
             config.NODE_LIB_PATH = isCustom;
@@ -429,7 +438,7 @@ class RunTest extends Common {
      * @param {Object} proj - 项目信息
      */
     async changeTestMatch(scope, proj) {
-        // 读取用户设置
+        // 读取项目下测试配置设置
         let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
 
         let { projectPath, selectedFile } = proj;
@@ -586,8 +595,7 @@ class RunTest extends Common {
 
         // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH
         if (isUseBuiltNodeCompileUniapp) {
-            let node_program_name = osName == 'win32' ? 'node.exe' : 'node';
-            cmdOpts["env"]["UNI_NODE_PATH"] = path.join(config.HBuilderX_BuiltIn_Node_Dir, node_program_name) ;
+            cmdOpts["env"]["UNI_NODE_PATH"] = config.HBuilderX_BuiltIn_Node_Path;
         } else {
             const log_for_node = `当前使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
             createOutputChannel(log_for_node, 'info');
@@ -626,8 +634,14 @@ class RunTest extends Common {
             createOutputChannel(log_for_wx, 'warning');
         };
 
+        // 当用户设置使用内置Node运行jest时
+        let jest_for_node = "node";
+        if (isUseBuiltNodeRunJest) {
+            jest_for_node = config.HBuilderX_BuiltIn_Node_Path;
+        };
+
         let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
-        let testResult = await runCmd(cmd, cmdOpts, testInfo, isDebug);
+        let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, isDebug);
 
         if (testResult == 'run_end') {
             // 不要改此处的文本
@@ -735,9 +749,6 @@ class RunTest extends Common {
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) return;
         };
-
-        // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
-        isUseBuiltNodeCompileUniapp = await getPluginConfig('hbuilderx-for-uniapp-test.uniappCompileNodeType');
 
         let testPhoneList = [];
         if (['all', 'ios', 'android'].includes(UNI_PLATFORM)) {

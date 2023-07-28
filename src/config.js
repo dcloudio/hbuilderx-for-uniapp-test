@@ -3,10 +3,14 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
+const osName = os.platform();
+
 const HBuilderX_PATH = path.join(hx.env.appRoot, "plugins");
 
 // HBuilderX自带的node目录
 const HBuilderX_BuiltIn_Node_Dir = path.join(hx.env.appRoot, "plugins", "node");
+let node_program_name = osName == 'win32' ? 'node.exe' : 'node';
+const HBuilderX_BuiltIn_Node_Path = path.join(HBuilderX_BuiltIn_Node_Dir, node_program_name);
 
 // HBuilderX自带的npm路径
 const HBuilderX_NPM_PATH = path.join(hx.env.appRoot, "plugins", "npm", "npm");
@@ -65,10 +69,11 @@ const HX_PLUGINS_DISPLAYNAME_LIST = {
 module.exports = {
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
+    HBuilderX_BuiltIn_Node_Path,
     HBuilderX_NPM_PATH,
-    
+
     HX_PLUGINS_DISPLAYNAME_LIST,
-    
+
     LAUNCHER_PATH,
     LAUNCHER_ANDROID,
     LAUNCHER_IOS,

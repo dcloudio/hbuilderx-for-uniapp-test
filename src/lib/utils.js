@@ -287,6 +287,7 @@ function printTestRunLog(MessagePrefix, msg) {
     };
 };
 
+
 /**
  * @description 命令行运行
  * @param {String} cmd - 命令行运行的命令
@@ -294,7 +295,7 @@ function printTestRunLog(MessagePrefix, msg) {
  * @param {Object} testInfo - {projectName: projectName, testPlatform: testPlatform}
  * @param {Boolean} isDebug - debug状态，可以控制日志打印
  */
-function runCmd(cmd = [], opts = {}, testInfo = {}, isDebug) {
+function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDebug) {
     let { projectName, testPlatform, deviceId } = testInfo;
 
     // 解决控制台[]内内容长度太长的问题
@@ -320,7 +321,7 @@ function runCmd(cmd = [], opts = {}, testInfo = {}, isDebug) {
     // const shell = process.platform === 'win32' ? {cmd: 'cmd',arg: '/C'} : {cmd: 'sh',arg: '-c'};
     try {
         // child = spawn(shell.cmd, [shell.arg, cmd], opts);
-        child = spawn('node', cmd, opts);
+        child = spawn(jest_for_node, cmd, opts);
         child_pid = child.pid;
     } catch (error) {
         return Promise.reject(error)

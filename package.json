@@ -155,6 +155,11 @@
                     "default": true,
                     "description": "自动修改jest.config.js文件中的testMatch。"
                 },
+                "hbuilderx-for-uniapp-test.jestNodeType": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
+                },
                 "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
                     "type": "boolean",
                     "default": true,
