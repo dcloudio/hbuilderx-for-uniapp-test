@@ -163,7 +163,7 @@
                 "hbuilderx-for-uniapp-test.isDebug": {
                     "type": "boolean",
                     "default": false,
-                    "description": "是否正在调试，当勾选后，将会在控制台输出更多日志（修改后重启生效）。"
+                    "description": "是否正在调试，当勾选后，将会在控制台输出更多日志。"
                 }
             }
         },

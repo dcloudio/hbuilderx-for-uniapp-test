@@ -6,6 +6,7 @@ const { spawn, exec } = require('child_process');
 const os = require('os');
 const osName = os.platform();
 
+var child;
 var child_pid;
 
 /**
@@ -161,13 +162,6 @@ async function getPluginConfig(options) {
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
 
-    // try{
-    //     let isExist = await hx.test.hasView("hbuilderx.uniapp.test.log");
-    //     if (msg.includes("测试运行结束。原因：手动结束、或其它意外结束。") && isExist == false) {
-    //         return;
-    //     };
-    // }catch(e){};
-
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
     let output = hx.window.createOutputView({
         id: oID,
@@ -298,8 +292,9 @@ function printTestRunLog(MessagePrefix, msg) {
  * @param {String} cmd - 命令行运行的命令
  * @param {Obejct} opts
  * @param {Object} testInfo - {projectName: projectName, testPlatform: testPlatform}
+ * @param {Boolean} isDebug - debug状态，可以控制日志打印
  */
-function runCmd(cmd = '', opts = {}, testInfo = {}) {
+function runCmd(cmd = [], opts = {}, testInfo = {}, isDebug) {
     let { projectName, testPlatform, deviceId } = testInfo;
 
     // 解决控制台[]内内容长度太长的问题
@@ -311,21 +306,21 @@ function runCmd(cmd = '', opts = {}, testInfo = {}) {
     createOutputViewForHyperLinksForKill(MessagePrefix);
     createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行 ${testPlatform} 测试`, 'success', 'log');
 
-    // 调试状态，当为true时，会打印出某些日志
-    // let isDebug = false;
-    // if (isDebug) {
-    //     createOutputChannel(`${MessagePrefix} 运行的命令为：${cmd} \n`, 'info', 'log');
-    // };
+    const test_cmd = cmd.join(' ');
+    console.error(cmd);
+    if (isDebug) {
+        createOutputChannel(`${MessagePrefix} 测试命令为：${test_cmd}\n`, 'info', 'log');
+    };
 
     opts = Object.assign({
         stdio: 'pipe',
         cwd: process.cwd()
     }, opts);
 
-    const shell = process.platform === 'win32' ? {cmd: 'cmd',arg: '/C'} : {cmd: 'sh',arg: '-c'};
-    let child;
+    // const shell = process.platform === 'win32' ? {cmd: 'cmd',arg: '/C'} : {cmd: 'sh',arg: '-c'};
     try {
-        child = spawn(shell.cmd, [shell.arg, cmd], opts);
+        // child = spawn(shell.cmd, [shell.arg, cmd], opts);
+        child = spawn('node', cmd, opts);
         child_pid = child.pid;
     } catch (error) {
         return Promise.reject(error)
@@ -374,8 +369,8 @@ function runCmd(cmd = '', opts = {}, testInfo = {}) {
 
             child_pid = undefined;
             let endMsg = code == null ? `${MessagePrefix} 测试运行结束。原因：手动结束、或其它意外结束。\n\n` : `${MessagePrefix} 测试运行结束。\n\n`;
-            createOutputChannel(endMsg, "success", "log");
-            // createOutputChannel(endMsg, "success");
+            let msgLevel = endMsg.includes("手动结束") ? 'error' : 'success';
+            createOutputChannel(endMsg, msgLevel, "log");
             resolve('run_end');
         });
     });
@@ -435,12 +430,18 @@ function checkNode() {
  */
 function stopRunTest() {
     if (child_pid == undefined) return;
-    let cmd = osName == 'darwin' ? `kill -9 ${child_pid}` : `taskkill /F /pid ${child_pid}`;
-    exec(cmd, function(error, stdout, stderr) {
-        if (error) {
-            createOutputChannel("无法结束测试，请查找jest相关进程，手动结束。")
-        };
-    });
+    try{
+        child.kill("SIGKILL");
+        // process.kill(child_pid,"SIGKILL")
+    }catch(e){
+        createOutputChannel(`结束测试进程失败，请手动结束。${e}`)
+    };
+    // let cmd = osName == 'darwin' ? `kill -9 ${child_pid}` : `taskkill /F /pid ${child_pid}`;
+    // exec(cmd, function(error, stdout, stderr) {
+    //     if (error) {
+    //         createOutputChannel("无法结束测试，请查找jest相关进程，手动结束。")
+    //     };
+    // });
 };
 
 /**

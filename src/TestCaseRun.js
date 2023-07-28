@@ -79,6 +79,7 @@ class Common {
         let testEnv = true;
         if (nodeStatus == undefined || nodeStatus == 'N') {
             nodeStatus = await checkNode().catch(error => {
+                createOutputChannel("没有检测到Node环境，请先安装Node，并将其加入到操作系统环境变量中。", "error");
                 return error;
             });
         };
@@ -588,7 +589,7 @@ class RunTest extends Common {
             let node_program_name = osName == 'win32' ? 'node.exe' : 'node';
             cmdOpts["env"]["UNI_NODE_PATH"] = path.join(config.HBuilderX_BuiltIn_Node_Dir, node_program_name) ;
         } else {
-            const log_for_node = `当前自动化测试使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
+            const log_for_node = `当前使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
             createOutputChannel(log_for_node, 'info');
         };
 
@@ -599,15 +600,21 @@ class RunTest extends Common {
         };
 
         // 适用于uni-app普通项目
-        let cmd = `node ${config.JEST_PATH} -i --forceExit --json --outputFile="${outputFile}" --env="${config.UNI_CLI_ENV}" --globalTeardown="${config.UNI_CLI_teardown}"`;
-        console.log(`自动化测试运行的命令：-------------- \n`, JSON.stringify(cmdOpts, null, 4));
+        let cmd = [
+            `${config.JEST_PATH}`, "-i", "--forceExit", "--json",
+            `--outputFile="${outputFile}"`,
+            `--env="${config.UNI_CLI_ENV}"`, `--globalTeardown="${config.UNI_CLI_teardown}"`
+        ];
 
         // 适用于uniapp-cli项目
         if (is_uniapp_cli) {
             delete cmdOpts.env.NODE_PATH;
             delete cmdOpts.env.UNI_CLI_PATH;
             let cliJest = path.join(this.projectPath, 'node_modules/jest/bin/jest.js');
-            cmd = `node ${cliJest} -i --forceExit --json --outputFile="${outputFile}"`;
+            cmd = [
+                `${cliJest}`, "-i", "--forceExit", "--json",
+                `--outputFile="${outputFile}"`
+            ];
         };
 
         if (['android', 'ios'].includes(UNI_OS_NAME)) {
@@ -620,12 +627,7 @@ class RunTest extends Common {
         };
 
         let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
-
-        if (isDebug) {
-            createOutputChannel(`[Log] 自动化测试的运行命令以及环境变量: \n\n ${cmd} \n\n` + JSON.stringify(cmdOpts, null, 4), 'info', 'log');
-        };
-
-        let testResult = await runCmd(cmd, cmdOpts, testInfo);
+        let testResult = await runCmd(cmd, cmdOpts, testInfo, isDebug);
 
         if (testResult == 'run_end') {
             // 不要改此处的文本
