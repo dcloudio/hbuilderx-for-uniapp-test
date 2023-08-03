@@ -172,7 +172,12 @@ class Common {
             config.UTS_JDK_PATH = path_Android_sdkDir;
         };
     };
-
+    
+    /**
+     * @description 获取unicloud服务信息
+     * @param {String} projectPath 
+     * @param {Object} param 
+     */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
         if ( !fs.existsSync(path.join(projectPath, "uniCloud-tcb")) && !fs.existsSync(path.join(projectPath, "uniCloud-aliyun")) ) {
@@ -310,9 +315,6 @@ class Common {
             let report = require(outputFile);
             let {
                 numTotalTestSuites,
-                numTotalTests,
-                numFailedTests,
-                numPassedTests,
                 numRuntimeErrorTestSuites,
                 numPassedTestSuites,
                 numFailedTestSuites
@@ -438,25 +440,8 @@ class RunTest extends Common {
      * @param {String} scope - 测试范围，全部测试|单一用例测试
      * @param {Object} proj - 项目信息
      */
-    async changeTestMatch(scope, proj) {
-        // 读取项目下测试配置设置
-        let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-
-        let { projectPath, selectedFile } = proj;
-        let projectTestMatch = is_uniapp_cli ? "<rootDir>/src/pages/**/*test.[jt]s?(x)" : "<rootDir>/pages/**/*test.[jt]s?(x)";
-        if (scope == 'one') {
-            let testcase_file_relative_path = selectedFile.slice(projectPath.length + 1);
-            projectTestMatch = `<rootDir>/${testcase_file_relative_path}`;
-
-            // 用于dcloud-uts和uni-api自动化测试
-            let test_js_path = path.basename(selectedFile) + ".test.js";
-            if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
-                projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
-            };
-        } else {
-            projectTestMatch = projectTestMatch;
-        };
-
+    async modifyJestConfigJSFile(scope, proj) {
+        // 读取jest.config.js
         let jest_config_js_path = path.join(this.projectPath, 'jest.config.js');
         delete require.cache[require.resolve(jest_config_js_path)];
         try{
@@ -466,25 +451,43 @@ class RunTest extends Common {
             return false;
         };
 
-        // 当用户不勾选设置项【自动修改jest.config.js文件中的testMatch】时，返回undefined
+        // 插件配置项：是否自动修改jest.config.js文件中的testMatch
+        let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
         if (userConfig == false) return;
 
-        try {
-            let oldTestMatch = jestConfigContent["testMatch"];
-            if (!Array.isArray(oldTestMatch)) {
-                createOutputChannel(`测试配置文件 ${jest_config_js_path}, testMatch字段，应为数组类型，请检查。`, 'error')
-                return false;
+        let { projectPath, selectedFile } = proj;
+        let projectTestMatch = is_uniapp_cli 
+            ? "<rootDir>/src/pages/**/*test.[jt]s?(x)" 
+            : "<rootDir>/pages/**/*test.[jt]s?(x)";
+
+        // one：代指仅测试单条用例
+        if (scope == 'one') {
+            let testcase_file_relative_path = selectedFile.slice(projectPath.length + 1);
+            projectTestMatch = `<rootDir>/${testcase_file_relative_path}`;
+
+            // 用于特定测试项目：dcloud-uts和uni-api
+            let test_js_path = path.basename(selectedFile) + ".test.js";
+            if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
+                projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
             };
+        };
+
+        let oldTestMatch = jestConfigContent["testMatch"];
+        if (!Array.isArray(oldTestMatch)) {
+            createOutputChannel(`测试配置文件 ${jest_config_js_path}, testMatch字段，应为数组类型，请检查。`, 'error')
+            return false;
+        };
+
+        try {
             if (oldTestMatch[0] == projectTestMatch) {
                 return true;
             };
-
-            // 读取jest.config.js文件内容
             let jestFileContent = fs.readFileSync(jest_config_js_path, 'utf-8');
-            // 替换testMatch
+
+            // 替换: testMatch，此项决定了测试范围
             let replaceText = `testMatch: ["${projectTestMatch}"]`;
             let lastContent = jestFileContent.replace(/testMatch\s*:{1}\s*\[\S*\]/gi, replaceText);
-            // 写入文件
+
             let writeResult = await writeFile(jest_config_js_path, lastContent);
             if (writeResult != 'success') {
                 createOutputChannel(`修改测试配置文件 ${jest_config_js_path} 失败，终止后续操作，请检查此文件。`, 'warning');
@@ -492,8 +495,7 @@ class RunTest extends Common {
             };
             return true;
         } catch (e) {
-            console.error(e);
-            createOutputChannel(`修改测试配置文件 ${jest_config_js_path} 异常，终止后续操作，请检查此文件。`, 'warning');
+            createOutputChannel(`修改测试配置文件 ${jest_config_js_path} 异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
             return false;
         };
     };
@@ -562,6 +564,7 @@ class RunTest extends Common {
             cmdOpts.env.UNI_CLOUD_PROVIDER = JSON.stringify(unicloud_spaces_info);
         };
 
+        // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
         if (isDebug) {
             cmdOpts.env.DEBUG = "automator:*";
         };
@@ -610,7 +613,8 @@ class RunTest extends Common {
 
         // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
         if (nodeStatus == 'N' || nodeStatus == undefined) {
-            let PATH = osName == 'darwin' ? process.env.PATH + ":" + config.HBuilderX_BuiltIn_Node_Dir : process.env.path + ";" + config.HBuilderX_BuiltIn_Node_Dir;
+            let symbols = osName == 'darwin' ? ":" : ";";
+            let PATH = process.env.PATH + symbols + config.HBuilderX_BuiltIn_Node_Dir
             cmdOpts["env"]["PATH"] = PATH;
         };
 
@@ -792,7 +796,7 @@ class RunTest extends Common {
             "projectPath": projectPath,
             "selectedFile": selectedFile
         };
-        let changeResult = await this.changeTestMatch(scope, proj);
+        let changeResult = await this.modifyJestConfigJSFile(scope, proj);
         if (changeResult == false) return;
 
         switch (UNI_PLATFORM) {

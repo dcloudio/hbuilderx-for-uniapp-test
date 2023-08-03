@@ -30,14 +30,15 @@ class Common {
     constructor() {};
 
     createFile(filename, template_path, target_path, isPrint=false) {
+        let msg = `uni-app自动化测试配置文件 ${filename} 创建`;
         return new Promise((resolve, reject) => {
             fs.copyFile(template_path, target_path, (err) => {
                 if (err) {
-                    createOutputChannel(`uni-app自动化测试配置文件 ${filename} 创建失败。`, 'error');
+                    createOutputChannel( msg + '失败。', 'error');
                     reject(err);
                 };
                 if (isPrint) {
-                    createOutputChannel(`uni-app自动化测试配置文件 ${filename} 创建成功。`, 'success');
+                    createOutputChannel( msg + '成功', 'success');
                 };
                 resolve('success');
             });
