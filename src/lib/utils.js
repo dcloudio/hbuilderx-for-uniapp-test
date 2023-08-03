@@ -308,9 +308,9 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
     createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行 ${testPlatform} 测试`, 'success', 'log');
 
     const test_cmd = cmd.join(' ');
-    console.error(cmd);
     if (isDebug) {
         createOutputChannel(`${MessagePrefix} 测试命令为：${test_cmd}\n`, 'info', 'log');
+        createOutputChannel(`${MessagePrefix} 测试环境变量：${JSON.stringify(opts, null, 4)}\n`, 'info', 'log');
     };
 
     opts = Object.assign({

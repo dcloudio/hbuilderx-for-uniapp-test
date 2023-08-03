@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
+const get_test_port = require("./lib/get_test_port.js");
 const cmp_hx_version = require('./lib/cmp_version.js');
 const hxVersion = hx.env.appVersion;
 
@@ -520,10 +521,10 @@ class RunTest extends Common {
         createOutputChannel(`${consoleMessagePrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
         createOutputChannel(`${consoleMessagePrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
 
-        // 环境变量
+        // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
 
-        // UNI_OS_NAME字段用于android、ios平台测试
+        // 环境变量：UNI_OS_NAME字段用于android、ios平台测试
         let UNI_OS_NAME;
         let UNI_PLATFORM = testPlatform;
         if (testPlatform == 'ios' || testPlatform == 'android') {
@@ -531,7 +532,12 @@ class RunTest extends Common {
             UNI_PLATFORM = 'app-plus'
         };
 
-        // 命令行运行的环境变量
+        // 环境变量：测试端口
+        let UNI_AUTOMATOR_PORT = await get_test_port().catch(() => {
+            return 9520
+        });
+
+        // 环境变量：命令行运行
         let cmdOpts = {
             cwd: this.projectPath,
             env: {
@@ -544,6 +550,7 @@ class RunTest extends Common {
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
+                "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT
                 // "LANG": "en_US.UTF-8",
                 // "LC_ALL": "en_US.UTF-8"
                 // "UNI_APP_X": false
