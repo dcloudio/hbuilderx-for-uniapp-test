@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.7.0
+* 新增 uniapp自动化测试 环境变量增加UNI_AUTOMATOR_PORT 当默认端口9520被占用时，自动+1
+* 调整 测试配置文件env.js 增加检查
+
 ## 1.6.0
 * 新增 配置项 hbuilderx-for-uniapp-test.jestNodeType，可以设置使用何种Node运行jest程序（HBuilderX内置Node、操作系统环境变量）
 * 修复 windows 某些情况下，控制台结束测试进程，无法结束的Bug
