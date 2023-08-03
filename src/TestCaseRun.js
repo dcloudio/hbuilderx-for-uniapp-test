@@ -172,11 +172,11 @@ class Common {
             config.UTS_JDK_PATH = path_Android_sdkDir;
         };
     };
-    
+
     /**
      * @description 获取unicloud服务信息
-     * @param {String} projectPath 
-     * @param {Object} param 
+     * @param {String} projectPath
+     * @param {Object} param
      */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
@@ -354,30 +354,37 @@ class RunTest extends Common {
 
     /**
      * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
-     * @param {String} deviceInfo - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
+     * @param {String} testPlatform
+     * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
      */
-    async editEnvjsFile(deviceInfo) {
-        let tmp = deviceInfo.split(':');
-        let deviceId = tmp[1];
-        let devicePlatform = tmp[0];
-        if (['h5','mp'].includes(devicePlatform)) return;
+    async editEnvjsFile(testPlatform, deviceId) {
+        let env_js_path = this.UNI_AUTOMATOR_CONFIG;
+        try {
+            delete require.cache[require.resolve(env_js_path)];
+            var envjs = require(env_js_path);
+        } catch (e) {
+            createOutputChannel(`测试配置文件 ${env_js_path}, 可能存在语法错误，请检查。`, 'error')
+            return false;
+        };
+
+        if (testPlatform.includes("h5")) return true;
+        if (testPlatform == "mp-weixin") {
+            let weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
+            if (!weixin_executablePath || weixin_executablePath == "" || !fs.existsSync(weixin_executablePath)) {
+                createOutputChannel(`测试配置文件 ${env_js_path}, 请检查mp-weixin节点下的executablePath`, 'error')
+                return false;
+            };
+            return true;
+        };
 
         let launcherExecutablePath;
-        if (devicePlatform == 'android') {
+        if (testPlatform == 'android') {
             launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_ANDROID : config.LAUNCHER_ANDROID;
         };
 
         // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
-        if (devicePlatform == 'ios') {
+        if (testPlatform == 'ios') {
             launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_IOS : config.LAUNCHER_IOS;;
-        };
-
-        try {
-            delete require.cache[require.resolve(this.UNI_AUTOMATOR_CONFIG)];
-            var envjs = require(this.UNI_AUTOMATOR_CONFIG);
-        } catch (e) {
-            createOutputChannel(`测试配置文件 ${this.UNI_AUTOMATOR_CONFIG}, 可能存在语法错误，请检查。`, 'error')
-            return false;
         };
 
         // 设置自动化测试基座类型：自定义基座、标准基座。自定义基座需要用户手动设置基座路径。不再修改executablePath路径。
@@ -397,35 +404,34 @@ class RunTest extends Common {
             };
         };
         let oldPhoneData = is_uniapp_x
-            ? envjs['app-plus']['uni-app-x']?.[devicePlatform]
-            : envjs['app-plus'][devicePlatform];
+            ? envjs['app-plus']['uni-app-x']?.[testPlatform]
+            : envjs['app-plus'][testPlatform];
 
         if (oldPhoneData == undefined || typeof oldPhoneData != 'object') {
             oldPhoneData = {};
         };
-        let { id,executablePath } = oldPhoneData;
 
+        let { id,executablePath } = oldPhoneData;
         if (id != deviceId || executablePath != launcherExecutablePath) {
 
             if (is_uniapp_x) {
-                if (envjs['app-plus']['uni-app-x'][devicePlatform] == undefined) {
-                    envjs['app-plus']['uni-app-x'][devicePlatform] = {};
+                if (envjs['app-plus']['uni-app-x'][testPlatform] == undefined) {
+                    envjs['app-plus']['uni-app-x'][testPlatform] = {};
                 };
-                envjs['app-plus']['uni-app-x'][devicePlatform]["id"] = deviceId;
+                envjs['app-plus']['uni-app-x'][testPlatform]["id"] = deviceId;
                 if (isCustomRuntime == false || isCustomRuntime == undefined) {
-                    envjs['app-plus']['uni-app-x'][devicePlatform]["executablePath"] = launcherExecutablePath;
+                    envjs['app-plus']['uni-app-x'][testPlatform]["executablePath"] = launcherExecutablePath;
                 };
             } else {
-                envjs['app-plus'][devicePlatform]['id'] = deviceId;
+                envjs['app-plus'][testPlatform]['id'] = deviceId;
                 if (isCustomRuntime == false || isCustomRuntime == undefined) {
-                    envjs['app-plus'][devicePlatform]['executablePath'] = launcherExecutablePath;
+                    envjs['app-plus'][testPlatform]['executablePath'] = launcherExecutablePath;
                 };
             };
-
             // 将修改的配置写入文件
             let tmp_data = JSON.stringify(envjs, null, 4);
             let lastContent = `module.exports = ${tmp_data}`;
-            let writeResult = await writeFile(this.UNI_AUTOMATOR_CONFIG, lastContent);
+            let writeResult = await writeFile(env_js_path, lastContent);
 
             if (writeResult != 'success') {
                 createOutputChannel(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');
@@ -456,8 +462,8 @@ class RunTest extends Common {
         if (userConfig == false) return;
 
         let { projectPath, selectedFile } = proj;
-        let projectTestMatch = is_uniapp_cli 
-            ? "<rootDir>/src/pages/**/*test.[jt]s?(x)" 
+        let projectTestMatch = is_uniapp_cli
+            ? "<rootDir>/src/pages/**/*test.[jt]s?(x)"
             : "<rootDir>/pages/**/*test.[jt]s?(x)";
 
         // one：代指仅测试单条用例
@@ -506,6 +512,14 @@ class RunTest extends Common {
      * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
      */
     async run_a_test(testPlatform, deviceId) {
+
+        let result = await this.editEnvjsFile(testPlatform, deviceId).catch(error => {
+            console.error("[error]....", error)
+            createOutputChannel(`${testPlatform}，修改项目下测试配置文件 env.js出错，请检查！`, 'error');
+            return false;
+        });
+        if (result == false) return;
+        
         // 测试报告输出文件
         let ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
         if (ouputDir == false) return;
@@ -679,12 +693,6 @@ class RunTest extends Common {
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
                 if (isStopAllTest) {break};
-                let result = await this.editEnvjsFile(s).catch(error => {
-                    createOutputChannel(`${s}，修改项目下测试配置文件 env.js出错；请检查env.js是否存在语法错误，或联系插件作者解决问题。`, 'error');
-                    return error;
-                });
-                if (result == false) {break;};
-
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
