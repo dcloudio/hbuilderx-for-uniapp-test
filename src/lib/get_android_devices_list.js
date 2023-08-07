@@ -2,10 +2,12 @@ const {
     exec
 } = require('child_process');
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const hx = require('hbuilderx');
 
 const appRoot = hx.env.appRoot;
+const osName = os.platform();
 var adbPath = "adb";
 
 /**
@@ -14,7 +16,9 @@ var adbPath = "adb";
 async function getAdbPath() {
     let plugin_dir = path.join(appRoot, "plugins");
     let adb_releative_path = path.join("tools", "adbs", "adb");
-
+    if (osName == "win32") {
+        adb_releative_path = path.join("tools", "adbs", "adb.exe");
+    };
     let path_1 = path.join(plugin_dir, "launcher-tools", adb_releative_path);
     let path_2 = path.join(plugin_dir, "launcher", adb_releative_path);
     if (fs.existsSync( path_1)) {
@@ -55,7 +59,7 @@ async function getAndroidDeviceOSInfo(serno) {
         if (stdout.length > 0){
             stdout = stdout[0].trim();
         };
-        if (/^\d+\.\d+\.\d+$/.test(stdout)) {
+        if (/^\d+(\.\d+){0,2}$/.test(stdout)) {
             return stdout;
         };
         return "error";
