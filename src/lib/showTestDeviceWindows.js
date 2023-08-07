@@ -1,6 +1,8 @@
 const hx = require('hbuilderx');
 const os = require('os');
 
+const getAndroidDeivcesListFormCmd = require('./get_android_devices_list.js');
+
 const osName = os.platform();
 
 // 测试设备
@@ -95,7 +97,7 @@ async function getPhoneDevicesList(testPlatform) {
 /**
  * @description UI：设备选择窗口，组织测试设备数据
  */
-async function getUIDataForDevices() {
+async function getUIDataForDevices(isManualRefresh = false) {
     global_devicesList = await getPhoneDevicesList('all');
     let {android, android_simulator, ios_simulator} = global_devicesList;
     if (android == undefined) {
@@ -106,6 +108,19 @@ async function getUIDataForDevices() {
     };
     if (ios_simulator == undefined) {
         ios_simulator = [];
+    };
+
+    // 某些情况下点击【刷新】无法获取到正确的设备，这个时候插件调用adb devices获取
+    if (isManualRefresh) {
+        let adbCmdAndroidList =  await getAndroidDeivcesListFormCmd();
+        let sernoList = android.map(item => { return item.uuid });
+        if (adbCmdAndroidList.length > 0) {
+            for (let s of adbCmdAndroidList) {
+                if (!sernoList.includes(s.uuid)) {
+                    android.push(s)
+                };
+            };
+        };
     };
 
     // 构造：android数据。目前先这样，后期可能会区分真机和模拟器
@@ -143,11 +158,12 @@ async function getUIDataForDevices() {
 
 /**
  * @description UI: 窗口控件
- * @@param {String} testPlatform 测试平台
+ * @param {String} testPlatform 测试平台
+ * @@param {isManualRefresh} isManualRefresh 是否点击了手动刷新
  */
-async function getUIData(testPlatform) {
+async function getUIData(testPlatform, isManualRefresh = false) {
     // 重新获取手机列表
-    let RawDevicesList = await getUIDataForDevices();
+    let RawDevicesList = await getUIDataForDevices(isManualRefresh);
     let {AndroidList, iOSList} = RawDevicesList;
 
     let height = testPlatform != "all" ? 410 : 660;
@@ -299,7 +315,7 @@ async function showTestDeviceWindows(testPlatform) {
         },
         onChanged: async function(field, value) {
             if (field == "refreshWidget") {
-                let updateData = await getUIData(testPlatform);
+                let updateData = await getUIData(testPlatform, true);
                 this.updateForm(updateData);
             };
         }
