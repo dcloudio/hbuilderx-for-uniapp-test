@@ -145,6 +145,11 @@
         "configuration": {
             "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
             "properties": {
+                "hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir": {
+                    "type": "string",
+                    "default": "",
+                    "description": "uni-app自动化测试依赖：自定义依赖目录。<span style='font-size: 13px;'><br/>1. 配置方法：HBuilderX安装目录/hbuilderx-for-uniapp-test/src/environment目录下<br/>2. 拷贝package.json到你要自定义的目录，执行npm install。<br/>3. <span style='color: #4E9ADE;'>注意：请谨慎操作。路径必须要以node_modules结尾。如非专业人员，建议使用默认，不要修改此项。</span></span>"
+                },
                 "hbuilderx-for-uniapp-test.testReportOutPutDir": {
                     "type": "string",
                     "default": "",
