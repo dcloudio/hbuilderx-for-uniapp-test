@@ -158,7 +158,7 @@
                 "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch": {
                     "type": "boolean",
                     "default": true,
-                    "description": "自动修改jest.config.js文件中的testMatch。"
+                    "description": "自动修改jest.config.js文件中的testMatch。<br/><span style='font-size: 13px;color: #4E9ADE;'>默认规范：测试用例在pages页面目录下。如测试用例在其它目录，请不要勾选此项。</span>"
                 },
                 "hbuilderx-for-uniapp-test.jestNodeType": {
                     "type": "boolean",
