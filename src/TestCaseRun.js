@@ -193,13 +193,7 @@ class Common {
         let uniCloud_info = await hx.unicloud.getExistsUnicloudAndBindSpace({"workspaceFolder": workspaceFolder});
         let allSpaces = uniCloud_info.allSpaces;
         if (allSpaces && allSpaces.length > 0) {
-            for (let s of allSpaces) {
-                let provider_info = { "provider": s.provider, "spaceId": s.id }
-                if (s.provider == "aliyun") {
-                    provider_info.clientSecret = s.clientSecret;
-                };
-                unicloud_spaces_info.push(provider_info);
-            };
+            unicloud_spaces_info = allSpaces
         };
     };
 
@@ -519,7 +513,7 @@ class RunTest extends Common {
             return false;
         });
         if (result == false) return;
-        
+
         // 测试报告输出文件
         let ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
         if (ouputDir == false) return;
@@ -575,7 +569,7 @@ class RunTest extends Common {
         };
 
         if (unicloud_spaces_info.length > 0) {
-            cmdOpts.env.UNI_CLOUD_PROVIDER = JSON.stringify(unicloud_spaces_info);
+            cmdOpts.env.UNI_CLOUD_SPACES = JSON.stringify(unicloud_spaces_info);
         };
 
         // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
