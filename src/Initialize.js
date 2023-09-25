@@ -91,12 +91,13 @@ class Initialize extends Common {
             cmd = `"${HBuilderX_NPM_PATH}" install --save --registry=https://registry.npmmirror.com`
         };
         let { action, source_file, target_file} = actions;
-        let Notes = "\n\n注意：\n1.相关依赖体积很大，安装需要一定时间。\n2. 点击【是】之后，会自动打开终端进行安装，在安装完成之前，请不要关闭终端。"
+        let Notes = `\n\n安装方式：命令行进入 ${runDir}目录，输入 ${cmd}`
+
         let prompt = action == 'upgrade'
             ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。${Notes}`
             : `自动化测试环境，需要安装jest、adbkit、puppeteer等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
         let title = action == 'upgrade' ? '安装uni-app自动化测试依赖' : '更新uni-app自动化测试依赖';
-        let btn = await hxShowMessageBox(title, prompt, ['是', '否']).then( btn => {
+        let btn = await hxShowMessageBox(title, prompt, ['好的', '关闭']).then( btn => {
             return btn;
         });
 
@@ -107,11 +108,11 @@ class Initialize extends Common {
             cmd = `cd ${runDir} && ` + cmd;
         };
 
-        if (btn == '是') {
-            openAndRunTerminal(runDir, cmd);
-        };
-        if (btn == '是' && action == 'upgrade') {
+        if (btn == '好的' && action == 'upgrade') {
             await this.createFile("package.json", source_file, target_file);
+            // openAndRunTerminal(runDir, cmd);
+        };
+        if (btn == '好的' && osName == 'darwin') {
             openAndRunTerminal(runDir, cmd);
         };
         return btn;
