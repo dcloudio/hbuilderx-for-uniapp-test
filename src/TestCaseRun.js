@@ -133,25 +133,25 @@ class Common {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `测试环境检查：未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
-                createOutputChannel(log_for_plugin, 'error');
+                const log_for_plugin = `[提示] 测试环境检查：未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
+                createOutputChannel(log_for_plugin, 'info');
             };
         };
 
         if (testEnv == false && is_uniapp_x) {
             const log_for_plugin = `[提示]：缺失uniapp-x测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件`;
-            createOutputChannel(log_for_plugin, 'warning');
+            createOutputChannel(log_for_plugin, 'info');
         };
         if (testEnv == false && is_uts_project) {
             const log_for_uts = `[提示]：缺失UTS运行环境。请选择UTS项目，然后运行到手机设备，此时会自动安装UTS相关插件。如果没有自动安装，请删除项目unpackage/cache目录。`;
-            createOutputChannel(log_for_uts, 'warning');
+            createOutputChannel(log_for_uts, 'info');
         };
 
         // 检查测试报告
         let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
         if ((userSet == undefined || userSet.trim() == '') && (osName == 'win32')) {
-            let log_for_wrp = 'Windows电脑，必须手动设置测试报告输出目录，且路径不能含有空格。请点击菜单【设置 - 插件设置】，配置测试报告输出目录。';
-            createOutputChannel(log_for_wrp, 'error');
+            let log_for_wrp = '[提示]：Windows电脑，必须手动设置测试报告输出目录，且路径不能含有空格。请点击菜单【设置 - 插件设置】，配置测试报告输出目录。';
+            createOutputChannel(log_for_wrp, 'info');
             return false;
         };
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");

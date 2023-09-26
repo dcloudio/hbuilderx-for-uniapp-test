@@ -91,7 +91,7 @@ class Initialize extends Common {
             cmd = `"${HBuilderX_NPM_PATH}" install --save --registry=https://registry.npmmirror.com`
         };
         let { action, source_file, target_file} = actions;
-        let Notes = `\n\n安装方式：命令行进入 ${runDir}目录，输入 ${cmd}`
+        let Notes = `\n\n安装方式：\n1. 命令行进入 ${runDir}目录 \n2. 输入 ${cmd}`
 
         let prompt = action == 'upgrade'
             ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。${Notes}`
