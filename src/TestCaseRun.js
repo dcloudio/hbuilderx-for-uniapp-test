@@ -133,7 +133,7 @@ class Common {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示] 测试环境检查：未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
+                const log_for_plugin = `[提示]：测试环境检查未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'info');
             };
         };

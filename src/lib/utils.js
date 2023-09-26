@@ -306,6 +306,9 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
     let MessagePrefix = deviceId ? `[${projectName}:${testPlatform}-${deviceId}]` : `[${projectName}:${testPlatform}]`;
     createOutputViewForHyperLinksForKill(MessagePrefix);
     createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行 ${testPlatform} 测试`, 'success', 'log');
+    if (testPlatform == "android") {
+        createOutputChannel(`${MessagePrefix} 提示：如果Android测试设备没有正常运行提示，请检查手机跟电脑IP是否处于同一网段...`, 'warning', 'log');
+    };
 
     const test_cmd = cmd.join(' ');
     if (isDebug) {
