@@ -554,6 +554,7 @@ class RunTest extends Common {
                 "HOME": process.env.HOME,
                 "PATH": process.env.PATH,
                 "NODE_PATH": config.NODE_LIB_PATH,
+                "NO_COLOR": true,
                 "UNI_CLI_PATH": config.UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
