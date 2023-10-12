@@ -2,6 +2,7 @@ const hx = require('hbuilderx');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+const i18n = require("./i18n/zh_CN.json")
 
 const osName = os.platform();
 
@@ -67,6 +68,8 @@ const HX_PLUGINS_DISPLAYNAME_LIST = {
 }
 
 module.exports = {
+    i18n,
+    
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
     HBuilderX_BuiltIn_Node_Path,

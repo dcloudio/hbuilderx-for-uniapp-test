@@ -1,0 +1,17 @@
+{
+    "hx_install_path_space_prompt": "提示：HBuilderX程序所在路径存在空格，可能导致uni-app自动化测试无法运行，请修正。",
+
+    "env_win32_not_support_ios_testing": "目前uni-app自动化测试，ios测试，不支持windows。",
+    "env_h5_test_version_prompt": "提示：uni-app自动化测试，firefox和safari测试，仅支持HBuilderX 3.2.10+版本。",
+
+    "msg_env_node_check": "没有检测到Node环境，请先安装Node，并将其加入到操作系统环境变量中。",
+    "msg_env_hx_built_in_node": "当前使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。",
+
+    "msg_warning_uts_env": "[提示]：缺失UTS运行环境。请选择UTS项目，然后运行到手机设备，此时会自动安装UTS相关插件。如果没有自动安装，请删除项目unpackage/cache目录。",
+    "msg_warning_uniappx_env": "[提示]：缺失uniapp-x测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件",
+
+    "msg_warning_test_report_path_check": "[提示]：Windows电脑，必须手动设置测试报告输出目录，且路径不能含有空格。请点击菜单【设置 - 插件设置】，配置测试报告输出目录。",
+    "invalid_custom_test_report_path": "您在插件设置中，自定义的测试报告输出目录无效，请重新设置。",
+
+    "weixin_tools_running_tips": "首次运行测试到微信开发者工具，如果没有正确运行，请手动将项目导入微信开发者工具。并且请确认已开启微信开发者工具服务端口。"
+}

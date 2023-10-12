@@ -83,7 +83,7 @@ class Common {
         let testEnv = true;
         if (nodeStatus == undefined || nodeStatus == 'N') {
             nodeStatus = await checkNode().catch(error => {
-                createOutputChannel("没有检测到Node环境，请先安装Node，并将其加入到操作系统环境变量中。", "error");
+                createOutputChannel(config.i18n.msg_env_node_check, "error");
                 return error;
             });
         };
@@ -133,25 +133,22 @@ class Common {
             if (!fs.existsSync(plugin_list[e])) {
                 testEnv = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示]：测试环境检查未安装 ${e} ，点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
+                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'info');
             };
         };
 
         if (testEnv == false && is_uniapp_x) {
-            const log_for_plugin = `[提示]：缺失uniapp-x测试环境。请选择要测试的项目，然后运行到手机设备，此时会自动安装相关插件`;
-            createOutputChannel(log_for_plugin, 'info');
+            createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
         };
         if (testEnv == false && is_uts_project) {
-            const log_for_uts = `[提示]：缺失UTS运行环境。请选择UTS项目，然后运行到手机设备，此时会自动安装UTS相关插件。如果没有自动安装，请删除项目unpackage/cache目录。`;
-            createOutputChannel(log_for_uts, 'info');
+            createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
         };
 
         // 检查测试报告
         let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
         if ((userSet == undefined || userSet.trim() == '') && (osName == 'win32')) {
-            let log_for_wrp = '[提示]：Windows电脑，必须手动设置测试报告输出目录，且路径不能含有空格。请点击菜单【设置 - 插件设置】，配置测试报告输出目录。';
-            createOutputChannel(log_for_wrp, 'info');
+            createOutputChannel(config.i18n.msg_warning_test_report_path_check, 'info');
             return false;
         };
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
@@ -262,7 +259,7 @@ class Common {
         let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
         if (userSet != undefined && userSet.trim() != '') {
             if (!fs.existsSync(userSet)) {
-                createOutputChannel('您在插件设置中，自定义的测试报告输出目录无效，请重新设置。', 'error');
+                createOutputChannel(config.i18n.invalid_custom_test_report_path, 'error');
                 return false;
             };
         } else {
@@ -357,7 +354,7 @@ class RunTest extends Common {
             delete require.cache[require.resolve(env_js_path)];
             var envjs = require(env_js_path);
         } catch (e) {
-            createOutputChannel(`测试配置文件 ${env_js_path}, 可能存在语法错误，请检查。`, 'error')
+            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
             return false;
         };
 
@@ -365,7 +362,7 @@ class RunTest extends Common {
         if (testPlatform == "mp-weixin") {
             let weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
             if (!weixin_executablePath || weixin_executablePath == "" || !fs.existsSync(weixin_executablePath)) {
-                createOutputChannel(`测试配置文件 ${env_js_path}, 请检查mp-weixin节点下的executablePath`, 'error')
+                createOutputChannel(`${env_js_path} 测试配置文件, 请检查mp-weixin节点下的executablePath`, 'error')
                 return false;
             };
             return true;
@@ -474,7 +471,7 @@ class RunTest extends Common {
 
         let oldTestMatch = jestConfigContent["testMatch"];
         if (!Array.isArray(oldTestMatch)) {
-            createOutputChannel(`测试配置文件 ${jest_config_js_path}, testMatch字段，应为数组类型，请检查。`, 'error')
+            createOutputChannel(`${jest_config_js_path} 测试配置文件, testMatch字段，应为数组类型，请检查。`, 'error')
             return false;
         };
 
@@ -490,12 +487,12 @@ class RunTest extends Common {
 
             let writeResult = await writeFile(jest_config_js_path, lastContent);
             if (writeResult != 'success') {
-                createOutputChannel(`修改测试配置文件 ${jest_config_js_path} 失败，终止后续操作，请检查此文件。`, 'warning');
+                createOutputChannel(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
                 return false;
             };
             return true;
         } catch (e) {
-            createOutputChannel(`修改测试配置文件 ${jest_config_js_path} 异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
+            createOutputChannel(`${jest_config_js_path} 修改测试配置文件异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
             return false;
         };
     };
@@ -519,7 +516,9 @@ class RunTest extends Common {
         if (ouputDir == false) return;
 
         let filename = getFileNameForDate();
-        let outputFile = deviceId ? path.join(ouputDir, `${deviceId}-${filename}.json`) : path.join(ouputDir, `${filename}.json`);
+        let outputFile = deviceId
+            ? path.join(ouputDir, `${deviceId}-${filename}.json`)
+            : path.join(ouputDir, `${filename}.json`);
 
         // 解决控制台[]内内容太长的问题
         let clgDeviceId = deviceId;
@@ -527,7 +526,9 @@ class RunTest extends Common {
             clgDeviceId = clgDeviceId.replace(clgDeviceId.substring(6), '..');
         };
 
-        let consoleMessagePrefix = deviceId ? `[${this.projectName}:${testPlatform}-${clgDeviceId}]` : `[${this.projectName}:${testPlatform}]`;
+        let consoleMessagePrefix = deviceId
+            ? `[${this.projectName}:${testPlatform}-${clgDeviceId}]`
+            : `[${this.projectName}:${testPlatform}]`;
         createOutputChannel(`${consoleMessagePrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
         createOutputChannel(`${consoleMessagePrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
 
@@ -616,8 +617,7 @@ class RunTest extends Common {
         if (isUseBuiltNodeCompileUniapp) {
             cmdOpts["env"]["UNI_NODE_PATH"] = config.HBuilderX_BuiltIn_Node_Path;
         } else {
-            const log_for_node = `当前使用的是操作系统安装的Node，如遇到问题，请在打开【设置 - 插件配置 - uni-app自动化测试插件】，勾选使用HBuilderX内置的Node运行自动化测试。`;
-            createOutputChannel(log_for_node, 'info');
+            createOutputChannel(config.i18n.msg_env_hx_built_in_node, 'info');
         };
 
         // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
@@ -650,8 +650,7 @@ class RunTest extends Common {
         };
 
         if (testPlatform == 'mp-weixin') {
-            const log_for_wx = `${consoleMessagePrefix}首次运行测试到微信开发者工具，如果没有正确运行，请手动将项目导入微信开发者工具。并且请确认已开启微信开发者工具服务端口。`;
-            createOutputChannel(log_for_wx, 'warning');
+            createOutputChannel(`${consoleMessagePrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
         };
 
         // 当用户设置使用内置Node运行jest时
@@ -714,7 +713,7 @@ class RunTest extends Common {
     async main(param, UNI_PLATFORM, scope = "all") {
         // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
         if (cmpVerionForH5 > 0 && UNI_PLATFORM.includes('h5-firefox', 'h5-safari')) {
-            createOutputChannel('提示：uni-app自动化测试，firefox和safari测试，仅支持HBuilderX 3.2.10+版本。' ,'warning');
+            createOutputChannel(config.i18n.env_h5_test_version_prompt ,'warning');
             return;
         };
 
@@ -729,13 +728,13 @@ class RunTest extends Common {
 
         // 判断：操作系统, uni-app iOS测试，不支持windows
         if (osName != 'darwin' && UNI_PLATFORM == 'ios') {
-            hxShowMessageBox('提醒', '目前uni-app自动化测试，ios测试，不支持windows。');
+            hxShowMessageBox('提醒', config.i18n.env_win32_not_support_ios_testing);
             return;
         };
 
         // 判断：HBuilderX路径空格
         if (config.HBuilderX_PATH.indexOf(" ") != -1) {
-            createOutputChannel(`提示：HBuilderX程序所在路径存在空格，可能导致uni-app自动化测试无法运行，请修正。`, 'warning');
+            createOutputChannel(config.i18n.hx_install_path_space_prompt, 'warning');
             return;
         };
 
