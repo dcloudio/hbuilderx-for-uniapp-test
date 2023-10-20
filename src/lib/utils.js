@@ -338,7 +338,9 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
                     printTestRunLog(MessagePrefix, stdoutMsg);
                     stopRunTest();
                 } else {
-                    printTestRunLog(MessagePrefix, stdoutMsg);
+                    if (!stdoutMsg.includes("%AndroidClass")) {
+                        printTestRunLog(MessagePrefix, stdoutMsg);
+                    };
                 };
             });
         };
