@@ -505,7 +505,7 @@ class RunTest extends Common {
     async run_a_test(testPlatform, deviceId) {
 
         let result = await this.editEnvjsFile(testPlatform, deviceId).catch(error => {
-            console.error("[error]....", error)
+            console.error("[error]....", error);
             createOutputChannel(`${testPlatform}，修改项目下测试配置文件 env.js出错，请检查！`, 'error');
             return false;
         });
@@ -541,6 +541,9 @@ class RunTest extends Common {
         if (testPlatform == 'ios' || testPlatform == 'android') {
             UNI_OS_NAME = testPlatform;
             UNI_PLATFORM = 'app-plus'
+        };
+        if (testPlatform.substring(0, 3) == "h5-") {
+            UNI_PLATFORM = "h5";
         };
 
         // 环境变量：测试端口
@@ -597,6 +600,17 @@ class RunTest extends Common {
             // 2023-01-31 如下两个参数，暂时无用。以后可能用得到。先不清除。
             cmdOpts.env.UNIAPP_RUNEXTENSION_PATH = config.UNIAPP_RUNEXTENSION_PATH;
             cmdOpts.env.UNIAPP_UTS_V1_PATH = config.UNIAPP_UTS_V1_PATH;
+
+            // HBulderX 3.98+，增加UNI_UTS_PLATFORM
+            if (testPlatform.substring(0, 2) == "h5") {
+                cmdOpts.env.UNI_UTS_PLATFORM = "web";
+            };
+            if (testPlatform == 'ios' || testPlatform == 'android') {
+                cmdOpts.env.UNI_UTS_PLATFORM = `app-${testPlatform}`;
+            };
+            if (testPlatform.substring(0, 2) == "mp") {
+                cmdOpts.env.UNI_UTS_PLATFORM = testPlatform;
+            };
         };
 
         // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
@@ -608,9 +622,6 @@ class RunTest extends Common {
         };
         if (testPlatform == "h5-chrome") {
             cmdOpts.env.BROWSER = "chromium";
-        };
-        if (testPlatform.substring(0, 3) == "h5-") {
-            cmdOpts.env.UNI_PLATFORM = "h5";
         };
 
         // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH
