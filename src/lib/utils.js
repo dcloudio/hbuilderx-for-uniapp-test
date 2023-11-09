@@ -159,18 +159,30 @@ async function getPluginConfig(options) {
  * @param {String} msgLevel (warning | success | error | info), 控制文本颜色
  * @param {String} viewID 目前的值仅为: 'log'
  */
+const uniMap = new Map();
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
-
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
-    let output = hx.window.createOutputView({
-        id: oID,
-        title: title
-    });
-    output.show();
+    let output = uniMap.get(oID)
+    if(!output) {
+        output = hx.window.createOutputView({
+            id: oID,
+            title: title
+        });
+        uniMap.set(oID,output)
+        output.show();
+    };
+    
+    let data = undefined;
+    if (msg instanceof Object) {
+        data = msg;
+    } else {
+        data = { line: msg, level: msgLevel};
+    };
+    data["forceshow"] = false;
 
     if (['warning', 'success', 'error', 'info'].includes(msgLevel)) {
-        output.appendLine({line: msg, level: msgLevel});
+        output.appendLine(data);
     } else {
         output.appendLine(msg);
     };
@@ -184,15 +196,6 @@ function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
  * @param {String} runDir 程序执行目录
  */
 function createOutputViewForHyperLinks(msg, msgLevel='info', viewID, runDir) {
-    let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
-    let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
-
-    let outputView = hx.window.createOutputView({
-        id: oID,
-        title: title
-    });
-    outputView.show();
-
     let filepath, start;
     if (msg.includes('测试报告:')) {
         start = "测试报告:".length + msg.indexOf('测试报告:');
@@ -203,7 +206,7 @@ function createOutputViewForHyperLinks(msg, msgLevel='info', viewID, runDir) {
         let tmp = msg.substring(start, msg.length);
         filepath = path.resolve(runDir, tmp);
     };
-    outputView.appendLine({
+    let data = {
         line: msg,
         level: msgLevel,
         hyperlinks:[
@@ -222,21 +225,16 @@ function createOutputViewForHyperLinks(msg, msgLevel='info', viewID, runDir) {
                 }
             }
         ]
-    });
+    };
+    createOutputChannel(data, 'info', viewID);
 };
 
 /**
- * @description 控制台结束
+ * @description 控制台结束测试
  */
-function createOutputViewForHyperLinksForKill(MessagePrefix) {
-    let outputView = hx.window.createOutputView({
-        id: "hbuilderx.uniapp.test",
-        title: "uni-app自动化测试"
-    });
-    outputView.show();
-
+function message_for_test_kill(MessagePrefix) {
     let msg = MessagePrefix + "正在运行测试，如需提前结束，请点击: ";
-    outputView.appendLine({
+    let kill_msg = {
         line: msg + "结束运行",
         level: "info",
         hyperlinks:[
@@ -250,7 +248,8 @@ function createOutputViewForHyperLinksForKill(MessagePrefix) {
                 }
             }
         ]
-    });
+    };
+    createOutputChannel(kill_msg);
 };
 
 
@@ -260,12 +259,6 @@ function createOutputViewForHyperLinksForKill(MessagePrefix) {
  * @param {String} msg - 消息内容
  */
 function printTestRunLog(MessagePrefix, msg) {
-    let output = hx.window.createOutputView({
-        id: "hbuilderx.uniapp.test.log",
-        title: "uni-app自动化测试 - 运行日志"
-    });
-    output.show();
-
     let msgLevel = "info"
     let lastMsg = msg.trim();
     let theFour = msg.substring(0,4);
@@ -283,8 +276,9 @@ function printTestRunLog(MessagePrefix, msg) {
     };
     let data = lastMsg.split(/[\r\n|\n]/);
     for (let s of data) {
-        output.appendLine({line: MessagePrefix + ' ' + s, level: msgLevel});
+        createOutputChannel(MessagePrefix + ' ' + s, msgLevel, 'log');
     };
+
 };
 
 
@@ -304,7 +298,7 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
     };
 
     let MessagePrefix = deviceId ? `[${projectName}:${testPlatform}-${deviceId}]` : `[${projectName}:${testPlatform}]`;
-    createOutputViewForHyperLinksForKill(MessagePrefix);
+    message_for_test_kill(MessagePrefix);
     createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行 ${testPlatform} 测试`, 'success', 'log');
     if (testPlatform == "android") {
         createOutputChannel(`${MessagePrefix} 提示：如果Android测试设备没有正常运行提示，请检查手机跟电脑IP是否处于同一网段...`, 'warning', 'log');
