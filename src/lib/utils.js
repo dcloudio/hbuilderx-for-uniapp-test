@@ -163,7 +163,9 @@ const uniMap = new Map();
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
-    let output = uniMap.get(oID)
+    let output = uniMap.get(oID);
+    // console.error("..........output", output?.timer?._destroyed);
+    // if(output?.timer?._destroyed === undefined || output?.timer?._destroyed === false) {
     if(!output) {
         output = hx.window.createOutputView({
             id: oID,
@@ -172,14 +174,14 @@ function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
         uniMap.set(oID,output)
         output.show();
     };
-    
+
     let data = undefined;
     if (msg instanceof Object) {
         data = msg;
     } else {
         data = { line: msg, level: msgLevel};
     };
-    data["forceshow"] = false;
+    // data["forceshow"] = false;
 
     if (['warning', 'success', 'error', 'info'].includes(msgLevel)) {
         output.appendLine(data);
