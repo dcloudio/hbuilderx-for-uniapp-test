@@ -1,6 +1,7 @@
 const hx = require('hbuilderx');
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 const { spawn, exec } = require('child_process');
 
 const os = require('os');
@@ -171,7 +172,7 @@ function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
             id: oID,
             title: title
         });
-        uniMap.set(oID,output)
+        uniMap.set(oID,output);
         output.show();
     };
 
@@ -246,7 +247,7 @@ function message_for_test_kill(MessagePrefix) {
                     end: (msg + '结束运行').length
                 },
                 onOpen: function() {
-                    stopRunTest()
+                    stopRunTest();
                 }
             }
         ]
@@ -261,17 +262,17 @@ function message_for_test_kill(MessagePrefix) {
  * @param {String} msg - 消息内容
  */
 function printTestRunLog(MessagePrefix, msg) {
-    let msgLevel = "info"
+    let msgLevel = "info";
     let lastMsg = msg.trim();
     let theFour = msg.substring(0,4);
     if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
-        lastMsg = lastMsg + "\n"
+        lastMsg = lastMsg + "\n";
         msgLevel = "error";
     } else if (theFour == "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
-        lastMsg = lastMsg + "\n"
+        lastMsg = lastMsg + "\n";
         msgLevel = "error";
     } else if (theFour == "PASS") {
-        lastMsg = lastMsg + "\n"
+        lastMsg = lastMsg + "\n";
         msgLevel = "success";
     } else if (msg.includes('Ran all test suites.') && msg.includes("Tests") && msg.includes("total")) {
         msgLevel = "info";
@@ -323,12 +324,13 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
         child = spawn(jest_for_node, cmd, opts);
         child_pid = child.pid;
     } catch (error) {
-        return Promise.reject(error)
+        return Promise.reject(error);
     };
 
     return new Promise(resolve => {
         if (child.stdout) {
-            child.stdout.on('data', data => {
+            const stdout = readline.createInterface(child.stdout);
+            stdout.on('line', (data) =>{
                 let stdoutMsg = (data.toString()).trim();
                 if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
                     printTestRunLog(MessagePrefix, stdoutMsg);
@@ -344,18 +346,18 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
         let is_port_9520_error = false;
         let runDir = opts.cwd;
         if (child.stderr) {
-            child.stderr.on('data', data => {
-                let msg = data.toString();
-                if (msg == '\n' || msg == '\r\n') return;
-                if (msg.includes('Test results written to:') && osName == 'darwin') {
-                    createOutputViewForHyperLinks(msg, 'info', "log", runDir);
+            const stderr = readline.createInterface(child.stderr);
+            stderr.on('line', (data) =>{
+                let stdoutMsg = (data.toString()).trim();
+                if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
+                    printTestRunLog(MessagePrefix, stdoutMsg);
+                    stopRunTest();
                 } else {
-                    printTestRunLog(MessagePrefix, msg);
-                    if (msg.includes('Port 9520 is in use, please specify another port') && osName == 'darwin') {
-                        is_port_9520_error = true;
+                    if (!stdoutMsg.includes("%AndroidClass")) {
+                        printTestRunLog(MessagePrefix, stdoutMsg);
                     };
                 };
-            })
+            });
         };
 
         child.on('error', error => {
@@ -387,7 +389,7 @@ async function openAndRunTerminal(runDir, cmd) {
         cmd: cmd,
     };
     hx.window.openAndRunTerminal(cmdParams).then(data => {
-        console.log(data)
+        console.log(data);
     });
 };
 
@@ -398,10 +400,10 @@ async function writeFile(fpath, filecontent) {
     return new Promise(function(resolve, reject) {
         fs.writeFile(fpath, filecontent, function (err) {
             if (err) {
-                console.eror(err)
+                console.eror(err);
                 reject(err);
             };
-            resolve('success')
+            resolve('success');
         });
     });
 };
@@ -414,16 +416,16 @@ function checkNode() {
     return new Promise((resolve, reject) => {
         exec('node -v', function(error, stdout, stderr) {
             if (error) {
-                reject("N")
+                reject("N");
             };
             try {
                 let version = stdout.match(/(\d{1,3}.\d{1,3}.\d{1,3})/g)[0];
                 resolve('Y');
             } catch (e) {
-                reject('N')
+                reject('N');
             };
         });
-    })
+    });
 };
 
 
@@ -436,7 +438,7 @@ function stopRunTest() {
         child.kill("SIGKILL");
         // process.kill(child_pid,"SIGKILL")
     }catch(e){
-        createOutputChannel(`结束测试进程失败，请手动结束。${e}`)
+        createOutputChannel(`结束测试进程失败，请手动结束。${e}`);
     };
     // let cmd = osName == 'darwin' ? `kill -9 ${child_pid}` : `taskkill /F /pid ${child_pid}`;
     // exec(cmd, function(error, stdout, stderr) {
@@ -462,10 +464,10 @@ async function checkCustomTestEnvironmentDependency() {
             return userSet;
         };
         hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！", 50000, "error");
-        console.error("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！")
+        console.error("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！");
         return false;
     } else {
-        console.error("hbuilderx-for-uniapp-test:: 没有自定义测试环境依赖目录！")
+        console.error("hbuilderx-for-uniapp-test:: 没有自定义测试环境依赖目录！");
         return false;
     };
 };
@@ -490,7 +492,7 @@ async function checkUtsProject(project_path, is_uniapp_cli) {
     // uts项目判定条件：uni_modules目录下存在utssdk目录
     let is_uts = false;
     for (let f of uni_modules_list) {
-        let utssdk_dir = path.join(uni_modules_dir, f, "utssdk")
+        let utssdk_dir = path.join(uni_modules_dir, f, "utssdk");
         if (fs.existsSync(utssdk_dir)) {
             is_uts = true;
             break;
@@ -531,4 +533,4 @@ module.exports = {
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson
-}
+};
