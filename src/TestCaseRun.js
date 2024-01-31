@@ -540,7 +540,7 @@ class RunTest extends Common {
         let UNI_PLATFORM = testPlatform;
         if (testPlatform == 'ios' || testPlatform == 'android') {
             UNI_OS_NAME = testPlatform;
-            UNI_PLATFORM = 'app-plus'
+            UNI_PLATFORM = 'app-plus';
         };
         if (testPlatform.substring(0, 3) == "h5-") {
             UNI_PLATFORM = "h5";
@@ -548,7 +548,7 @@ class RunTest extends Common {
 
         // 环境变量：测试端口
         let UNI_AUTOMATOR_PORT = await get_test_port().catch(() => {
-            return 9520
+            return 9520;
         });
 
         // 环境变量：命令行运行
@@ -565,12 +565,19 @@ class RunTest extends Common {
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
-                "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT
+                "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT,
+                "HX_CONFIG_ADB_PATH": "",
                 // "LANG": "en_US.UTF-8",
                 // "LC_ALL": "en_US.UTF-8"
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        // 配置项：获取用户是否设置使用内置adb路径
+        const hx_config_adb_path = await getPluginConfig('adb.path');
+        if (hx_config_adb_path && fs.existsSync(hx_config_adb_path)) {
+            cmdOpts.env.HX_CONFIG_ADB_PATH = hx_config_adb_path;
         };
 
         if (unicloud_spaces_info.length > 0) {
