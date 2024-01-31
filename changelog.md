@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.8.2
+* 新增 环境变量 HX_CONFIG_ADB_PATH
+* 修复 node spawn执行命令，获取命令行输出，使用readline.createInterface解决某些情况下命令行输出出现大量单个字符的Bug
+
 ## 1.8.1
 * 修复 1.8.0引发的 自动化测试控制台，某些情况下，无法弹出的Bug
 
