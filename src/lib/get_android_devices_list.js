@@ -11,9 +11,23 @@ const osName = os.platform();
 var adbPath = "adb";
 
 /**
- * @description 获取hx自带的adb路径
+ * @description 获取插件配置
+ */
+async function getPluginConfig(options) {
+    let config = await hx.workspace.getConfiguration();
+    return config.get(options);
+};
+
+/**
+ * @description 获取的adb路径。如果设置中用户配置了adb，则使用用户配置的数据。
  */
 async function getAdbPath() {
+    const hx_config_adb_path = await getPluginConfig('adb.path');
+    if (hx_config_adb_path && fs.existsSync(hx_config_adb_path)) {
+        adbPath = hx_config_adb_path;
+        return;
+    };
+
     let plugin_dir = path.join(appRoot, "plugins");
     let adb_releative_path = path.join("tools", "adbs", "adb");
     if (osName == "win32") {
