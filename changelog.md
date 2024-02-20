@@ -1,5 +1,8 @@
 # 更新日志
 
+## 1.8.3
+* 调整 Android设备查找 优先使用设置中自定义的adb路径
+
 ## 1.8.2
 * 新增 环境变量 HX_CONFIG_ADB_PATH
 * 修复 node spawn执行命令，获取命令行输出，使用readline.createInterface解决某些情况下命令行输出出现大量单个字符的Bug
