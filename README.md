@@ -22,4 +22,3 @@
 
 - [uni-app自动化测试API](https://uniapp.dcloud.io/collocation/auto/quick-start)
 - [jest官方文档](https://www.jestjs.cn/)
-- [QQ交流群 695557932](https://qm.qq.com/cgi-bin/qm/qr?k=7uTgM9atb5lWFbZyoMiVtHrYz4DuQbt4&jump_from=webapi)
