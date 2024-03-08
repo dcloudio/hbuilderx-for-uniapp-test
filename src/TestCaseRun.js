@@ -177,7 +177,7 @@ class Common {
      */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
-        if ( !fs.existsSync(path.join(projectPath, "uniCloud-tcb")) && !fs.existsSync(path.join(projectPath, "uniCloud-aliyun")) ) {
+        if ( !fs.existsSync(path.join(projectPath, "uniCloud-tcb")) && !fs.existsSync(path.join(projectPath, "uniCloud-aliyun")) && !fs.existsSync(path.join(projectPath, "uniCloud-alipay")) ) {
             return;
         };
 
