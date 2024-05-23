@@ -1,5 +1,8 @@
 # 更新日志
 
+## 1.8.5
+* 新增 读取hx配置项uniappx.kotlin.compiler.memory，传递给uni-app-x自动化测试，解决项目编译内存问题
+
 ## 1.8.4
 * fixed: 修复不支持支付宝小程序云测试的Bug
 

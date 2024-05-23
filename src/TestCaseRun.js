@@ -580,6 +580,12 @@ class RunTest extends Common {
             cmdOpts.env.HX_CONFIG_ADB_PATH = hx_config_adb_path;
         };
 
+        // 配置项：UNIAPPX_KOTLIN_COMPILER_MEMORY
+        const hx_config__uniappx_kotlin_compiler_memory = await getPluginConfig('uniappx.kotlin.compiler.memory');
+        if (hx_config__uniappx_kotlin_compiler_memory && /^\d+$/.test(hx_config__uniappx_kotlin_compiler_memory)) {
+            cmdOpts.env.UNIAPPX_KOTLIN_COMPILER_MEMORY = hx_config__uniappx_kotlin_compiler_memory;
+        };
+
         if (unicloud_spaces_info.length > 0) {
             cmdOpts.env.UNI_CLOUD_SPACES = JSON.stringify(unicloud_spaces_info);
         };
