@@ -574,6 +574,23 @@ class RunTest extends Common {
             maxBuffer: 2000 * 1024
         };
 
+        // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
+        try {
+            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
+            delete require.cache[require.resolve(env_js_path)];
+            var envjs = require(env_js_path);
+            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
+            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
+            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
+            	    console.log(key, value);
+                    cmdOpts["env"][key] = value;
+            	});
+            };
+        } catch (e) {
+            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
+            return;
+        };
+
         // 配置项：获取用户是否设置使用内置adb路径
         const hx_config_adb_path = await getPluginConfig('adb.path');
         if (hx_config_adb_path && fs.existsSync(hx_config_adb_path)) {

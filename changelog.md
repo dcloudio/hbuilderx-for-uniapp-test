@@ -1,5 +1,8 @@
 # 更新日志
 
+## 1.9.0
+* 新增 env.js 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给uniapp自动化测试框架命令行
+
 ## 1.8.5
 * 新增 读取hx配置项uniappx.kotlin.compiler.memory，传递给uni-app-x自动化测试，解决项目编译内存问题
 
