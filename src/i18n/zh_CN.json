@@ -13,5 +13,6 @@
     "msg_warning_test_report_path_check": "[提示]：Windows电脑，必须手动设置测试报告输出目录，且路径不能含有空格。请点击菜单【设置 - 插件设置】，配置测试报告输出目录。",
     "invalid_custom_test_report_path": "您在插件设置中，自定义的测试报告输出目录无效，请重新设置。",
 
-    "weixin_tools_running_tips": "首次运行测试到微信开发者工具，如果没有正确运行，请手动将项目导入微信开发者工具。并且请确认已开启微信开发者工具服务端口。"
+    "weixin_tools_running_tips": "首次运行测试到微信开发者工具，如果没有正确运行，请手动将项目导入微信开发者工具。并且请确认已开启微信开发者工具服务端口。",
+    "weixin_tool_path_tips": "微信开发者工具cli路径，比如：windows: D:/Tencent/微信web开发者工具/cli.bat, mac: /Applications/wechatwebdevtools.app/Contents/MacOS/cli"
 }

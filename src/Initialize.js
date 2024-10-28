@@ -86,7 +86,7 @@ class Initialize extends Common {
      * @param {Object} actions
      * @param {String} cmd
      */
-    async install(runDir, actions, cmd) {
+    async installTestLibs(runDir, actions, cmd) {
         if (cmd == undefined) {
             cmd = `"${HBuilderX_NPM_PATH}" install --save --registry=https://registry.npmmirror.com`
         };
@@ -94,26 +94,20 @@ class Initialize extends Common {
         let Notes = `\n\n安装方式：\n1. 命令行进入 ${runDir}目录 \n2. 输入 ${cmd}`
 
         let prompt = action == 'upgrade'
-            ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。${Notes}`
+            ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
             : `自动化测试环境，需要安装jest、adbkit、puppeteer等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
-        let title = action == 'upgrade' ? '安装uni-app自动化测试依赖' : '更新uni-app自动化测试依赖';
+        let title = action == 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
         let btn = await hxShowMessageBox(title, prompt, ['好的', '关闭']).then( btn => {
             return btn;
         });
 
-        if (osName != 'darwin') {
-            let drive = runDir.substr(0,1);
-            cmd = `${drive}: && cd "${runDir}" && ${cmd}`
-        } else {
-            cmd = `cd ${runDir} && ` + cmd;
-        };
-
         if (btn == '好的' && action == 'upgrade') {
             await this.createFile("package.json", source_file, target_file);
-            // openAndRunTerminal(runDir, cmd);
-        };
-        if (btn == '好的' && osName == 'darwin') {
-            openAndRunTerminal(runDir, cmd);
+
+			const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
+			const test_lib_dir = path.dirname(target_file);
+            let msg = `升级方法: 打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
+            createOutputChannel(msg, 'error');
         };
         return btn;
     };
@@ -134,34 +128,36 @@ class Initialize extends Common {
             await this.createFile("package.json", templage_package_path, lib_package_path);
         };
 
-        let actions = {
-            'action': '',
-            'source_file': templage_package_path,
-            'target_file': lib_package_path,
-        };
-
         // 主要是检查设置项：hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir。
-        // 如果有自定义的测试环境，则使用自定义设置。
-        // 由于此项主要是用于内部调试，此处不对设置项的准确性进行检查。
         let isCustomEnv = await checkCustomTestEnvironmentDependency();
-        if (isCustomEnv) return true;
+		// console.error(`【hbuilderx-for-uniapp-test】自定义测试依赖设置项: ${isCustomEnv}`);
 
-        // 检查终端是否安装
-        let terminalName = osName == "win32" ? "builtincef3terminal" : "builtinterminal";
-        let terminalDir = path.join(hx.env.appRoot, "plugins", terminalName, "package.json")
-        if (!fs.existsSync(terminalDir)) {
-            installTerminal();
-            return;
+        if (isCustomEnv) {
+            try {
+                if (fs.existsSync(isCustomEnv)) {
+                    test_lib_dir = path.dirname(isCustomEnv);
+					// console.error(`【hbuilderx-for-uniapp-test】自定义测试依赖设置项: test_lib_dir = ${test_lib_dir}`);
+                    lib_package_path = path.join(test_lib_dir, 'package.json');
+                };
+            } catch (error) {}
         };
 
         let test_lib_node_modules_dir = path.join(test_lib_dir, 'node_modules');
+		// console.error(`【hbuilderx-for-uniapp-test】test_lib_node_modules_dir: ${test_lib_node_modules_dir}`);
+
         if (!fs.existsSync(test_lib_node_modules_dir)) {
-            let installResult = await this.install(test_lib_dir, actions);
-            if (installResult == '是') {
-                createOutputChannel(`提醒：uni-app自动化测试插件，正在安装相关依赖；在安装完成之前，请不要关闭终端。`, 'info');
-                const log_for_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
-                createOutputChannel(`提醒：如果自动安装失败，请在终端进入 ${test_lib_dir} 目录，手动执行 ${log_for_npm_install}。\n`, 'warning');
-            };
+			createOutputChannel("", 'info');
+
+			const msg_0 = "uniapp自动化测试环境，需要安装jest、adbkit、puppeteer等库，安装相关依赖之后，才可以正常使用此插件."
+			createOutputChannel(msg_0, 'error');
+
+            const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
+            let msg_1 = `方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
+            createOutputChannel(msg_1, 'info');
+
+            const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
+            let msg_2 = `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
+            createOutputChannel(msg_2, 'info');
             return false;
         };
 
@@ -171,9 +167,15 @@ class Initialize extends Common {
         let lib_version = lib_package_json_content['version'];
         let template_version = template_package_json_content['version'];
 
+        let actions = {
+            'action': '',
+            'source_file': templage_package_path,
+            'target_file': lib_package_path,
+        };
+
         if (lib_version != template_version) {
             actions['action'] = 'upgrade';
-            this.install(test_lib_dir, actions);
+            this.installTestLibs(test_lib_dir, actions);
             return false;
         };
 
@@ -230,7 +232,7 @@ class Initialize extends Common {
         if (msg) {
             createOutputChannel(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
             createOutputChannel(`如果自动安装失败，打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
-            this.install(projectPath, {}, `npm install --save ${msg}`);
+            this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
             return false;
         };
         return true;

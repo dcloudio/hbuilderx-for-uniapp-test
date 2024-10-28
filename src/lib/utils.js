@@ -449,7 +449,7 @@ function stopRunTest() {
 };
 
 /**
- * @description 检查自定义的测试环境依赖，主要用于内部调试。
+ * @description 检查自定义的测试环境依赖
  * 当然也可以开放出去，设置此项后，不用在HBuilderX plugins目录下再安装测试环境依赖了。
  *
  * hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir 必须是绝对路径。且结尾目录是node_modules

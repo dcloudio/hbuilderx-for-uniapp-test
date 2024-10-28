@@ -118,14 +118,17 @@ class Common {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
 
-        if (is_uts_project) {
-            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
-            plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
-            plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
-        };
-
         if (is_uniapp_x) {
             plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        };
+
+        if (is_uts_project || is_uniapp_x) {
+            plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
+        };
+
+        if (["android", "all"].includes(platform)) {
+            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
 
         // 判断是否安装测试环境必须的插件
@@ -359,10 +362,11 @@ class RunTest extends Common {
         };
 
         if (testPlatform.includes("h5")) return true;
+
         if (testPlatform == "mp-weixin") {
             let weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
             if (!weixin_executablePath || weixin_executablePath == "" || !fs.existsSync(weixin_executablePath)) {
-                createOutputChannel(`${env_js_path} 测试配置文件, 请检查mp-weixin节点下的executablePath`, 'error')
+                createOutputChannel(`${env_js_path}, 请检查mp-weixin节点下的executablePath, 建议配置微信小程序路径。${config.i18n.weixin_tool_path_tips}`, 'error')
                 return false;
             };
             return true;
@@ -799,7 +803,7 @@ class RunTest extends Common {
         if (!env) return;
 
         // 运行：到iOS和android
-        if (['all', 'ios', 'android'].includes(UNI_PLATFORM) && is_uts_project){
+        if (['all', 'android'].includes(UNI_PLATFORM) && is_uts_project){
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) return;
         };
