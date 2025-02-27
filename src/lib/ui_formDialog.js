@@ -3,7 +3,7 @@ const os = require('os');
 
 const osName = os.platform();
 const api_getMobileList = require("./api_getMobileList.js");
-const getAndroidDeivcesListFormCmd = require('./get_android_devices_list.js');
+const getAndroidDeivcesListFormCmd = require('./cmd_adb_devices.js');
 
 /**
  * @description UI：设备选择窗口，组织测试设备数据
