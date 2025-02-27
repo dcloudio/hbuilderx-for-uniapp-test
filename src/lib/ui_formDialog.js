@@ -1,104 +1,15 @@
 const hx = require('hbuilderx');
 const os = require('os');
 
-const getAndroidDeivcesListFormCmd = require('./get_android_devices_list.js');
-
 const osName = os.platform();
-
-// 测试设备
-global.global_devicesList = [];
-
-/**
- * @description 内部使用。返回具体的测试设备信息
- */
-async function get_uniTestPlatformInfo(platform, deviceID) {
-    let uniTestPlatformInfo = "";
-    if (platform == "h5") return 'web chrome';
-    if (platform == "h5-safari") return 'web safari';
-    if (platform == "h5-firefox") return 'web firefox';
-
-    try{
-        if (!platform.toLowerCase().includes("android") && !platform.toLowerCase().includes("ios")) {
-            return platform;
-        };
-        let phoneOS = platform.toLowerCase();
-        if (phoneOS == "ios") {
-            phoneOS = "ios_simulator";
-        };
-        for (let s of global_devicesList[phoneOS]) {
-            if (s.uuid == deviceID && phoneOS == "android") {
-                uniTestPlatformInfo = s.platform + " " + s.version;
-                break;
-            };
-            if (s.uuid == deviceID && phoneOS == "ios_simulator") {
-                uniTestPlatformInfo = s.platform + " " + s.version;
-                // uniTestPlatformInfo = s.platform + " " + s.name;
-                break;
-            };
-        };
-        return uniTestPlatformInfo;
-    }catch(e){
-        return platform;
-    };
-};
-
-/**
- * @description 通过Api hx.app.getMobileList, 获取当前电脑连接的手机设备
- * @description {Sting} testPlatform [ios|android|all]
- * @returns {Object} 手机列表 {"ios": [], "android": []}
- */
-let PLATFORM_ANDROID = 0x00000001;
-let PLATFORM_ANDROID_SIMULATOR = 0x00000002;
-let PLATFORM_IOS = 0x00000004;
-let PLATFORM_IOS_SIMULATOR = 0x00000008;
-let PLATFORM_ALL = 0x00000010;
-async function getPhoneDevicesList(testPlatform) {
-    let deviceType = PLATFORM_ALL;
-    if (testPlatform == 'ios') {
-        deviceType = PLATFORM_IOS_SIMULATOR;
-    };
-    if (testPlatform == 'android') {
-        deviceType = PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR;
-    };
-    if (testPlatform == 'all') {
-        deviceType = osName == 'darwin' ? PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR | PLATFORM_IOS_SIMULATOR :
-            PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR;
-    };
-    let platform = {
-        "platform": deviceType
-    };
-
-    let data = await hx.app.getMobileList(platform).then(data => {
-        return data;
-    });
-
-    try{
-        // 先这样，后期在区分修改
-        if (data.hasOwnProperty("android_simulator")) {
-            data["android"] = [...data["android"], ...data["android_simulator"]]
-        };
-    }catch(e){};
-
-    try {
-        let {ios_simulator} = data;
-        if (ios_simulator != undefined && ios_simulator.length) {
-            let tmp = ios_simulator.filter(n => {
-                return !(n.name).includes('Apple Watch') && !(n.name).includes('iPad') && !(n.name)
-                    .includes('Apple TV') && !(n.name).includes('iPod touch');
-            });
-            data['ios_simulator'] = tmp.reverse();
-        };
-        return data;
-    } catch (e) {
-        return data;
-    }
-};
+const api_getMobileList = require("./api_getMobileList.js");
+const getAndroidDeivcesListFormCmd = require('./get_android_devices_list.js');
 
 /**
  * @description UI：设备选择窗口，组织测试设备数据
  */
 async function getUIDataForDevices(isManualRefresh = false) {
-    global_devicesList = await getPhoneDevicesList('all');
+    global_devicesList = await api_getMobileList('all');
     let {android, android_simulator, ios_simulator} = global_devicesList;
     if (android == undefined) {
         android = [];
@@ -154,7 +65,7 @@ async function getUIDataForDevices(isManualRefresh = false) {
     };
 
     return { "AndroidList": AndroidList, "iOSList": iOSList}
-}
+};
 
 /**
  * @description UI: 窗口控件
@@ -164,7 +75,7 @@ async function getUIDataForDevices(isManualRefresh = false) {
 async function getUIData(testPlatform, isManualRefresh = false) {
     // 重新获取手机列表
     let RawDevicesList = await getUIDataForDevices(isManualRefresh);
-    let {AndroidList, iOSList} = RawDevicesList;
+    let {AndroidList, iOSList, HarmonyList } = RawDevicesList;
 
     let height = testPlatform != "all" ? 410 : 660;
     if (osName != "darwin") {
@@ -299,11 +210,12 @@ function validateInput(testPlatform, formData, that) {
     return true;
 };
 
+
 /**
  * @description showFormDialog
  * @return {Array} ["ios:A8790C48-4986-4303-B235-D8AFA95402D4","android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"]
  */
-async function showTestDeviceWindows(testPlatform) {
+async function ui_formDialog(testPlatform) {
     // 获取默认UI数据
     var uidata = await getUIData(testPlatform)
 
@@ -387,35 +299,4 @@ async function showTestDeviceWindows(testPlatform) {
 };
 
 
-/**
- * @description 在webviewdialog内选择要测试的设备
- *  - 如果当前连接的设备只有一个，则不弹出测试设备选择窗口，直接运行。
- * @description {Sting} testPlatform [ios|android|all]
- * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:uuid', 'ios:uuid']
- */
-async function getTestDevices(testPlatform) {
-    global_devicesList = await getPhoneDevicesList(testPlatform)
-    // 如果当前连接的Android设备只有一个，则不弹出测试设备选择窗口，直接运行。
-    if (testPlatform == 'android') {
-        let {
-            android,
-            android_simulator
-        } = global_devicesList;
-        let allAndroid = [...android, ...android_simulator];
-        if (allAndroid.length == 1) {
-            let one = 'android:' + allAndroid[0]['name'];
-            return [one];
-        };
-    };
-
-    // 从测试设备选择窗口获取测试设备
-    // 数据格式：["ios:A8790C48-4986-4303-B235-D8AFA95402D4","android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"]
-    let selected = await showTestDeviceWindows(testPlatform);
-    return selected;
-};
-
-
-module.exports = {
-    get_uniTestPlatformInfo,
-    getTestDevices
-};
+module.exports = ui_formDialog;

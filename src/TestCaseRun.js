@@ -36,7 +36,7 @@ const Initialize = require('./Initialize.js');
 const {
     getTestDevices,
     get_uniTestPlatformInfo
-} = require('./lib/showTestDeviceWindows.js');
+} = require('./lib/main_for_device.js');
 
 const osName = os.platform();
 

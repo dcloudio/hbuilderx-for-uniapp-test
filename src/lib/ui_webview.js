@@ -64,7 +64,7 @@ async function getPhoneDevicesList(testPlatform) {
  * @description {Sting} testPlatform [ios|android|all]
  * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:uuid', 'ios:uuid']
  */
-async function showPhoneDevices(testPlatform) {
+async function ui_webview(testPlatform) {
     let phoneList = await getPhoneDevicesList(testPlatform)
 
     if ((testPlatform == 'android') || (osName != 'darwin' && testPlatform == 'all')) {
@@ -358,4 +358,4 @@ function Html(userSelectedTestPlatform, phoneList) {
     `
 };
 
-module.exports = showPhoneDevices;
+module.exports = ui_webview;
