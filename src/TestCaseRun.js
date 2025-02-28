@@ -17,7 +17,6 @@ let config = require('./config.js');
 const {
     isUniAppCli,
     isUniAppX,
-    writeFile,
     mkdirsSync,
     getFileNameForDate,
     getPluginConfig,

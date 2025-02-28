@@ -50,7 +50,10 @@ async function getAdbPath() {
  */
 async function getHdcPath() {
     const harmony_devTools_dir = await getPluginConfig('harmony.devTools.path');
-    const cfg_hdcPath = path.join(harmony_devTools_dir, "Contents/sdk/default/openharmony/toolchains/hdc");
+    let cfg_hdcPath = path.join(harmony_devTools_dir, "Contents/sdk/default/openharmony/toolchains/hdc");
+    if (osName == "win32") {
+        cfg_hdcPath = path.join(harmony_devTools_dir, "sdk/default/openharmony/toolchains/hdc.exe");
+    }
     // console.log("--> cfg_hdcPath", cfg_hdcPath);
     if (harmony_devTools_dir && fs.existsSync(cfg_hdcPath)) {
         hdcPath = cfg_hdcPath;
