@@ -9,7 +9,7 @@ const cmp_hx_version = require('./lib/cmp_version.js');
 const hxVersion = hx.env.appVersion;
 
 // 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
-const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{8}/, '');
+const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{10}/, '');
 const cmpVerionForH5 = cmp_hx_version(hxVersionForDiff, '3.2.10');
 
 let config = require('./config.js');
@@ -30,13 +30,15 @@ const {
     checkUtsProject,
     readUniappManifestJson
 } = require('./lib/utils.js');
+const editEnvjsFile = require('./edit_env_js_file.js');
+const modifyJestConfigJSFile = require('./edit_jest_config_js_file.js');
 
 const Initialize = require('./Initialize.js');
 
 const {
     getTestDevices,
     get_uniTestPlatformInfo
-} = require('./lib/main_for_device.js');
+} = require('./lib/main.js');
 
 const osName = os.platform();
 
@@ -347,168 +349,16 @@ class RunTest extends Common {
     };
 
     /**
-     * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
-     * @param {String} testPlatform
-     * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
-     */
-    async editEnvjsFile(testPlatform, deviceId) {
-        let env_js_path = this.UNI_AUTOMATOR_CONFIG;
-        try {
-            delete require.cache[require.resolve(env_js_path)];
-            var envjs = require(env_js_path);
-        } catch (e) {
-            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
-            return false;
-        };
-
-        if (testPlatform.includes("h5")) return true;
-
-        if (testPlatform == "mp-weixin") {
-            let weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
-            if (!weixin_executablePath || weixin_executablePath == "" || !fs.existsSync(weixin_executablePath)) {
-                createOutputChannel(`${env_js_path}, 请检查mp-weixin节点下的executablePath, 建议配置微信小程序路径。${config.i18n.weixin_tool_path_tips}`, 'error')
-                return false;
-            };
-            return true;
-        };
-
-        let launcherExecutablePath;
-        if (testPlatform == 'android') {
-            launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_ANDROID : config.LAUNCHER_ANDROID;
-        };
-
-        // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
-        if (testPlatform == 'ios') {
-            launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_IOS : config.LAUNCHER_IOS;;
-        };
-
-        // 设置自动化测试基座类型：自定义基座、标准基座。自定义基座需要用户手动设置基座路径。不再修改executablePath路径。
-        // 当isCustomRuntime = false 和 undefined 时，默认修改executablePath为标准基座路径
-        let isCustomRuntime = envjs["is-custom-runtime"];
-
-        if (is_uniapp_x) {
-            let oldLauncherVersion = envjs["app-plus"]?.["uni-app-x"]?.version;
-            if (oldLauncherVersion == undefined || oldLauncherVersion.trim() == '' || oldLauncherVersion != config.UNIAPP_X_LAUNCHER_VERSION_TXT) {
-                envjs['app-plus']['uni-app-x'] = {};
-                envjs['app-plus']['uni-app-x']['version'] = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
-            };
-        } else {
-            let oldLauncherVersion = envjs['app-plus']['version'];
-            if (oldLauncherVersion.trim() == '' || oldLauncherVersion == undefined || oldLauncherVersion != config.LAUNCHER_VERSION_TXT) {
-                envjs['app-plus']['version'] = config.LAUNCHER_VERSION_TXT;
-            };
-        };
-        let oldPhoneData = is_uniapp_x
-            ? envjs['app-plus']['uni-app-x']?.[testPlatform]
-            : envjs['app-plus'][testPlatform];
-
-        if (oldPhoneData == undefined || typeof oldPhoneData != 'object') {
-            oldPhoneData = {};
-        };
-
-        let { id,executablePath } = oldPhoneData;
-        if (id != deviceId || executablePath != launcherExecutablePath) {
-
-            if (is_uniapp_x) {
-                if (envjs['app-plus']['uni-app-x'][testPlatform] == undefined) {
-                    envjs['app-plus']['uni-app-x'][testPlatform] = {};
-                };
-                envjs['app-plus']['uni-app-x'][testPlatform]["id"] = deviceId;
-                if (isCustomRuntime == false || isCustomRuntime == undefined) {
-                    envjs['app-plus']['uni-app-x'][testPlatform]["executablePath"] = launcherExecutablePath;
-                };
-            } else {
-                envjs['app-plus'][testPlatform]['id'] = deviceId;
-                if (isCustomRuntime == false || isCustomRuntime == undefined) {
-                    envjs['app-plus'][testPlatform]['executablePath'] = launcherExecutablePath;
-                };
-            };
-            // 将修改的配置写入文件
-            let tmp_data = JSON.stringify(envjs, null, 4);
-            let lastContent = `module.exports = ${tmp_data}`;
-            let writeResult = await writeFile(env_js_path, lastContent);
-
-            if (writeResult != 'success') {
-                createOutputChannel(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');
-                return false;
-            };
-        };
-        return true;
-    };
-
-    /**
-     * @description 修改jest.config.js testMatch字段
-     * @param {String} scope - 测试范围，全部测试|单一用例测试
-     * @param {Object} proj - 项目信息
-     */
-    async modifyJestConfigJSFile(scope, proj) {
-        // 读取jest.config.js
-        let jest_config_js_path = path.join(this.projectPath, 'jest.config.js');
-        delete require.cache[require.resolve(jest_config_js_path)];
-        try{
-            var jestConfigContent = require(jest_config_js_path);
-        }catch(e){
-            createOutputChannel(`测试配置文件 ${jest_config_js_path} 应用异常，请检查。`, 'error');
-            return false;
-        };
-
-        // 插件配置项：是否自动修改jest.config.js文件中的testMatch
-        let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-        if (userConfig == false) return;
-
-        let { projectPath, selectedFile } = proj;
-        let projectTestMatch = is_uniapp_cli
-            ? "<rootDir>/src/pages/**/*test.[jt]s?(x)"
-            : "<rootDir>/pages/**/*test.[jt]s?(x)";
-
-        // one：代指仅测试单条用例
-        if (scope == 'one') {
-            let testcase_file_relative_path = selectedFile.slice(projectPath.length + 1);
-            projectTestMatch = `<rootDir>/${testcase_file_relative_path}`;
-
-            // 用于特定测试项目：dcloud-uts和uni-api
-            let test_js_path = path.basename(selectedFile) + ".test.js";
-            if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
-                projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
-            };
-        };
-
-        let oldTestMatch = jestConfigContent["testMatch"];
-        if (!Array.isArray(oldTestMatch)) {
-            createOutputChannel(`${jest_config_js_path} 测试配置文件, testMatch字段，应为数组类型，请检查。`, 'error')
-            return false;
-        };
-
-        try {
-            if (oldTestMatch[0] == projectTestMatch) {
-                return true;
-            };
-            let jestFileContent = fs.readFileSync(jest_config_js_path, 'utf-8');
-
-            // 替换: testMatch，此项决定了测试范围
-            let replaceText = `testMatch: ["${projectTestMatch}"]`;
-            let lastContent = jestFileContent.replace(/testMatch\s*:{1}\s*\[\S*\]/gi, replaceText);
-
-            let writeResult = await writeFile(jest_config_js_path, lastContent);
-            if (writeResult != 'success') {
-                createOutputChannel(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
-                return false;
-            };
-            return true;
-        } catch (e) {
-            createOutputChannel(`${jest_config_js_path} 修改测试配置文件异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
-            return false;
-        };
-    };
-
-    /**
-     * @description 测试运行执行方法, 用于运行单条测试用例
+     * @description 测试运行执行方法
      * @param {String} testPlatform - 测试平台, ios|android|h5|mp-weixin
      * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
      */
-    async run_a_test(testPlatform, deviceId) {
+    async run_uni_test(testPlatform, deviceId) {
 
-        let result = await this.editEnvjsFile(testPlatform, deviceId).catch(error => {
+        let envJSArgs = {
+            "is_uniapp_x": is_uniapp_x
+        };
+        let result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, envJSArgs).catch(error => {
             console.error("[error]....", error);
             createOutputChannel(`${testPlatform}，修改项目下测试配置文件 env.js出错，请检查！`, 'error');
             return false;
@@ -545,6 +395,10 @@ class RunTest extends Common {
         if (testPlatform == 'ios' || testPlatform == 'android') {
             UNI_OS_NAME = testPlatform;
             UNI_PLATFORM = 'app-plus';
+        };
+        if (testPlatform == 'harmony') {
+            UNI_OS_NAME = 'harmony';
+            UNI_PLATFORM = 'app-harmony';
         };
         if (testPlatform.substring(0, 3) == "h5-") {
             UNI_PLATFORM = "h5";
@@ -639,7 +493,7 @@ class RunTest extends Common {
             if (testPlatform.substring(0, 2) == "h5") {
                 cmdOpts.env.UNI_UTS_PLATFORM = "web";
             };
-            if (testPlatform == 'ios' || testPlatform == 'android') {
+            if (["ios", "android", "harmony"].includes(testPlatform)) {
                 cmdOpts.env.UNI_UTS_PLATFORM = `app-${testPlatform}`;
             };
             if (testPlatform.substring(0, 2) == "mp") {
@@ -720,7 +574,7 @@ class RunTest extends Common {
     };
 
     /**
-     * @description 运行测试
+     * @description 运行测试，适用于选择多个设备后执行
      * @param {Object} testPlatform [iOS|android|all]
      * @param {Object} testDevicesList
      */
@@ -738,9 +592,9 @@ class RunTest extends Common {
                 let deviceId = s.split(':')[1];
                 if (['h5','mp'].includes(plat)) {
                     plat= deviceId;
-                    await this.run_a_test(plat);
+                    await this.run_uni_test(plat);
                 } else {
-                    await this.run_a_test(plat, deviceId);
+                    await this.run_uni_test(plat, deviceId);
                 };
             };
         };
@@ -809,9 +663,15 @@ class RunTest extends Common {
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android'].includes(UNI_PLATFORM)) {
+        if (['all', 'ios', 'android', 'harmony'].includes(UNI_PLATFORM)) {
             // 选择要运行的设备
             testPhoneList = await getTestDevices(UNI_PLATFORM);
+            console.log("--->", testPhoneList);
+
+            // 异常判断
+            if (testPhoneList == "-1") {
+                return;
+            };
 
             // 异常判断
             if (testPhoneList == 'error') {
@@ -841,34 +701,38 @@ class RunTest extends Common {
         // 修改测试范围: 即全部测试、仅测试某个页面
         let proj = {
             "projectPath": projectPath,
-            "selectedFile": selectedFile
+            "selectedFile": selectedFile,
+            "is_uniapp_cli": is_uniapp_cli
         };
-        let changeResult = await this.modifyJestConfigJSFile(scope, proj);
+        let changeResult = await modifyJestConfigJSFile(scope, proj);
         if (changeResult == false) return;
 
         switch (UNI_PLATFORM) {
             case 'h5':
                 // h5: 仅代表chrome
-                this.run_a_test('h5');
+                this.run_uni_test('h5');
                 break;
             case 'h5-chrome':
                 // 兼容，不可删除
-                this.run_a_test('h5-chrome');
+                this.run_uni_test('h5-chrome');
                 break;
             case 'h5-safari':
-                this.run_a_test('h5-safari');
+                this.run_uni_test('h5-safari');
                 break;
             case 'h5-firefox':
-                this.run_a_test('h5-firefox');
+                this.run_uni_test('h5-firefox');
                 break;
             case 'mp-weixin':
-                this.run_a_test('mp-weixin');
+                this.run_uni_test('mp-weixin');
                 break;
             case 'ios':
                 this.run_more_test('ios', testPhoneList);
                 break;
             case 'android':
                 this.run_more_test('android', testPhoneList);
+                break;
+            case 'harmony':
+                this.run_more_test('harmony', testPhoneList);
                 break;
             case 'all':
                 this.run_more_test('all', testPhoneList);

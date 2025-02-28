@@ -18,5 +18,4 @@ function cmp_hx_version(a, b) {
     }
 };
 
-
 module.exports = cmp_hx_version;

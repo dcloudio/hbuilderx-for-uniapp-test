@@ -82,6 +82,12 @@ function activate(context) {
     });
     context.subscriptions.push(runTestAndroid);
 
+    // 运行所有测试用例：Harmony
+    let runTestHarmony = hx.commands.registerCommand('unitest.runTestHarmony', (param) => {
+        run.main(param, 'harmony');
+    });
+    context.subscriptions.push(runTestHarmony);
+
     // 运行当前选择的测试用例：全部
     let runCurrentTestToAll = hx.commands.registerCommand('unitest.runCurrentTestAll', (param) => {
         run.main(param, 'all', 'one');
@@ -123,6 +129,12 @@ function activate(context) {
         run.main(param, 'android', 'one');
     });
     context.subscriptions.push(runCurrentTestToAndroid);
+
+    // 运行当前选择的测试用例：Harmony
+    let runCurrentTestToHarmony = hx.commands.registerCommand('unitest.runCurrentTestToHarmony', (param) => {
+        run.main(param, 'harmony', 'one');
+    });
+    context.subscriptions.push(runCurrentTestToHarmony);
 
     // about
     let aboutPlugins = hx.commands.registerCommand('unitest.about', () => {

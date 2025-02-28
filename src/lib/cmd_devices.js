@@ -8,7 +8,9 @@ const hx = require('hbuilderx');
 
 const appRoot = hx.env.appRoot;
 const osName = os.platform();
+
 var adbPath = "adb";
+var hdcPath = "hdc";
 
 /**
  * @description 获取插件配置
@@ -44,11 +46,24 @@ async function getAdbPath() {
 };
 
 /**
+ * @description 获取hdc路径
+ */
+async function getHdcPath() {
+    const harmony_devTools_dir = await getPluginConfig('harmony.devTools.path');
+    const cfg_hdcPath = path.join(harmony_devTools_dir, "Contents/sdk/default/openharmony/toolchains/hdc");
+    // console.log("--> cfg_hdcPath", cfg_hdcPath);
+    if (harmony_devTools_dir && fs.existsSync(cfg_hdcPath)) {
+        hdcPath = cfg_hdcPath;
+    };
+    return;
+};
+
+/**
  * @description 运行cmd命令行
  * @param {string} cmd
  */
-function runADBCmdAsync(cmd) {
-    cmd = adbPath + " " + cmd;
+function runCmdAsync(programPath, cmd, format="array") {
+    cmd = programPath + " " + cmd;
     return new Promise((resolve, reject) => {
         exec(cmd, (error, stdout, stderr) => {
             if (error) {
@@ -56,7 +71,10 @@ function runADBCmdAsync(cmd) {
                 reject(error);
                 return;
             }
-            const lines = stdout.trim().split('\n');
+            let lines = stdout.trim().split('\n');
+            if (format == "format") {
+                lines = stdout.trim();
+            };
             resolve(lines);
         });
     });
@@ -69,7 +87,7 @@ function runADBCmdAsync(cmd) {
 async function getAndroidDeviceOSInfo(serno) {
     const cmd = `-s ${serno} shell getprop ro.build.version.release`;
     try{
-        let stdout = await runADBCmdAsync(cmd);
+        let stdout = await runCmdAsync(adbPath, cmd);
         if (stdout.length > 0){
             stdout = stdout[0].trim();
         };
@@ -90,7 +108,7 @@ async function getAndroidDeivcesListFormCmd() {
     await getAdbPath();
     let devices = [];
     try {
-        const output = await runADBCmdAsync("devices -l");
+        const output = await runCmdAsync(adbPath, "devices -l");
         for (let i = 1; i < output.length; i++) {
             const [deviceInfo, state] = output[i].split(' device ');
             const serno = deviceInfo.split(' ')[0];
@@ -107,4 +125,34 @@ async function getAndroidDeivcesListFormCmd() {
     };
 };
 
-module.exports = getAndroidDeivcesListFormCmd;
+/**
+ * @description 获取Harmony 设备列表
+ * @return {Array}
+ */
+async function getHarmonyDeivcesListFormCmd() {
+    await getHdcPath();
+    let devices = [];
+
+    try {
+        const output = await runCmdAsync(hdcPath, "list targets -v");
+        for (let s of output) {
+            if (s && s.includes("localhost") && s.includes("Connected")) {
+                const serno = s.split('\t')[0];
+                let name = "";
+                if (serno) {
+                    name = await runCmdAsync(hdcPath, `-t ${serno} shell param get const.product.name`, 'string');
+                };
+                devices.push({"name": name, "version": "", "uuid": serno});
+            };
+        };
+        // console.log(devices);
+        return devices;
+    } catch (error) {
+        return [];
+    };
+};
+
+module.exports = {
+    getAndroidDeivcesListFormCmd,
+    getHarmonyDeivcesListFormCmd
+};

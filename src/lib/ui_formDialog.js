@@ -3,7 +3,12 @@ const os = require('os');
 
 const osName = os.platform();
 const api_getMobileList = require("./api_getMobileList.js");
-const getAndroidDeivcesListFormCmd = require('./cmd_adb_devices.js');
+const {
+    getAndroidDeivcesListFormCmd
+} = require('./cmd_devices.js');
+
+// 测试设备
+global.global_devicesList = {};
 
 /**
  * @description UI：设备选择窗口，组织测试设备数据
@@ -216,6 +221,21 @@ function validateInput(testPlatform, formData, that) {
  * @return {Array} ["ios:A8790C48-4986-4303-B235-D8AFA95402D4","android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"]
  */
 async function ui_formDialog(testPlatform) {
+
+    global_devicesList = await api_getMobileList(testPlatform);
+    // 如果当前连接的Android设备只有一个，则不弹出测试设备选择窗口，直接运行。
+    if (testPlatform == 'android') {
+        let {
+            android,
+            android_simulator
+        } = global_devicesList;
+        let allAndroid = [...android, ...android_simulator];
+        if (allAndroid.length == 1) {
+            let one = 'android:' + allAndroid[0]['name'];
+            return [one];
+        };
+    };
+
     // 获取默认UI数据
     var uidata = await getUIData(testPlatform)
 
@@ -295,6 +315,8 @@ async function ui_formDialog(testPlatform) {
             };
         };
     };
+    // console.log("[selectedList] ->", selectedList);
+    // return [];
     return selectedList;
 };
 

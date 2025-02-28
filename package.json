@@ -22,6 +22,7 @@
         "onCommand:unitest.runTestWeiXin",
         "onCommand:unitest.runTestIOS",
         "onCommand:unitest.runTestAndroid",
+        "onCommand:unitest.runTestHarmony",
         "onCommand:unitest.runCurrentTestAll",
         "onCommand:unitest.runCurrentTestH5",
         "onCommand:unitest.runCurrentTestH5Safari",
@@ -29,6 +30,7 @@
         "onCommand:unitest.runCurrentTestWeiXin",
         "onCommand:unitest.runCurrentTestIOS",
         "onCommand:unitest.runCurrentTestAndroid",
+        "onCommand:unitest.runCurrentTestHarmony",
         "onCommand:unitest.reportHistory",
         "onCommand:unitest.reloadEnv",
         "onCommand:unitest.about",
@@ -98,6 +100,10 @@
                 "title": "运行测试到android"
             },
             {
+                "command": "unitest.runTestHarmony",
+                "title": "运行测试到android"
+            },
+            {
                 "command": "unitest.runCurrentTestAll",
                 "title": "运行当前测试到全部平台"
             },
@@ -124,6 +130,10 @@
             {
                 "command": "unitest.runCurrentTestAndroid",
                 "title": "运行当前测试到android"
+            },
+            {
+                "command": "unitest.runCurrentTestHarmony",
+                "title": "运行当前测试到Harmony"
             },
             {
                 "command": "unitest.reportHistory",
@@ -218,6 +228,11 @@
                     "group": "unitest@2"
                 },
                 {
+                    "command": "unitest.runTestHarmony",
+                    "title": "Harmony(&A)",
+                    "group": "unitest@1"
+                },
+                {
                     "group": "unitest@2"
                 },
                 {
@@ -271,6 +286,11 @@
                     "title": "iOS模拟器(&I)",
                     "when": "isMac",
                     "group": "unitestForCurrent@2"
+                },
+                {
+                    "command": "unitest.runCurrentTestHarmony",
+                    "title": "Harmony(&A)",
+                    "group": "unitestForCurrent@3"
                 },
                 {
                     "group": "unitestForCurrent@2"
@@ -329,6 +349,12 @@
                 {
                     "command": "unitest.runCurrentTestIOS",
                     "title": "iOS模拟器(&I)",
+                    "when": "isMac",
+                    "group": "unitestForCurrent@2"
+                },
+                {
+                    "command": "unitest.runCurrentTestHarmony",
+                    "title": "Harmony(&I)",
                     "when": "isMac",
                     "group": "unitestForCurrent@2"
                 },

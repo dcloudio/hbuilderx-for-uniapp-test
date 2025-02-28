@@ -2,10 +2,18 @@ const hx = require('hbuilderx');
 const os = require('os');
 
 const ui_formDialog = require("./ui_formDialog.js");
+const ui_vue = require("./ui_vue.js");
 const api_getMobileList = require("./api_getMobileList.js");
 
+const cmp_hx_version = require('./cmp_version.js');
+const hxVersion = hx.env.appVersion;
+
+// 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
+const hxVersionForDiff = hxVersion.replace('-alpha', '').replace('-dev', '').replace(/.\d{10}/, '');
+const cmpVerionForVue= cmp_hx_version(hxVersionForDiff, '4.40');
+
 // 测试设备
-global.global_devicesList = [];
+global.global_devicesList = {};
 
 /**
  * @description 内部使用。返回具体的测试设备信息
@@ -49,23 +57,23 @@ async function get_uniTestPlatformInfo(platform, deviceID) {
  * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:uuid', 'ios:uuid']
  */
 async function getTestDevices(testPlatform) {
-    global_devicesList = await api_getMobileList(testPlatform);
-    // 如果当前连接的Android设备只有一个，则不弹出测试设备选择窗口，直接运行。
-    if (testPlatform == 'android') {
-        let {
-            android,
-            android_simulator
-        } = global_devicesList;
-        let allAndroid = [...android, ...android_simulator];
-        if (allAndroid.length == 1) {
-            let one = 'android:' + allAndroid[0]['name'];
-            return [one];
-        };
+    // 从测试设备选择窗口获取测试设备
+    // 数据格式：[
+    //     "ios:A8790C48-4986-4303-B235-D8AFA95402D4",
+    //     "android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"
+    // ]
+
+    let selected = "";
+    // console.log("======", cmpVerionForVue);
+    // selected = await ui_formDialog(testPlatform);
+
+    if (cmpVerionForVue < 0) {
+        selected = await ui_vue(testPlatform);
+    } else {
+        selected = await ui_formDialog(testPlatform);
     };
 
-    // 从测试设备选择窗口获取测试设备
-    // 数据格式：["ios:A8790C48-4986-4303-B235-D8AFA95402D4","android:712KPQJ1103860","mp:mp-weixin","h5:h5-chrome","h5:h5-firefox","h5:h5-safari"]
-    let selected = await ui_formDialog(testPlatform);
+    // return [];
     return selected;
 };
 
