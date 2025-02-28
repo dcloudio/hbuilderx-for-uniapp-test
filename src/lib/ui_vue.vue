@@ -17,7 +17,7 @@
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 
-        <q-view layout='vbox' v-if="access == 'all' || access == 'ios'">
+        <q-view layout='vbox' v-if="(access == 'all' || access == 'ios') && osName == 'darwin'">
             <q-view layout='hbox'>
                 <q-label text="iOS模拟器"></q-label>
                 <q-label id="remark" :text="' 已选'+ selected_list['ios'].length +'个 '"></q-label>
@@ -95,6 +95,7 @@
     export default {
         data() {
             return {
+                osName: "",
                 access: 'all',
                 mp_weixin: false,
                 h5_chrome: false,
@@ -198,6 +199,7 @@
     #scrollView {
         width: 100%;
         justify-content: start;
+        border: none;
     }
 
     #labelView {

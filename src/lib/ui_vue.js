@@ -7,7 +7,12 @@ const osName = os.platform();
 async function ui_vue(testPlatform) {
     hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"));
 
-    let window_height = testPlatform == "all" ? 700 : 400;
+    let window_height = 700;
+    if (osName == "win32") {
+        window_height = testPlatform == "all" ? 500 : 400;
+    } else {
+        window_height = testPlatform == "all" ? 700 : 400;
+    };
 
     let subtitle = "选择要测试的手机设备或模拟器";
     subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
@@ -36,6 +41,7 @@ async function ui_vue(testPlatform) {
             "type": "vue:uniTest",
             "name": "uniTest",
             "value": {
+                "osName": osName,
                 "access": testPlatform
             },
             event: {
