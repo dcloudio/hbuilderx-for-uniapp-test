@@ -56,7 +56,7 @@ async function api_getMobileList(testPlatform, isRefresh="N") {
     let data = await hx.app.getMobileList(platform).then(data => {
         return data;
     });
-    console.log("[api_getMobileList] -->", data);
+    // console.log("[api_getMobileList] -->", data);
 
     // let data = await hx.app.getDevices().then(data => {
     //     return data;

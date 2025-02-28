@@ -172,7 +172,7 @@
             async refresh_device(platform='all') {
                 // console.log("--", platform);
                 let result = await api_getMobileList(platform, "Y");
-                console.log(`${platform} ====`, result);
+                // console.log(`${platform} ====`, result);
                 try {
                     if (platform == "all" || platform == "ios") {
                         this.ios_simulator_list = result.ios_simulator ? result?.ios_simulator : [];

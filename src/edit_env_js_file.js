@@ -3,6 +3,7 @@ let config = require('./config.js');
 const {
     writeFile,
     createOutputChannel,
+    getPluginConfig
 } = require('./lib/utils.js');
 
 /**
@@ -14,6 +15,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
     let {
         is_uniapp_x
     } = uniProjectInfo;
+    // console.log("===========", is_uniapp_x);
 
     try {
         delete require.cache[require.resolve(env_js_path)];
@@ -36,7 +38,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
         return true;
     };
 
-    let launcherExecutablePath;
+    let launcherExecutablePath = "";
     if (testPlatform == 'android') {
         launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_ANDROID : config.LAUNCHER_ANDROID;
     };
@@ -44,6 +46,20 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
     // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
     if (testPlatform == 'ios') {
         launcherExecutablePath = is_uniapp_x ? config.UNIAPP_X_LAUNCHER_IOS : config.LAUNCHER_IOS;;
+    };
+
+    // harmony自动化测试，需要获取devEco的路径。需求来源: 马权、王振法
+    if (testPlatform == 'harmony') {
+        try {
+            if (is_uniapp_x) {
+                launcherExecutablePath = envjs['app-plus']['uni-app-x'][testPlatform]['executablePath'];
+            } else {
+                launcherExecutablePath = envjs['app-plus'][testPlatform]['executablePath'];
+            };
+        } catch (error) {};
+        if (launcherExecutablePath == undefined || launcherExecutablePath == "") {
+            launcherExecutablePath = await getPluginConfig("harmony.devTools.path");
+        };
     };
 
     // 设置自动化测试基座类型：自定义基座、标准基座。自定义基座需要用户手动设置基座路径。不再修改executablePath路径。
@@ -71,8 +87,8 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
     };
 
     let {id,executablePath} = oldPhoneData;
+    // console.log("=======", oldPhoneData, launcherExecutablePath);
     if (id != deviceId || executablePath != launcherExecutablePath) {
-
         if (is_uniapp_x) {
             if (envjs['app-plus']['uni-app-x'][testPlatform] == undefined) {
                 envjs['app-plus']['uni-app-x'][testPlatform] = {};
