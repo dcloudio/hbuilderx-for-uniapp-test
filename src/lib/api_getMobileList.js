@@ -30,6 +30,9 @@ async function api_getMobileList(testPlatform, isRefresh="N") {
             global_devicesList["android"] != undefined) {
             return global_devicesList;
         };
+        if (testPlatform == "harmony" && global_devicesList["harmony"] != undefined) {
+            return global_devicesList;
+        };
     };
 
     if (testPlatform == "harmony" && isRefresh == "Y") {
