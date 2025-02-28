@@ -131,7 +131,9 @@
                 try {
                     this.ios_simulator_list = result.ios_simulator ? result?.ios_simulator : [];
                     this.android_list = result.android ? result.android : [];
-                    this.harmony_list = result.harmony ? result?.harmony : [];
+                    if (result.harmony) {
+                        this.harmony_list = result.harmony;
+                    };
                 } catch (error) {};
                 this.updateUi();
             },

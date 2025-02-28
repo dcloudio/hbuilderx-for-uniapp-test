@@ -19,7 +19,7 @@ async function ui_vue(testPlatform) {
         submitButtonText: "确定(&S)",
         cancelButtonText: "取消(&C)",
         footer: "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">自动化测试教程</a>",
-        width: 650,
+        width: 600,
         height: window_height,
         showModal: false,
         validate: async function(formData) {
