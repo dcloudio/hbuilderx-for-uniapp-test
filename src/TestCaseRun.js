@@ -543,7 +543,7 @@ class RunTest extends Common {
             ];
         };
 
-        if (['android', 'ios'].includes(UNI_OS_NAME)) {
+        if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
             cmdOpts["env"]["UNI_OS_NAME"] = UNI_OS_NAME;
         };
 
