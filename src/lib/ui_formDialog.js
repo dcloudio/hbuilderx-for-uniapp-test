@@ -29,10 +29,10 @@ async function getUIDataForDevices(isManualRefresh = false) {
     // 某些情况下点击【刷新】无法获取到正确的设备，这个时候插件调用adb devices获取
     if (isManualRefresh) {
         let adbCmdAndroidList =  await getAndroidDeivcesListFormCmd();
-        let sernoList = android.map(item => { return item.uuid });
+        let sernoList = android.map(item => { return item.udid });
         if (adbCmdAndroidList.length > 0) {
             for (let s of adbCmdAndroidList) {
-                if (!sernoList.includes(s.uuid)) {
+                if (!sernoList.includes(s.udid)) {
                     android.push(s)
                 };
             };
@@ -44,14 +44,14 @@ async function getUIDataForDevices(isManualRefresh = false) {
     if (android.length != 0) {
         AndroidList = android.map(item => {
             return {
-                "columns": [{"label": `Android ${item.version}`},{"label": item.uuid}]
+                "columns": [{"label": `Android ${item.version}`},{"label": item.udid}]
             }
         })
     };
     if (android_simulator.length != 0) {
         let tmp = android_simulator.map(item => {
             return {
-                "columns": [{"label": `Android ${item.version}`},{"label": item.uuid}]
+                "columns": [{"label": `Android ${item.version}`},{"label": item.udid}]
             }
         });
         AndroidList = [...AndroidList, ...tmp];
@@ -64,7 +64,7 @@ async function getUIDataForDevices(isManualRefresh = false) {
     if (ios_simulator.length != 0) {
         iOSList = ios_simulator.map(item => {
             return {
-                "columns": [{"label": item.name},{"label": item.uuid}]
+                "columns": [{"label": item.name},{"label": item.udid}]
             }
         })
     };
@@ -281,8 +281,8 @@ async function ui_formDialog(testPlatform) {
         let iOSList = result["list-ios"];
         if (iOSList.length != 0) {
             for (let s of iOSList) {
-                let uuid = global_devicesList["ios_simulator"][s]["uuid"];
-                selectedList.push(`ios:${uuid}`);
+                let udid = global_devicesList["ios_simulator"][s]["udid"];
+                selectedList.push(`ios:${udid}`);
             };
         };
     };
@@ -290,8 +290,8 @@ async function ui_formDialog(testPlatform) {
         let androidList = result["list-android"];
         if (androidList.length != 0) {
             for (let s of androidList) {
-                let uuid = global_devicesList["android"][s]["uuid"];
-                selectedList.push(`android:${uuid}`);
+                let udid = global_devicesList["android"][s]["udid"];
+                selectedList.push(`android:${udid}`);
             };
         };
     };

@@ -34,12 +34,12 @@
             </q-view>
             <q-list-view id="QListView" :minimumHeight = "150">
                 <q-list-item layout='hbox' v-for="item in filter_ios_simulator_list">
-                    <q-checkbox id='elCBoxItem' :text="'  ' + item.name + '    ' + item.uuid"
-                        :checked='selected_list["ios"].includes(item.uuid)'
+                    <q-checkbox id='elCBoxItem' :text="'  ' + item.name + '    ' + item.udid"
+                        :checked='selected_list["ios"].includes(item.udid)'
                         accessibleName="ios"
-                        :data-value="item.uuid"
+                        :data-value="item.udid"
                         @clicked="el_set"
-                        v-show="item.uuid"
+                        v-show="item.udid"
                     />
                 </q-list-item>
             </q-list-view>
@@ -55,9 +55,9 @@
             <q-list-view id="QListView" :minimumHeight = "50">
                 <q-list-item layout='hbox' v-for="item in android_list">
                     <q-checkbox id='elCBoxItem' :text="'  ' +  item.name + ' ( Android ' + item.version + ' )'"
-                        :checked='selected_list["android"].includes(item.uuid)'
+                        :checked='selected_list["android"].includes(item.udid)'
                         accessibleName="android"
-                        :data-value="item.uuid"
+                        :data-value="item.udid"
                         @clicked="el_set"
                     />
                 </q-list-item>
@@ -73,10 +73,10 @@
             </q-view>
             <q-list-view id="QListView" :minimumHeight = "50" >
                 <q-list-item layout='hbox' v-for="item in harmony_list">
-                    <q-checkbox id='elCBoxItem' :text="'  ' +  item.name + '    ' + item.uuid"
-                        :checked='selected_list["harmony"].includes(item.uuid)'
+                    <q-checkbox id='elCBoxItem' :text="'  ' +  item.name + '    ' + item.udid"
+                        :checked='selected_list["harmony"].includes(item.udid)'
                         accessibleName="harmony"
-                        :data-value="item.uuid"
+                        :data-value="item.udid"
                         @clicked="el_set"
                     />
                 </q-list-item>
@@ -104,6 +104,7 @@
                 filter_ios_name: "",
                 android_list: [],
                 ios_simulator_list: [],
+                // harmony_list: [{"udid": "FMRGK24826000345", "name": "huawei"}],
                 harmony_list: [],
                 selected_list: {
                     "harmony": [],
@@ -117,7 +118,7 @@
             filter_ios_simulator_list() {
                 const word = this.filter_ios_name;
                 if (word.trim() == "") return this.ios_simulator_list;
-                let tmp = this.ios_simulator_list.filter(item=> item.name.includes(word) || item.uuid.includes(word));
+                let tmp = this.ios_simulator_list.filter(item=> item.name.includes(word) || item.udid.includes(word));
                 return tmp;
             }
         },

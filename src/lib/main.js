@@ -33,11 +33,11 @@ async function get_uniTestPlatformInfo(platform, deviceID) {
             phoneOS = "ios_simulator";
         };
         for (let s of global_devicesList[phoneOS]) {
-            if (s.uuid == deviceID && phoneOS == "android") {
+            if (s.udid == deviceID && phoneOS == "android") {
                 uniTestPlatformInfo = s.platform + " " + s.version;
                 break;
             };
-            if (s.uuid == deviceID && phoneOS == "ios_simulator") {
+            if (s.udid == deviceID && phoneOS == "ios_simulator") {
                 uniTestPlatformInfo = s.platform + " " + s.version;
                 // uniTestPlatformInfo = s.platform + " " + s.name;
                 break;
@@ -54,7 +54,7 @@ async function get_uniTestPlatformInfo(platform, deviceID) {
  * @description 在webviewdialog内选择要测试的设备
  *  - 如果当前连接的设备只有一个，则不弹出测试设备选择窗口，直接运行。
  * @description {Sting} testPlatform [ios|android|all]
- * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:uuid', 'ios:uuid']
+ * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:udid', 'ios:udid']
  */
 async function getTestDevices(testPlatform) {
     // 从测试设备选择窗口获取测试设备

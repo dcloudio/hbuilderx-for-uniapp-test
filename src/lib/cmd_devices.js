@@ -118,7 +118,7 @@ async function getAndroidDeivcesListFormCmd() {
             if (serno.length > 0) {
                 const osInfo = await getAndroidDeviceOSInfo(serno);
                 if (osInfo != 'error') {
-                    devices.push({"version": osInfo, "uuid": serno});
+                    devices.push({"version": osInfo, "udid": serno});
                 }
             };
         };
@@ -145,7 +145,7 @@ async function getHarmonyDeivcesListFormCmd() {
                 if (serno) {
                     name = await runCmdAsync(hdcPath, `-t ${serno} shell param get const.product.name`, 'string');
                 };
-                devices.push({"name": name, "version": "", "uuid": serno});
+                devices.push({"name": name, "version": "", "udid": serno});
             };
         };
         // console.log(devices);

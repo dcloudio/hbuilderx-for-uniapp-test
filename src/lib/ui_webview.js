@@ -62,7 +62,7 @@ async function getPhoneDevicesList(testPlatform) {
  * @description 在webviewdialog内选择要测试的设备
  *  - 如果当前连接的设备只有一个，则不弹出测试设备选择窗口，直接运行。
  * @description {Sting} testPlatform [ios|android|all]
- * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:uuid', 'ios:uuid']
+ * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:udid', 'ios:udid']
  */
 async function ui_webview(testPlatform) {
     let phoneList = await getPhoneDevicesList(testPlatform)
@@ -196,11 +196,11 @@ function Html(userSelectedTestPlatform, phoneList) {
                         <div class="col-8 area-right">
                             <div v-if="PlatformForPhoneList.length && !['h5','mp'].includes(currentPlatform)">
                                 <ul class="pl-0 mt-3 device_list">
-                                    <li v-for="(item2,idx2) in PlatformForPhoneList" :key="idx2" :title="item2.name + ' ' + item2.uuid">
+                                    <li v-for="(item2,idx2) in PlatformForPhoneList" :key="idx2" :title="item2.name + ' ' + item2.udid">
                                         <input type="checkbox" class="mr-2"
                                             :id="item2.name"
                                             :name="currentPlatform"
-                                            :value="currentPlatform + ':' + item2.uuid"
+                                            :value="currentPlatform + ':' + item2.udid"
                                             v-model="selectedDevicesList"/>
                                         <label :for="item2.name" v-if="currentPlatform.includes('android')">{{ item2.name }} - {{ item2.version }}</label>
                                         <label :for="item2.name" v-else>{{ item2.name }}</label>
