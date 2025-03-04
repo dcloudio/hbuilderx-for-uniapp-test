@@ -97,11 +97,10 @@ class Initialize extends Common {
             ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
             : `自动化测试环境，需要安装jest、adbkit、puppeteer等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
         let title = action == 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
-        let btn = await hxShowMessageBox(title, prompt, ['好的', '关闭']).then( btn => {
+        let btn = await hxShowMessageBox(title, prompt, ['去升级', '忽略升级']).then( btn => {
             return btn;
         });
-
-        if (btn == '好的' && action == 'upgrade') {
+        if (['好的', '去升级'].includes(btn) && action == 'upgrade') {
             await this.createFile("package.json", source_file, target_file);
 
 			const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
@@ -175,7 +174,8 @@ class Initialize extends Common {
 
         if (lib_version != template_version) {
             actions['action'] = 'upgrade';
-            this.installTestLibs(test_lib_dir, actions);
+            const _i_result = await this.installTestLibs(test_lib_dir, actions);
+            if (["忽略升级"].includes(_i_result)) return true;
             return false;
         };
 
