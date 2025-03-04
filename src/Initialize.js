@@ -26,6 +26,9 @@ let {
 const os = require('os');
 const osName = os.platform();
 
+// 当前忽略升级
+let current_ignore_upgrade = false;
+
 class Common {
     constructor() {};
 
@@ -173,9 +176,13 @@ class Initialize extends Common {
         };
 
         if (lib_version != template_version) {
+            if (current_ignore_upgrade) return true;
             actions['action'] = 'upgrade';
             const _i_result = await this.installTestLibs(test_lib_dir, actions);
-            if (["忽略升级"].includes(_i_result)) return true;
+            if (["忽略升级"].includes(_i_result)) {
+                current_ignore_upgrade = true;
+                return true;
+            };
             return false;
         };
 
