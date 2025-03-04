@@ -133,19 +133,21 @@ class Common {
         };
 
         // 判断是否安装测试环境必须的插件
+        let uni_plugin_check = true;
         for (let e of Object.keys(plugin_list)) {
-            if (!fs.existsSync(plugin_list[e])) {
-                testEnv = false;
+            // console.error("=============", plugin_list[e], fs.existsSync(plugin_list[e]));
+            if (fs.existsSync(plugin_list[e]) == false) {
+                uni_plugin_check = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
                 const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'info');
             };
         };
 
-        if (testEnv == false && is_uniapp_x) {
+        if (uni_plugin_check == false && is_uniapp_x) {
             createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
         };
-        if (testEnv == false && is_uts_project) {
+        if (uni_plugin_check == false && is_uts_project) {
             createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
         };
 
