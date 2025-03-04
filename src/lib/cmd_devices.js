@@ -68,12 +68,15 @@ async function getHdcPath() {
 function runCmdAsync(programPath, cmd, format="array") {
     cmd = programPath + " " + cmd;
     return new Promise((resolve, reject) => {
-        exec(cmd, (error, stdout, stderr) => {
+        exec(cmd, {
+            env: { ...process.env }
+        }, function(error, stdout, stderr) {
             if (error) {
                 console.error(`执行命令时出错： ${error}`);
                 reject(error);
                 return;
-            }
+            };
+            // console.log("cmd output =", stdout);
             let lines = stdout.trim().split('\n');
             if (format == "format") {
                 lines = stdout.trim();

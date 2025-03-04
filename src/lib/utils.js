@@ -414,7 +414,9 @@ async function writeFile(fpath, filecontent) {
  */
 function checkNode() {
     return new Promise((resolve, reject) => {
-        exec('node -v', function(error, stdout, stderr) {
+        exec('node -v', {
+            env: { ...process.env }
+        }, function(error, stdout, stderr) {
             if (error) {
                 reject("N");
             };
