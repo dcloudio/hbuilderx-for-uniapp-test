@@ -1,8 +1,12 @@
 # 更新日志
 
 ## 2.0.0
-* 新增 自动化测试支持运行到鸿蒙
-* 重构 uni测试设备选择窗口
+* 新增 uni自动化测试支持运行到鸿蒙平台
+* 重构 uni测试设备选择窗口UI
+* 优化 uni自动化测试，测试依赖升级弹窗，支持忽略升级，不再强制操作
+* 优化 node exec执行，传递process.env
+* 优化 uni测试设备获取方法。 使用hx.extensions.getExtension替代hx.app.getMobileList
+* 优化 uni自动化测试，优化测试依赖判断，减少不必要的判断
 
 ## 1.9.0
 * 新增 env.js 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给uniapp自动化测试框架命令行
