@@ -590,7 +590,8 @@ class RunTest extends Common {
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
-                let deviceId = s.split(':')[1];
+                // let deviceId = s.split(':')[1];
+                let deviceId = s.split(':').slice(1).join(':');
                 if (['h5','mp'].includes(plat)) {
                     plat= deviceId;
                     await this.run_uni_test(plat);
