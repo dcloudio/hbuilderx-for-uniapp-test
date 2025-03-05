@@ -612,6 +612,8 @@ class RunTest extends Common {
      * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
      */
     async main(param, UNI_PLATFORM, scope = "all") {
+        // console.log("[main] ->", param, UNI_PLATFORM, scope);
+
         // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
         if (cmpVerionForH5 > 0 && UNI_PLATFORM.includes('h5-firefox', 'h5-safari')) {
             createOutputChannel(config.i18n.env_h5_test_version_prompt ,'warning');

@@ -131,7 +131,7 @@ function activate(context) {
     context.subscriptions.push(runCurrentTestToAndroid);
 
     // 运行当前选择的测试用例：Harmony
-    let runCurrentTestToHarmony = hx.commands.registerCommand('unitest.runCurrentTestToHarmony', (param) => {
+    let runCurrentTestToHarmony = hx.commands.registerCommand('unitest.runCurrentTestHarmony', (param) => {
         run.main(param, 'harmony', 'one');
     });
     context.subscriptions.push(runCurrentTestToHarmony);

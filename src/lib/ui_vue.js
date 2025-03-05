@@ -64,12 +64,13 @@ async function ui_vue(testPlatform) {
         return 'error';
     });
     // 未选择设备：返回noSelected
-    if (result == "noSelected") {
+    if (result == "noSelected" || result == "-1") {
         return "noSelected";
     };
     if (result == "error") {
         return "error";
     };
+    // console.log("-->", result, result["selected_list"]);
 
     let selectedList = [];
     let windows_selected_harmony_list = result["selected_list"]["harmony"];
