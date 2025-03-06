@@ -18,7 +18,7 @@ async function modifyJestConfigJSFile(scope="", proj={}) {
     let { projectPath, selectedFile, is_uniapp_cli } = proj;
 
     // 读取jest.config.js
-    let jest_config_js_path = path.join(projectPath, 'jest.config.js');
+    const jest_config_js_path = path.join(projectPath, 'jest.config.js');
     delete require.cache[require.resolve(jest_config_js_path)];
 
     try{

@@ -178,12 +178,15 @@ class Common {
 
     /**
      * @description 获取unicloud服务信息
-     * @param {String} projectPath
-     * @param {Object} param
+     * @param {String} projectPath - 项目路径
+     * @param {Object} param - 参数
      */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
-        if ( !fs.existsSync(path.join(projectPath, "uniCloud-tcb")) && !fs.existsSync(path.join(projectPath, "uniCloud-aliyun")) && !fs.existsSync(path.join(projectPath, "uniCloud-alipay")) ) {
+
+        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay"];
+        const uniCloudExists = uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
+        if (!uniCloudExists) {
             return;
         };
 
@@ -316,7 +319,8 @@ class Common {
                 numPassedTestSuites,
                 numFailedTestSuites
             } = report;
-            let msg = `${consoleMessagePrefix}测试用例总计：${numTotalTestSuites}，运行通过 ${numPassedTestSuites}，运行失败 ${numFailedTestSuites}，运行异常 ${numRuntimeErrorTestSuites}`;
+            let msg = `${consoleMessagePrefix}测试用例总计：${numTotalTestSuites}，` +
+                `运行通过 ${numPassedTestSuites}，运行失败 ${numFailedTestSuites}，运行异常 ${numRuntimeErrorTestSuites}`;
             createOutputChannel(msg);
         } catch (e) { };
     };

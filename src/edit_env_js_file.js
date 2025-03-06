@@ -8,13 +8,16 @@ const {
 
 /**
  * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
- * @param {String} testPlatform
+ * 
+ * @param {String} env_js_path - 测试配置文件路径
+ * @param {String} testPlatform - 测试平台，如：ios、android、mp-weixin、harmony
  * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
+ * @param {Object} uniProjectInfo - uni-app项目信息
+ * 
+ * @returns {Boolean} - 修改成功返回true，失败返回false
  */
 async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniProjectInfo={}) {
-    let {
-        is_uniapp_x
-    } = uniProjectInfo;
+    let { is_uniapp_x } = uniProjectInfo;
     // console.log("===========", is_uniapp_x);
 
     try {
@@ -28,11 +31,10 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
     if (testPlatform.includes("h5")) return true;
 
     if (testPlatform == "mp-weixin") {
-        let weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
-        if (!weixin_executablePath || weixin_executablePath == "" || !fs.existsSync(weixin_executablePath)) {
-            createOutputChannel(
-                `${env_js_path}, 请检查mp-weixin节点下的executablePath, 建议配置微信小程序路径。${config.i18n.weixin_tool_path_tips}`,
-                'error')
+        const weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
+        if (!weixin_executablePath || !fs.existsSync(weixin_executablePath)) {
+            const _e_msg = `${env_js_path}, 请检查mp-weixin节点下的executablePath, 建议配置微信小程序路径。${config.i18n.weixin_tool_path_tips}`;
+            createOutputChannel( _e_msg, 'error');
             return false;
         };
         return true;
@@ -78,6 +80,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
             envjs['app-plus']['version'] = config.LAUNCHER_VERSION_TXT;
         };
     };
+    
     let oldPhoneData = is_uniapp_x ?
         envjs['app-plus']['uni-app-x']?.[testPlatform] :
         envjs['app-plus'][testPlatform];
@@ -88,6 +91,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
 
     let {id,executablePath} = oldPhoneData;
     // console.log("=======", oldPhoneData, launcherExecutablePath);
+
     if (id != deviceId || executablePath != launcherExecutablePath) {
         if (is_uniapp_x) {
             if (envjs['app-plus']['uni-app-x'][testPlatform] == undefined) {

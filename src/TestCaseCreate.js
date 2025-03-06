@@ -19,6 +19,7 @@ function getTestCaseName(selected) {
 
 /**
  * @description 创建测试用例文件
+ * @param {Object} param - 项目管理器选中文件信息
  */
 async function TestCaseCreate(param) {
     let defaultName = "";
@@ -26,7 +27,7 @@ async function TestCaseCreate(param) {
     let selectedFile = "";
 
     // 自动生成测试用例文件名称
-    if (param != null) {
+    if (param && typeof param === 'object') {
         try{
             projectPath = param.workspaceFolder.uri.fsPath;
             selectedFile = param.fsPath;
