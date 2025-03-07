@@ -16,7 +16,7 @@ async function ui_vue(testPlatform) {
 
     let subtitle = "选择要测试的手机设备或模拟器";
     subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
-    subtitle = subtitle + '<a href="https://hx.dcloud.net.cn/Tutorial/App/installSimulator">如何安装?</a>'
+    subtitle = subtitle + '<a href="https://uniapp.dcloud.net.cn/tutorial/run/installSimulator.html">如何安装?</a>'
 
     let result = await hx.window.showFormDialog({
         title: "uni-app 自动化测试设备选择",
