@@ -66,7 +66,7 @@ async function getHdcPath() {
  * @param {string} cmd
  */
 function runCmdAsync(programPath, cmd, format="array") {
-    cmd = programPath + " " + cmd;
+    cmd = `"${programPath}" ${cmd}`;
     return new Promise((resolve, reject) => {
         exec(cmd, {
             env: { ...process.env }
