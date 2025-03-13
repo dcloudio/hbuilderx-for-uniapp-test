@@ -674,7 +674,7 @@ class RunTest extends Common {
         if (['all', 'ios', 'android', 'harmony'].includes(UNI_PLATFORM)) {
             // 选择要运行的设备
             testPhoneList = await getTestDevices(UNI_PLATFORM);
-            console.log("--->", testPhoneList);
+            console.error("[自动化测试连接的设备]--->", testPhoneList);
 
             // 异常判断
             if (testPhoneList == "-1") {

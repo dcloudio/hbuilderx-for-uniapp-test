@@ -40,20 +40,33 @@ async function getMobileList(testPlatform, isRefresh="N") {
     let data = await hx.app.getMobileList(platform).then(data => {
         return data;
     });
-
     try{
-        // 先这样，后期在区分修改
-        if (data.hasOwnProperty("android_simulator")) {
-            data["android"] = [...data["android"], ...data["android_simulator"]]
+        // 这里的目的主要是为了合并android真机和模拟器，并增加一个udid字段。
+        let {android_simulator, android} = data;
+        let tmp_android_simulator = [];
+        let tmp_android = [];
+        if (android_simulator != undefined && android_simulator.length > 0) {
+            tmp_android_simulator = android_simulator.map(function(v) {
+                return Object.assign(v, {"udid": v["uuid"]})
+            });
         };
+        if (android != undefined && android.length > 0) {
+            tmp_android = android.map(function(v) {
+                return Object.assign(v, {"udid": v["uuid"]})
+            });
+        };
+        global_devicesList["android"] = [...tmp_android_simulator, ...tmp_android];
     }catch(e){};
 
     try {
         let {ios_simulator} = data;
-        if (ios_simulator != undefined && ios_simulator.length) {
+        if (ios_simulator != undefined && ios_simulator.length > 0) {
             let tmp = ios_simulator.filter(n => {
                 return !(n.name).includes('Apple Watch') && !(n.name).includes('iPad') && !(n.name)
                     .includes('Apple TV') && !(n.name).includes('iPod touch');
+            });
+            tmp = tmp.map(function(v) {
+                return Object.assign(v, {"udid": v["uuid"]})
             });
             data['ios_simulator'] = tmp.reverse();
         };
@@ -147,6 +160,7 @@ async function api_getMobileList(testPlatform, isRefresh="N") {
             result = await getMobileList(testPlatform, isRefresh);
         } catch (error) {}
     };
+    console.error("------[所有的设备]------", result);
     return result;
 };
 

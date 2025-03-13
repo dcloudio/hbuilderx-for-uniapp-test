@@ -223,6 +223,7 @@ function validateInput(testPlatform, formData, that) {
 async function ui_formDialog(testPlatform) {
 
     global_devicesList = await api_getMobileList(testPlatform);
+
     // 如果当前连接的Android设备只有一个，则不弹出测试设备选择窗口，直接运行。
     if (testPlatform == 'android') {
         let {
@@ -231,7 +232,7 @@ async function ui_formDialog(testPlatform) {
         } = global_devicesList;
         let allAndroid = [...android, ...android_simulator];
         if (allAndroid.length == 1) {
-            let one = 'android:' + allAndroid[0]['name'];
+            let one = 'android:' + allAndroid[0]['udid'];
             return [one];
         };
     };
