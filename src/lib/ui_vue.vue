@@ -124,7 +124,7 @@
         },
 
         created() {
-            this.get_current_pc_device_list('all');
+            this.get_current_pc_device_list(this.access);
         },
 
         methods: {

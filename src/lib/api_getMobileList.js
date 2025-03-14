@@ -120,7 +120,7 @@ async function getDevicesFormLauncher(testPlatform, isRefresh) {
 
 async function api_getMobileList(testPlatform, isRefresh="N") {
     hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test: 正在获取测试设备列表...", 5000, 'info');
-    // console.log("============", testPlatform, global_devicesList)
+    // console.log("============", testPlatform, global_devicesList, global_devicesList["harmony"]);
 
     if (isRefresh == "N") {
         if (testPlatform == "all" &&
@@ -157,10 +157,11 @@ async function api_getMobileList(testPlatform, isRefresh="N") {
 
     if (is_error) {
         try {
+            console.error("因getDevicesFormLauncher错误，使用getMobileList获取设备列表......")
             result = await getMobileList(testPlatform, isRefresh);
         } catch (error) {}
     };
-    console.error("------[所有的设备]------", result);
+    // console.error("------[所有的设备]------", result);
     return result;
 };
 
