@@ -355,7 +355,6 @@
                 {
                     "command": "unitest.runCurrentTestHarmony",
                     "title": "Harmony(&I)",
-                    "when": "isMac",
                     "group": "unitestForCurrent@2"
                 },
                 {
