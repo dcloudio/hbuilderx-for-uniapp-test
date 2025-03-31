@@ -454,6 +454,16 @@ class RunTest extends Common {
             return;
         };
 
+        // 2025-03-31 hello-uniapp-x项目，增加下列环境变量，以便测试unipush
+        if (testPlatform == 'harmony') {
+            const envKeys = ["UNI_getui_appid", "UNI_harmony_client_id", "UNI_getui_verify_appid"];
+            envKeys.forEach(key => {
+                if (cmdOpts["env"]?.[key] === undefined) {
+                    cmdOpts["env"][key] = "";
+                }
+            });
+        };
+
         // 配置项：获取用户是否设置使用内置adb路径
         const hx_config_adb_path = await getPluginConfig('adb.path');
         if (hx_config_adb_path && fs.existsSync(hx_config_adb_path)) {
