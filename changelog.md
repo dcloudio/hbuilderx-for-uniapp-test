@@ -1,5 +1,10 @@
 # 更新日志
 
+## 3.1.0
+* 新增 测试运行到鸿蒙，增加3个环境变量 "UNI_getui_appid", "UNI_harmony_client_id", "UNI_getui_verify_appid"
+* 修复 package.json Windows 编辑器右键菜单没有显示鸿蒙入口的Bug
+* 调整 src/lib/ui_vue.js 避免hx.vue.defineComponent重复创建
+
 ## 3.0.3
 * 修复 uni测试设备窗口，鸿蒙设备每次都重新获取，导致每次都需要等待的BUg
 * 修复 cmd_devices.py runCmdAsync 当程序路径存在空格，导致无法获取设备的Bug
