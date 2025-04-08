@@ -1,5 +1,8 @@
 # 更新日志
 
+## 3.1.1
+* 调整 package.json描述
+
 ## 3.1.0
 * 新增 测试运行到鸿蒙，增加3个环境变量 "UNI_getui_appid", "UNI_harmony_client_id", "UNI_getui_verify_appid"
 * 修复 package.json Windows 编辑器右键菜单没有显示鸿蒙入口的Bug
