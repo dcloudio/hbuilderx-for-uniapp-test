@@ -157,6 +157,17 @@ function activate(context) {
         });
     });
     context.subscriptions.push(AutotestMatch);
+
+    // 是否输出调试日志
+    let debugLog = hx.commands.registerCommand('unitest.enableDebugLog', () => {
+        let config = hx.workspace.getConfiguration();
+        let result = config.get('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
+        config.update('hbuilderx-for-uniapp-test.isDebug', !result).then( () => {
+            let text = result ? '取消' : '启用';
+            hx.window.setStatusBarMessage(`已 ${text} 自动修改调试日志输出。`, 'info', 10000);
+        });
+    });
+    context.subscriptions.push(debugLog);
 };
 
 //该方法将在插件禁用的时候调用（目前是在插件卸载的时候触发）

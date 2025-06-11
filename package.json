@@ -35,11 +35,13 @@
         "onCommand:unitest.reloadEnv",
         "onCommand:unitest.about",
         "onCommand:unitest.stopRunTest",
-        "onCommand:unitest.isAutotestMatch"
+        "onCommand:unitest.isAutotestMatch",
+        "onCommand:unitest.enableDebugLog"
     ],
     "contributes": {
         "expressions": {
             "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
+            "isDebugLog": "config.hbuilderx-for-uniapp-test.isDebug",
             "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
             "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
             "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
@@ -141,7 +143,11 @@
             },
             {
                 "command": "unitest.isAutotestMatch",
-                "title": "是否自动修改testMatch"
+                "title": "是否自动修改jest.config.js中的testMatch"
+            },
+            {
+                "command": "unitest.enableDebugLog",
+                "title": "是否输出Debug调试日志"
             },
             {
                 "command": "unitest.reloadEnv",
@@ -402,6 +408,14 @@
                 {
                     "command": "unitest.isAutotestMatch",
                     "checked": "expression.isAutoTestMatch",
+                    "group": "unitest@1"
+                },
+                {
+                    "command": "unitest.enableDebugLog",
+                    "checked": "expression.isDebugLog",
+                    "group": "unitest@1"
+                },
+                {
                     "group": "unitest@1"
                 },
                 {
