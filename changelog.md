@@ -1,5 +1,8 @@
 # 更新日志
 
+## 3.1.2
+* 调整 因hx 4.75之后版本废弃API hx.unicloud.getExistsUnicloudAndBindSpace, 改用调用uniCloud插件
+
 ## 3.1.1
 * 调整 package.json描述
 
