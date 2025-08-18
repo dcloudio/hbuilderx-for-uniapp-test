@@ -1,19 +1,22 @@
 const fs = require('fs');
 let config = require('./config.js');
 const {
-    writeFile,
     createOutputChannel,
     getPluginConfig
-} = require('./lib/utils.js');
+} = require('./core.js');
+
+const {
+    fsWriteFile
+} = require('../utils/utils_files.js');
 
 /**
  * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
- * 
+ *
  * @param {String} env_js_path - 测试配置文件路径
  * @param {String} testPlatform - 测试平台，如：ios、android、mp-weixin、harmony
  * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
  * @param {Object} uniProjectInfo - uni-app项目信息
- * 
+ *
  * @returns {Boolean} - 修改成功返回true，失败返回false
  */
 async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniProjectInfo={}) {
@@ -80,7 +83,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
             envjs['app-plus']['version'] = config.LAUNCHER_VERSION_TXT;
         };
     };
-    
+
     let oldPhoneData = is_uniapp_x ?
         envjs['app-plus']['uni-app-x']?.[testPlatform] :
         envjs['app-plus'][testPlatform];
@@ -113,7 +116,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
         // 将修改的配置写入文件
         let tmp_data = JSON.stringify(envjs, null, 4);
         let lastContent = `module.exports = ${tmp_data}`;
-        let writeResult = await writeFile(env_js_path, lastContent);
+        let writeResult = await fsWriteFile(env_js_path, lastContent);
 
         if (writeResult != 'success') {
             createOutputChannel(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');

@@ -1,7 +1,7 @@
 const hx = require("hbuilderx");
 
 const { about, checkUpgrade } = require('./public/about.js');
-const { stopRunTest } = require('./src/lib/utils.js');
+const { stopRunTest } = require('./src/core/core.js');
 
 const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");

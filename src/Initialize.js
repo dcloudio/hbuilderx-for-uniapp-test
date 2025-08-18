@@ -9,17 +9,20 @@ const path = require('path');
 
 const {
     isUniAppCli,
-    mkdirsSync,
     createOutputChannel,
     hxShowMessageBox,
     checkCustomTestEnvironmentDependency
-} = require('./lib/utils.js');
+} = require('./core/core.js');
+
+const {
+    mkdirsSync
+} = require('./utils/utils_files.js');
 
 let {
     testReportOutPutDir,
     UTS_USER_DATA_PATH,
     HBuilderX_NPM_PATH
-} = require('./config.js')
+} = require('./core/config.js');
 
 const os = require('os');
 const osName = os.platform();

@@ -10,39 +10,6 @@ const osName = os.platform();
 var child;
 var child_pid;
 
-/**
- * @description 递归创建目录 同步方法
- * @param {Object} dirname
- * @return {Boolean}
- */
-function mkdirsSync(dirname) {
-    if (fs.existsSync(dirname)) {
-        return true;
-    } else {
-        if (mkdirsSync(path.dirname(dirname))) {
-            fs.mkdirSync(dirname);
-            return true;
-        };
-    };
-};
-
-/**
- * @description 以当前时间生成文件名
- * @return {String}
- */
-function getFileNameForDate() {
-    let now = new Date();
-    let year = now.getFullYear();
-    let month = now.getMonth();
-    let date = now.getDate();
-    let hour = now.getHours();
-    let minu = now.getMinutes();
-    month = month + 1;
-    if (month < 10) month = "0" + month;
-    if (date < 10) date = "0" + date;
-    let time = year + month + date + hour + minu;
-    return time;
-};
 
 /**
  * @description 判断是否是uniapp-cli项目
@@ -394,44 +361,6 @@ async function openAndRunTerminal(runDir, cmd) {
 };
 
 /**
- * @description 写入文件
- */
-async function writeFile(fpath, filecontent) {
-    return new Promise(function(resolve, reject) {
-        fs.writeFile(fpath, filecontent, function (err) {
-            if (err) {
-                console.eror(err);
-                reject(err);
-            };
-            resolve('success');
-        });
-    });
-};
-
-
-/**
- * @description 检查本机是否安装node
- */
-function checkNode() {
-    return new Promise((resolve, reject) => {
-        exec('node -v', {
-            env: { ...process.env }
-        }, function(error, stdout, stderr) {
-            if (error) {
-                reject("N");
-            };
-            try {
-                let version = stdout.match(/(\d{1,3}.\d{1,3}.\d{1,3})/g)[0];
-                resolve('Y');
-            } catch (e) {
-                reject('N');
-            };
-        });
-    });
-};
-
-
-/**
  * @description 停止运行测试
  */
 function stopRunTest() {
@@ -518,16 +447,12 @@ async function readUniappManifestJson(project_path, is_uniapp_cli, field) {
 };
 
 module.exports = {
-    mkdirsSync,
-    writeFile,
-    getFileNameForDate,
     getPluginConfig,
     createOutputChannel,
     createOutputViewForHyperLinks,
     openAndRunTerminal,
     runCmd,
     hxShowMessageBox,
-    checkNode,
     isUniAppCli,
     isUniAppX,
     stopRunTest,

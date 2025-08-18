@@ -4,33 +4,41 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
-const get_test_port = require("./lib/get_test_port.js");
-const cmp_hx_version = require('./lib/cmp_version.js');
+const get_test_port = require("./utils/get_test_port.js");
+const compareHBuilderXVersions = require('./utils/compare_hx_versions.js');
 const hxVersion = hx.env.appVersion;
 
 // 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
 const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{10}/, '');
-const cmpVerionForH5 = cmp_hx_version(hxVersionForDiff, '3.2.10');
+const cmpVerionForH5 = compareHBuilderXVersions(hxVersionForDiff, '3.2.10');
 
-let config = require('./config.js');
+let config = require('./core/config.js');
 
+const getProjectUnicloudData = require("./core/get_project_unicloud_data.js");
 const {
     isUniAppCli,
     isUniAppX,
-    mkdirsSync,
-    getFileNameForDate,
     getPluginConfig,
     runCmd,
     createOutputViewForHyperLinks,
     createOutputChannel,
     hxShowMessageBox,
-    checkNode,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson
-} = require('./lib/utils.js');
-const editEnvjsFile = require('./edit_env_js_file.js');
-const modifyJestConfigJSFile = require('./edit_jest_config_js_file.js');
+} = require('./core/core.js');
+
+const {
+    checkNode
+} = require('./utils/utils_public.js');
+
+const {
+    mkdirsSync,
+    getFileNameForDate
+} = require('./utils/utils_files.js');
+
+const editEnvjsFile = require('./core/edit_env_js_file.js');
+const modifyJestConfigJSFile = require('./core/edit_jest_config_js_file.js');
 
 const Initialize = require('./Initialize.js');
 
@@ -176,35 +184,6 @@ class Common {
         };
     };
 
-    // 调用unicloud插件的getWorkspaceBindServiceSpace方法
-    async unicloud_extension_getWorkspaceBindServiceSpace(workspaceFolder) {
-        let u_tmp = [];
-        let u_cloud = await hx.extensions.getExtension("unicloud");
-        let u_result = await u_cloud.getWorkspaceBindServiceSpace({"workspaceFolder": workspaceFolder});
-        let u_allSpaces = u_result.allSpaces;
-        if (u_allSpaces == undefined || u_allSpaces.length == 0) {
-            return u_tmp;
-        };
-        for (let s of u_allSpaces) {
-            if (s.provider == "tcb") {
-                u_tmp.push({"id": s.spaceId,"name":s.spaceName,"provider":"tcb"});
-            };
-            if (s.provider == "aliyun") {
-                let t_ali = Object.assign({"id": s.spaceId, "name":s.spaceName}, s);
-                u_tmp.push(t_ali);
-            };
-            if (s.provider == "alipay") {
-                let t_a = Object.assign({"id": s.spaceId}, s);
-                u_tmp.push(t_a);
-            };
-            if (s.provider == "dcloud") {
-                let t_dcloud= Object.assign({"id": s.spaceId}, s);
-                u_tmp.push(t_dcloud);
-            };
-        };
-        return u_tmp;
-    };
-
     /**
      * @description 获取unicloud服务信息
      * @param {String} projectPath - 项目路径
@@ -213,7 +192,7 @@ class Common {
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
 
-        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay"];
+        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay", "uniCloud-dcloud"];
         const uniCloudExists = uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
         if (!uniCloudExists) {
             return;
@@ -225,28 +204,11 @@ class Common {
         };
         if (!workspaceFolder) { return };
 
-        let is_error = false;
         try {
-            // 老方法：只在4.75版本以及之前版本生效
-            let uniCloud_info = await hx.unicloud.getExistsUnicloudAndBindSpace({"workspaceFolder": workspaceFolder});
-            let allSpaces = uniCloud_info.allSpaces;
-            if (allSpaces && allSpaces.length > 0) {
-                unicloud_spaces_info = allSpaces
-            };
+            unicloud_spaces_info = await getProjectUnicloudData(workspaceFolder);
         } catch (error) {
-            console.error("[自动化测试] 执行hx.unicloud.getExistsUnicloudAndBindSpace异常", error);
-            is_error = true;
+            console.error("[自动化测试] 执行getProjectUnicloudData异常", error);
         };
-
-        if (is_error) {
-            try {
-                console.error("[自动化测试] 开始执行 unicloud_extension_getWorkspaceBindServiceSpace");
-                unicloud_spaces_info = await this.unicloud_extension_getWorkspaceBindServiceSpace(workspaceFolder);
-                // console.error("[自动化测试] unicloud_spaces_info = ", unicloud_spaces_info);
-            } catch (error) {
-                console.error("[自动化测试] 通过unicloud.getWorkspaceBindServiceSpace获取服务空间信息异常。",  error);
-            };
-        }
     };
 
     /**

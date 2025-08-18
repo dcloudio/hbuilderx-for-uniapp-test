@@ -3,13 +3,12 @@ const fs = require('fs');
 
 const {
     getPluginConfig,
-} = require('./lib/utils.js');
+} = require('./core/core.js');
 
 let {
+    i18n,
     testReportOutPutDir,
-} = require('./config.js');
-
-let { i18n } = require('./config.js');
+} = require('./core/config.js');
 
 async function openReportOutputDir() {
     let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");

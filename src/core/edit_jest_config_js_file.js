@@ -2,10 +2,13 @@ const fs = require('fs');
 const path = require('path');
 let config = require('./config.js');
 const {
-    writeFile,
     createOutputChannel,
     getPluginConfig,
-} = require('./lib/utils.js');
+} = require('./core.js');
+
+const {
+    fsWriteFile
+} = require('../utils/utils_files.js');
 
 
 /**
@@ -65,7 +68,7 @@ async function modifyJestConfigJSFile(scope="", proj={}) {
         let replaceText = `testMatch: ["${projectTestMatch}"]`;
         let lastContent = jestFileContent.replace(/testMatch\s*:{1}\s*\[\S*\]/gi, replaceText);
 
-        let writeResult = await writeFile(jest_config_js_path, lastContent);
+        let writeResult = await fsWriteFile(jest_config_js_path, lastContent);
         if (writeResult != 'success') {
             createOutputChannel(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
             return false;

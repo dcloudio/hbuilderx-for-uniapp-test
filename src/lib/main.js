@@ -5,12 +5,12 @@ const ui_formDialog = require("./ui_formDialog.js");
 const ui_vue = require("./ui_vue.js");
 const api_getMobileList = require("./api_getMobileList.js");
 
-const cmp_hx_version = require('./cmp_version.js');
+const compareHBuilderXVersions = require('../utils/compare_hx_versions.js');
 const hxVersion = hx.env.appVersion;
 
 // 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
 const hxVersionForDiff = hxVersion.replace('-alpha', '').replace('-dev', '').replace(/.\d{10}/, '');
-const cmpVerionForVue= cmp_hx_version(hxVersionForDiff, '4.40');
+const cmpVerionForVue = compareHBuilderXVersions(hxVersionForDiff, '4.40');
 
 // 测试设备
 global.global_devicesList = {};
