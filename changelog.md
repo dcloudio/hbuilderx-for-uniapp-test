@@ -1,5 +1,8 @@
 # 更新日志
 
+## 3.2.0
+* 调整 插件目录结构
+
 ## 3.1.2
 * 调整 因hx 4.75之后版本废弃API hx.unicloud.getExistsUnicloudAndBindSpace, 改用调用uniCloud插件
 
