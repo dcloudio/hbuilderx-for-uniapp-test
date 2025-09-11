@@ -274,6 +274,7 @@
         min-width: 11px;
         max-width: 11px;
         padding-top: 2px;
+        margin-right: 5px;
         /* height: 12px; */
         image: url(":/projectwizard/resource/search@2x.png");
         /* image: url("/Users/hx/DCloud/hbuilderx-for-uniapp-test/src/static/search.png") */
