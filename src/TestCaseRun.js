@@ -502,7 +502,7 @@ class RunTest extends Common {
         };
 
         // 判断是否是uts项目，如果是，则传递uts需要的变量
-        if (is_uts_project) {
+        if (is_uts_project || testPlatform == 'harmony') {
             cmdOpts.env.JDK_PATH = config.UTS_JDK_PATH;
             cmdOpts.env.GRADLE_HOME = config.UTS_GRADLE_HOME;
             cmdOpts.env.APP_ROOT = config.UTS_APP_ROOT;
