@@ -13,30 +13,7 @@
     ],
     "main": "./extension",
     "activationEvents": [
-        "onCommand:unitest.initialization",
-        "onCommand:unitest.createTestCase",
-        "onCommand:unitest.runTestAll",
-        "onCommand:unitest.runTestH5",
-        "onCommand:unitest.runTestH5Safari",
-        "onCommand:unitest.runTestH5Firefox",
-        "onCommand:unitest.runTestWeiXin",
-        "onCommand:unitest.runTestIOS",
-        "onCommand:unitest.runTestAndroid",
-        "onCommand:unitest.runTestHarmony",
-        "onCommand:unitest.runCurrentTestAll",
-        "onCommand:unitest.runCurrentTestH5",
-        "onCommand:unitest.runCurrentTestH5Safari",
-        "onCommand:unitest.runCurrentTestH5Firefox",
-        "onCommand:unitest.runCurrentTestWeiXin",
-        "onCommand:unitest.runCurrentTestIOS",
-        "onCommand:unitest.runCurrentTestAndroid",
-        "onCommand:unitest.runCurrentTestHarmony",
-        "onCommand:unitest.reportHistory",
-        "onCommand:unitest.reloadEnv",
-        "onCommand:unitest.about",
-        "onCommand:unitest.stopRunTest",
-        "onCommand:unitest.isAutotestMatch",
-        "onCommand:unitest.enableDebugLog"
+        "*"
     ],
     "contributes": {
         "expressions": {
@@ -156,8 +133,39 @@
             {
                 "command": "unitest.about",
                 "title": "关于"
-            }
+            },
+            {
+            "command": "uniapp.test",
+            "title": "uniapp.test for hbuilderx cli"
+        }
         ],
+        "clicommands": [{
+            "name": "uniapp.test",
+            "descption": "运行uni-app (x)自动化测试到web、微信、iOS、Android、鸿蒙平台",
+            "doc": "",
+            "args": [{
+                "name": "project",
+                "descption": "project name or project path",
+                "usage": "",
+                "type": "string",
+                "default": ""
+            },
+            {
+                "name": "platform",
+                "descption": "uni-app (x) platform, android, ios, h5, weixin, harmony",
+                "usage": "",
+                "type": "enum",
+                "default": "",
+                "enum": "web-chrome|web-firefox|web-safari|weixin|android|ios|harmony"
+            },
+            {
+                "name": "device_id",
+                "descption": "Android、iOS、Harmony 测试设备ID",
+                "usage": "",
+                "type": "string",
+                "default": ""
+            }]
+        }],
         "configuration": {
             "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
             "properties": {

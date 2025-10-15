@@ -99,10 +99,10 @@ async function ui_vue(testPlatform) {
         selectedList.push(`h5:h5-chrome`);
     };
     if (result["h5_firefox"]) {
-        selectedList.push(`mp:h5-firefox`);
+        selectedList.push(`h5:h5-firefox`);
     };
     if (result["h5_safari"]) {
-        selectedList.push(`mp:h5-safari`);
+        selectedList.push(`h5:h5-safari`);
     };
     // console.log("[selectedList] ->", selectedList);
     // return [];

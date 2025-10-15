@@ -1,4 +1,5 @@
 const fs = require('fs');
+const hx = require('hbuilderx');
 let config = require('./config.js');
 const {
     createOutputChannel,
@@ -19,25 +20,31 @@ const {
  *
  * @returns {Boolean} - 修改成功返回true，失败返回false
  */
-async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniProjectInfo={}) {
+async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniProjectInfo={}, terminal_id) {
     let { is_uniapp_x } = uniProjectInfo;
     // console.log("===========", is_uniapp_x);
+    let logger = createOutputChannel;
+    if (terminal_id) {
+        logger = async function (message) {
+            await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+        };
+        await logger(`[uniapp.test] 修改测试配置文件: ${env_js_path}`);
+    };
 
     try {
         delete require.cache[require.resolve(env_js_path)];
         var envjs = require(env_js_path);
     } catch (e) {
-        createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
+        await logger(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`);
         return false;
     };
-
     if (testPlatform.includes("h5")) return true;
 
     if (testPlatform == "mp-weixin") {
         const weixin_executablePath = envjs?.["mp-weixin"]?.executablePath;
         if (!weixin_executablePath || !fs.existsSync(weixin_executablePath)) {
             const _e_msg = `${env_js_path}, 请检查mp-weixin节点下的executablePath, 建议配置微信小程序路径。${config.i18n.weixin_tool_path_tips}`;
-            createOutputChannel( _e_msg, 'error');
+            await logger( _e_msg, 'error');
             return false;
         };
         return true;
@@ -119,7 +126,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
         let writeResult = await fsWriteFile(env_js_path, lastContent);
 
         if (writeResult != 'success') {
-            createOutputChannel(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');
+            await logger(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');
             return false;
         };
     };

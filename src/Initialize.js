@@ -120,7 +120,14 @@ class Initialize extends Common {
      * @param {type} isReload 用于菜单【运行】【检查测试环境】
      * @return {Boolean}
      */
-    async checkPluginDependencies(isReload=false) {
+    async checkPluginDependencies(isReload=false, terminal_id = "") {
+        let logger = createOutputChannel;
+        if (terminal_id) {
+            logger = async function (message) {
+                await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+            };
+        };
+
         let test_lib_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib");
         mkdirsSync(test_lib_dir);
 
@@ -149,18 +156,18 @@ class Initialize extends Common {
 		// console.error(`【hbuilderx-for-uniapp-test】test_lib_node_modules_dir: ${test_lib_node_modules_dir}`);
 
         if (!fs.existsSync(test_lib_node_modules_dir)) {
-			createOutputChannel("", 'info');
+			await logger("", 'info');
 
 			const msg_0 = "uniapp自动化测试环境，需要安装jest、adbkit、puppeteer等库，安装相关依赖之后，才可以正常使用此插件."
-			createOutputChannel(msg_0, 'error');
+			await logger(msg_0, 'error');
 
             const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
             let msg_1 = `方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
-            createOutputChannel(msg_1, 'info');
+            await logger(msg_1, 'info');
 
             const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
             let msg_2 = `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
-            createOutputChannel(msg_2, 'info');
+            await logger(msg_2, 'info');
             return false;
         };
 
@@ -176,7 +183,7 @@ class Initialize extends Common {
             'target_file': lib_package_path,
         };
 
-        if (lib_version != template_version) {
+        if (lib_version != template_version && terminal_id == "") {
             if (current_ignore_upgrade) return true;
             actions['action'] = 'upgrade';
             const _i_result = await this.installTestLibs(test_lib_dir, actions);
@@ -185,6 +192,9 @@ class Initialize extends Common {
                 return true;
             };
             return false;
+        };
+        if (lib_version != template_version && terminal_id != "") {
+            await logger(`[uniapp.test] 建议：uni-app自动化测试插件，检测到依赖库有更新，请在菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】中，重新安装依赖。`, 'warning');
         };
 
         // 检查依赖
@@ -201,13 +211,13 @@ class Initialize extends Common {
         };
 
         if (msg) {
-            createOutputChannel(`uni-app自动化测试插件运行缺少必要的依赖 ${msg}，请安装相关依赖。`, 'warning');
-            createOutputChannel(`方法1: 打开终端，进入 ${test_lib_dir} 目录，运行命令： npm install --save`);
-            createOutputChannel(`方法2: 点击HBuilderX 顶部菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】`);
+            await logger(`uni-app自动化测试插件运行缺少必要的依赖 ${msg}，请安装相关依赖。`, 'warning');
+            await logger(`方法1: 打开终端，进入 ${test_lib_dir} 目录，运行命令： npm install --save`);
+            await logger(`方法2: 点击HBuilderX 顶部菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】`);
             return false;
         } else {
             if (isReload) {
-                createOutputChannel(`uni-app自动化测试插件，环境检查无误，无需重装。`, 'success');
+                await logger(`uni-app自动化测试插件，环境检查无误，无需重装。`, 'success');
             };
             return true;
         }
@@ -218,9 +228,16 @@ class Initialize extends Common {
      * @param {String} projectPath 项目路径
      * @return {Boolean}
      */
-    async checkUniappCliProject(projectPath) {
+    async checkUniappCliProject(projectPath, terminal_id = "") {
+        let logger = createOutputChannel;
+        if (terminal_id) {
+            logger = async function (message) {
+                await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+            };
+        };
+
         if (!fs.existsSync(projectPath)) {
-            createOutputChannel(`uniapp-cli项目，检查环境依赖，${projectPath}不存在。`, 'error');
+            await logger(`uniapp-cli项目，检查环境依赖，${projectPath}不存在。`, 'error');
             return false;
         };
         let template_package_json_content = require('./environment/package.json');
@@ -238,9 +255,11 @@ class Initialize extends Common {
         };
 
         if (msg) {
-            createOutputChannel(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
-            createOutputChannel(`如果自动安装失败，打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
-            this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
+            await logger(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
+            await logger(`如果自动安装失败，打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
+            if (terminal_id == "") {
+                this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
+            };
             return false;
         };
         return true;

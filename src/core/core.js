@@ -246,9 +246,29 @@ function printTestRunLog(MessagePrefix, msg) {
     };
     let data = lastMsg.split(/[\r\n|\n]/);
     for (let s of data) {
-        createOutputChannel(MessagePrefix + ' ' + s, msgLevel, 'log');
+        createOutputChannel(`${MessagePrefix} ` + s, msgLevel, 'log');
     };
+};
 
+async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
+    let lastMsg = msg.trim();
+    let theFour = msg.substring(0,4);
+    if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
+        lastMsg = lastMsg + "\n";
+        msgLevel = "error";
+    } else if (theFour == "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
+        lastMsg = lastMsg + "\n";
+        msgLevel = "error";
+    } else if (theFour == "PASS") {
+        lastMsg = lastMsg + "\n";
+        msgLevel = "success";
+    } else if (msg.includes('Ran all test suites.') && msg.includes("Tests") && msg.includes("total")) {
+        msgLevel = "info";
+    };
+    let data = lastMsg.split(/[\r\n|\n]/);
+    for (let s of data) {
+        await logger(`${MessagePrefix} ` + s);
+    };
 };
 
 
@@ -346,6 +366,105 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
         });
     });
 };
+
+
+/**
+ * @description 命令行运行
+ * @param {String} cmd - 命令行运行的命令
+ * @param {Obejct} opts
+ * @param {Object} testInfo - {projectName: projectName, testPlatform: testPlatform}
+ */
+async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, MsgPrefix, client_id) {
+    let { projectName, testPlatform, deviceId } = testInfo;
+
+    let logger = async function (message) {
+        await hx.cliconsole.log({ clientId: client_id, msg: message, status: 'Info' });
+    };
+    
+    // 解决控制台[]内内容长度太长的问题
+    if (deviceId && deviceId.length >= 8) {
+        deviceId = deviceId.replace(deviceId.substring(6), '..');
+    };
+
+    await logger(`${MsgPrefix}项目 ${projectName}，开始运行 ${testPlatform} 测试`);
+    if (testPlatform == "android") {
+        await logger(`${MsgPrefix} 提示：如果Android测试设备没有正常运行提示，请检查手机跟电脑IP是否处于同一网段...`);
+    };
+
+    const test_cmd = cmd.join(' ');
+    await logger(`${MsgPrefix}测试命令为：${test_cmd}\n`);
+    await logger(`${MsgPrefix}测试环境变量：${JSON.stringify(opts, null, 4)}\n`);
+
+    opts = Object.assign({
+        stdio: 'pipe',
+        cwd: process.cwd()
+    }, opts);
+
+    // const shell = process.platform === 'win32' ? {cmd: 'cmd',arg: '/C'} : {cmd: 'sh',arg: '-c'};
+    try {
+        // child = spawn(shell.cmd, [shell.arg, cmd], opts);
+        child = spawn(jest_for_node, cmd, opts);
+        child_pid = child.pid;
+    } catch (error) {
+        return Promise.reject(error);
+    };
+
+    return new Promise(resolve => {
+        if (child.stdout) {
+            const stdout = readline.createInterface(child.stdout);
+            stdout.on('line', (data) =>{
+                let stdoutMsg = (data.toString()).trim();
+                if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
+                    printTestRunLogForHBuilderXCli(MsgPrefix, stdoutMsg, logger);
+                    stopRunTest();
+                } else {
+                    if (!stdoutMsg.includes("%AndroidClass")) {
+                        printTestRunLogForHBuilderXCli(MsgPrefix, stdoutMsg, logger);
+                    };
+                };
+            });
+        };
+
+        let is_port_9520_error = false;
+        let runDir = opts.cwd;
+        if (child.stderr) {
+            const stderr = readline.createInterface(child.stderr);
+            stderr.on('line', (data) =>{
+                let stdoutMsg = (data.toString()).trim();
+                if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
+                    printTestRunLogForHBuilderXCli(MsgPrefix, stdoutMsg, logger);
+                    stopRunTest();
+                } else {
+                    if (!stdoutMsg.includes("%AndroidClass")) {
+                        printTestRunLogForHBuilderXCli(MsgPrefix, stdoutMsg, logger);
+                    };
+                };
+            });
+        };
+
+        child.on('error', error => {
+            (async () => {
+                await logger(`${MsgPrefix}测试运行异常，已结束运行。`, "error");
+                resolve('run_error');
+            })();
+        });
+
+        child.on('close', code => {
+            (async () => {
+                if (is_port_9520_error) {
+                    let msg_1 = `解决方法: 打开终端，输入命令 lsof -i:9520 | awk '{print $2}' | tail -n +2 | xargs kill -9`;
+                    await logger(`${MsgPrefix} 如果您遇到错误 Port 9520 is in use, please specify another port , ${msg_1}`);
+                };
+
+                child_pid = undefined;
+                let endMsg = code == null ? `${MsgPrefix} 测试运行结束。原因：手动结束、或其它意外结束。\n\n` : `${MsgPrefix} 测试运行结束。\n\n`;
+                await logger(endMsg);
+                resolve('run_end');
+            })();
+        });
+    });
+};
+
 
 /**
  * @description Run 打开终端并运行某个命令
@@ -452,6 +571,7 @@ module.exports = {
     createOutputViewForHyperLinks,
     openAndRunTerminal,
     runCmd,
+    runCmdForHBuilderXCli,
     hxShowMessageBox,
     isUniAppCli,
     isUniAppX,

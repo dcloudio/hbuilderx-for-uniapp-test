@@ -7,6 +7,8 @@ const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
+const { check_cli_args, RunTestForHBuilderXCli } = require('./src/HBuilderXCli.js');
+
 
 function activate(context) {
     // 检查升级
@@ -168,6 +170,32 @@ function activate(context) {
         });
     });
     context.subscriptions.push(debugLog);
+
+    let cli_uni_test = hx.commands.registerCliCommand('uniapp.test', async (params) => {
+        // 解析命令行参数与输入
+        let {args} = params;
+        let client_id = params.cliconsole.clientId;
+
+        console.error("[cli参数] args:", args);
+        console.error("[cli参数] params:", params);
+        console.error("[cli参数] clientID:", client_id);
+        
+        await hx.cliconsole.log({ clientId: client_id, msg: "欢迎使用 uniapp.test for HBuilderX 命令行工具！", status: 'Info' });
+        let checkResult = await check_cli_args(args, client_id);
+        console.error("[cli参数校验] checkResult:", checkResult);
+        if (checkResult != "") {
+            await hx.cliconsole.log({ clientId: client_id, msg: checkResult, status: 'Info' });
+            return;
+        } else {
+            try {
+                let cli = new RunTestForHBuilderXCli();
+                await cli.main(params.args, client_id);
+            } catch (error) {
+                await hx.cliconsole.log({ clientId: client_id, msg: "运行异常，" + error });
+            };
+        };
+    });
+    context.subscriptions.push(cli_uni_test);
 };
 
 //该方法将在插件禁用的时候调用（目前是在插件卸载的时候触发）

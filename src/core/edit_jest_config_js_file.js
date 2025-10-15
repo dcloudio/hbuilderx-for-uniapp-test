@@ -1,4 +1,5 @@
 const fs = require('fs');
+const hx = require('hbuilderx');
 const path = require('path');
 let config = require('./config.js');
 const {
@@ -16,9 +17,18 @@ const {
  * @param {String} scope - 测试范围，全部测试|单一用例测试
  * @param {Object} proj - 项目信息
  */
-async function modifyJestConfigJSFile(scope="", proj={}) {
+async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
     console.log('[modifyJestConfigJSFile]......', scope, proj);
+    await hx.cliconsole.log({ clientId: client_id, msg: "[uniapp.test] 修改jest.config.js文件", status: 'Info' });
+
     let { projectPath, selectedFile, is_uniapp_cli } = proj;
+    
+    let logger = createOutputChannel;
+    if (client_id) {
+        logger = async function (message) {
+            await hx.cliconsole.log({ clientId: client_id, msg: message, status: 'Info' });
+        };
+    };
 
     // 读取jest.config.js
     const jest_config_js_path = path.join(projectPath, 'jest.config.js');
@@ -27,13 +37,16 @@ async function modifyJestConfigJSFile(scope="", proj={}) {
     try{
         var jestConfigContent = require(jest_config_js_path);
     }catch(e){
-        createOutputChannel(`测试配置文件 ${jest_config_js_path} 应用异常，请检查。`, 'error');
+        await logger(`测试配置文件 ${jest_config_js_path} 应用异常，请检查。`, 'error');
         return false;
     };
 
     // 插件配置项：是否自动修改jest.config.js文件中的testMatch
     let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-    if (userConfig == false) return;
+    if (userConfig == false) {
+        await logger(`您已关闭自动修改 jest.config.js 配置文件中的 testMatch 字段，跳过此操作。`);
+        return true;
+    };
 
 
     let projectTestMatch = is_uniapp_cli
@@ -54,7 +67,7 @@ async function modifyJestConfigJSFile(scope="", proj={}) {
 
     let oldTestMatch = jestConfigContent["testMatch"];
     if (!Array.isArray(oldTestMatch)) {
-        createOutputChannel(`${jest_config_js_path} 测试配置文件, testMatch字段，应为数组类型，请检查。`, 'error')
+        await logger(`${jest_config_js_path} 测试配置文件, testMatch字段，应为数组类型，请检查。`, 'error')
         return false;
     };
 
@@ -70,12 +83,12 @@ async function modifyJestConfigJSFile(scope="", proj={}) {
 
         let writeResult = await fsWriteFile(jest_config_js_path, lastContent);
         if (writeResult != 'success') {
-            createOutputChannel(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
+            await logger(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
             return false;
         };
         return true;
     } catch (e) {
-        createOutputChannel(`${jest_config_js_path} 修改测试配置文件异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
+        await logger(`${jest_config_js_path} 修改测试配置文件异常，终止后续操作，请检查此文件。具体错误：${e}`, 'warning');
         return false;
     };
 };
