@@ -695,9 +695,9 @@ class RunTestForHBuilderXCli extends Common {
             "selectedFile": this.selectedFile,
             "is_uniapp_cli": is_uniapp_cli
         };
-        await this.print_cli_log(`测试范围检查，测试文件: ${this.selectedFile || '全部测试'}`);
+        await this.print_cli_log(`jest.config.js测试范围检查，测试文件: ${this.selectedFile || '全部测试'}`);
         let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
-        await this.print_cli_log(`测试范围检查，结果: ${changeResult}`);
+        await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
 
         switch (argv_uni_platform) {
@@ -716,6 +716,7 @@ class RunTestForHBuilderXCli extends Common {
                 await this.run_uni_test('h5-firefox');
                 break;
             case 'mp-weixin':
+            case "weixin":
                 await this.run_uni_test('mp-weixin');
                 break;
             case 'ios':
@@ -740,6 +741,9 @@ async function check_cli_args(args, client_id) {
     let { project, platform, device_id } = args;
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
+    };
+    if (platform == undefined || !["ios", "android", "web-chrome", "web-safari", "web-firefox", "weixin", "harmony"].includes(platform)) {
+        return `请检查 --platform 参数。支持的平台有：ios、android、web-chrome、web-safari、web-firefox、weixin、harmony。`;
     };
     return "";
 };
