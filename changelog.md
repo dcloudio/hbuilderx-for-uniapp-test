@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.0.0
+* 新增 HBuilderX cli支持运行uni-app (x) 自动化测试. `cli uniapp.test --project <project_path> --platform <platfome_name>`
+
 ## 3.3.0
 * 调整 针对鸿蒙平台增加一些环境变量
 
