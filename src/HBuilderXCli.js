@@ -623,11 +623,11 @@ class RunTestForHBuilderXCli extends Common {
      * @description 测试用例运行主入口文件
      * @param {Object} param cli传递的参数信息
      */
-    async main(params, terminalID, scope="one") {
+    async main(params, terminalID, uni_platformName) {
         this.terminal_id = terminalID;
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
 
-        let argv_uni_platform = params.platform;
+        let argv_uni_platform = uni_platformName;
         this.projectPath = params.project;
         this.selectedFile = params.file || '';
         
@@ -696,6 +696,10 @@ class RunTestForHBuilderXCli extends Common {
             "is_uniapp_cli": is_uniapp_cli
         };
         await this.print_cli_log(`jest.config.js测试范围检查，测试文件: ${this.selectedFile || '全部测试'}`);
+        let scope = "";
+        if (this.selectedFile != undefined && this.selectedFile.trim() != '') {
+            scope = 'one';
+        };
         let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
@@ -738,17 +742,40 @@ class RunTestForHBuilderXCli extends Common {
 };
 
 async function check_cli_args(args, client_id) {
-    let { project, platform, device_id } = args;
+    let { project, device_id } = args;
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
-    };
-    if (platform == undefined || !["ios", "android", "web-chrome", "web-safari", "web-firefox", "weixin", "harmony"].includes(platform)) {
-        return `请检查 --platform 参数。支持的平台有：ios、android、web-chrome、web-safari、web-firefox、weixin、harmony。`;
     };
     return "";
 };
 
+
+async function RunTestForHBuilderXCli_main(params, uni_platformName) {
+    // 解析命令行参数与输入
+    let {args} = params;
+    let client_id = params.cliconsole.clientId;
+
+    console.error("[cli参数] args:", args);
+    console.error("[cli参数] params:", params);
+    console.error("[cli参数] clientID:", client_id);
+    
+    await hx.cliconsole.log({ clientId: client_id, msg: "欢迎使用 uniapp.test for HBuilderX 命令行工具！", status: 'Info' });
+    let checkResult = await check_cli_args(args, client_id);
+    console.error("[cli参数校验] checkResult:", checkResult);
+    if (checkResult != "") {
+        await hx.cliconsole.log({ clientId: client_id, msg: checkResult, status: 'Info' });
+        return;
+    } else {
+        try {
+            let cli = new RunTestForHBuilderXCli();
+            await cli.main(params.args, client_id, uni_platformName);
+        } catch (error) {
+            await hx.cliconsole.log({ clientId: client_id, msg: "运行异常，" + error });
+        };
+    };
+};
+
 module.exports = {
     check_cli_args,
-    RunTestForHBuilderXCli
+    RunTestForHBuilderXCli_main
 };

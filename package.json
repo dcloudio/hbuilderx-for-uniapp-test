@@ -3,7 +3,7 @@
     "name": "hbuilderx-for-uniapp-test",
     "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信小程序、Harmony应用",
     "displayName": "HBuilderX uni-app自动化测试",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "publisher": "hbuilderx",
     "engines": {
         "HBuilderX": "^3.7.3"
@@ -30,13 +30,16 @@
             "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && (workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/ || workspaceFolderRelativePath =~ /^\\pages\\/autotest\\/uni.*/)",
             "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)"
         },
-        "snippets": [{
-            "language": "javascript",
-            "path": "./snippets/jest.json"
-        }, {
-            "language": "typescript",
-            "path": "./snippets/jest.json"
-        }],
+        "snippets": [
+            {
+                "language": "javascript",
+                "path": "./snippets/jest.json"
+            },
+            {
+                "language": "typescript",
+                "path": "./snippets/jest.json"
+            }
+        ],
         "commands": [
             {
                 "command": "unitest.initialization",
@@ -135,37 +138,131 @@
                 "title": "关于"
             },
             {
-            "command": "uniapp.test",
-            "title": "uniapp.test for hbuilderx cli"
-        }
+                "command": "uniapp.test",
+                "title": "uniapp.test for hbuilderx cli"
+            }
         ],
-        "clicommands": [{
-            "name": "uniapp.test",
-            "descption": "运行uni-app (x)自动化测试到web、微信、iOS、Android、鸿蒙平台",
-            "doc": "",
-            "args": [{
-                "name": "project",
-                "descption": "project name or project path",
-                "usage": "",
-                "type": "string",
-                "default": ""
+        "clicommands": [
+            {
+                "name": "uniapp.test web-chrome",
+                "descption": "运行uni-app (x)自动化测试到 web-chrome",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
             },
             {
-                "name": "platform",
-                "descption": "uni-app (x) platform, android, ios, h5, weixin, harmony",
-                "usage": "",
-                "type": "enum",
-                "default": "",
-                "enum": "web-chrome|web-firefox|web-safari|weixin|android|ios|harmony"
+                "name": "uniapp.test web-safari",
+                "descption": "运行uni-app (x)自动化测试到 web-safari",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
             },
             {
-                "name": "device_id",
-                "descption": "Android、iOS、Harmony 测试设备ID",
-                "usage": "",
-                "type": "string",
-                "default": ""
-            }]
-        }],
+                "name": "uniapp.test web-firefox",
+                "descption": "运行uni-app (x)自动化测试到 web-firefox",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test mp-weixin",
+                "descption": "运行uni-app (x)自动化测试到 mp-weixin",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test app-android",
+                "descption": "运行uni-app (x)自动化测试到 app-android",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "device_id",
+                        "descption": "Android设备ID",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test app-ios-simulator",
+                "descption": "运行uni-app (x)自动化测试到 app-ios-simulator",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "device_id",
+                        "descption": "iOS模拟器设备ID",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test app-harmony",
+                "descption": "运行uni-app (x)自动化测试到 app-harmony",
+                "doc": "",
+                "args": [
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "device_id",
+                        "descption": "Harmony设备ID",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            }
+        ],
         "configuration": {
             "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
             "properties": {
@@ -201,12 +298,12 @@
                 }
             }
         },
-        "keybindings":[
+        "keybindings": [
             {
-                "command":"unitest.createTestCase",
-                "key":"Ctrl + Shift + C",
-                "when":"expression.isShowCreateTestCase",
-                "macosx":"command+Shift+C"
+                "command": "unitest.createTestCase",
+                "key": "Ctrl + Shift + C",
+                "when": "expression.isShowCreateTestCase",
+                "macosx": "command+Shift+C"
             }
         ],
         "menus": {
