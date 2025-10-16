@@ -802,7 +802,13 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     console.error("[cli参数] params:", params);
     console.error("[cli参数] clientID:", client_id);
     
-    await hx.cliconsole.log({ clientId: client_id, msg: "欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具！", status: 'Info' });
+    const hx_version = hx.env.appVersion;
+    const plugin_version = (await readPluginsPackageJson()).version || '';
+    const welcome_msg = `欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具 (${plugin_version}) ！`;
+    
+    await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
+    await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderX Version ${hx_version}`, status: 'Info' });
+
     let checkResult = await check_cli_args(args, client_id);
     console.error("[cli参数校验] checkResult:", checkResult);
     if (checkResult != "") {
