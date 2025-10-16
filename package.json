@@ -164,22 +164,38 @@
             {
                 "command": "uniapp.test app-harmony",
                 "title": "uniapp.test app-harmony for hbuilderx cli"
+            },
+            {
+                "command": "uniapp.test",
+                "title": "uniapp.test app-harmony for hbuilderx cli"
             }
         ],
         "clicommands": [
             {
-                "name": "uniapp.test web-chrome",
-                "descption": "运行uni-app (x)自动化测试到 web-chrome",
-                "doc": "cli uniapp.test web-chrome --project <ProjectPath>",
+                "name": "uniapp.test",
+                "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
+                "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nExamples:\n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> \n",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test web-chrome",
+                "descption": "运行uni-app (x)自动化测试到web-chrome",
+                "doc": "\nExample: cli uniapp.test web-chrome --project <ProjectPath>",
+                "usage": "cli uniapp.test web-chrome --project <ProjectPath>",
+                "args": [
+                    {
+                        "name": "help",
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     }
@@ -187,17 +203,17 @@
             },
             {
                 "name": "uniapp.test web-safari",
-                "descption": "运行uni-app (x)自动化测试到 web-safari",
-                "doc": "cli uniapp.test web-safari --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到web-safari",
+                "doc": "\nExample: cli uniapp.test web-safari --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     }
@@ -205,17 +221,17 @@
             },
             {
                 "name": "uniapp.test web-firefox",
-                "descption": "运行uni-app (x)自动化测试到 web-firefox",
-                "doc": "cli uniapp.test web-firefox --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到web-firefox",
+                "doc": "\nExample: cli uniapp.test web-firefox --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     }
@@ -223,17 +239,17 @@
             },
             {
                 "name": "uniapp.test mp-weixin",
-                "descption": "运行uni-app (x)自动化测试到 mp-weixin",
-                "doc": "cli uniapp.test mp-weixin --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到mp-weixin",
+                "doc": "\nExample: cli uniapp.test mp-weixin --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     }
@@ -241,17 +257,17 @@
             },
             {
                 "name": "uniapp.test app-android",
-                "descption": "运行uni-app (x)自动化测试到 app-android",
-                "doc": "cli uniapp.test app-android --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到app-android",
+                "doc": "\nExample: cli uniapp.test app-android --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     },
@@ -266,17 +282,17 @@
             },
             {
                 "name": "uniapp.test app-ios-simulator",
-                "descption": "运行uni-app (x)自动化测试到 app-ios-simulator",
-                "doc": "cli uniapp.test app-ios-simulator --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到app-ios-simulator",
+                "doc": "\nExample: cli uniapp.test app-ios-simulator --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
-                        "descption": "发行cli命令帮助"
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
                     },
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     },
@@ -291,8 +307,8 @@
             },
             {
                 "name": "uniapp.test app-harmony",
-                "descption": "运行uni-app (x)自动化测试到 app-harmony",
-                "doc": "cli uniapp.test app-harmony --project <ProjectPath>",
+                "descption": "运行uni-app (x)自动化测试到app-harmony",
+                "doc": "\nExample: cli uniapp.test app-harmony --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
@@ -301,7 +317,7 @@
                     {
                         "name": "project",
                         "descption": "uni-app (x) project path",
-                        "usage": "",
+                        "usage": "require",
                         "type": "string",
                         "default": ""
                     },
