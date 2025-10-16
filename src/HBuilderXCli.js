@@ -705,6 +705,19 @@ class RunTestForHBuilderXCli extends Common {
         if (this.selectedFile != undefined && this.selectedFile.trim() != '') {
             scope = 'one';
         };
+
+        // 检查项目下jest.config.js和env.js文件是否存在，如果不存在，则创建
+        const jest_config_js_path = path.join(this.projectPath, 'jest.config.js');
+        const env_js_path = path.join(this.projectPath, 'env.js');
+
+        let jse = new Initialize();
+        if (!fs.existsSync(jest_config_js_path)) {
+            await jse.CreateTestEnvConfigFile(this.projectPath, "jest.config.js", this.terminal_id)
+        };
+        if (!fs.existsSync(env_js_path)) {
+            await jse.CreateTestEnvConfigFile(this.projectPath, "env.js", this.terminal_id)
+        };
+
         let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;

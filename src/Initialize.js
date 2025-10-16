@@ -63,24 +63,30 @@ class Initialize extends Common {
      * @description 创建测试配置文件 jest.config.js、env.js
      * @param {String} projectPath - 项目路径
      */
-    async CreateTestEnvConfigFile(projectPath) {
+    async CreateTestEnvConfigFile(projectPath, file_type, is_hbuidlerx_cli) {
         let jestConfigFile = path.join(projectPath, 'jest.config.js');
         let jestEnvFile = path.join(projectPath, 'env.js');
+        let isPrintLog = is_hbuidlerx_cli ? false : true;
 
         // 检查jest.config.js是否存在，如不存在，则创建
-        if (!fs.existsSync(jestConfigFile)){
-            let jest_template_path = path.join(path.resolve(__dirname), 'template', 'jest.config.js');
-            await this.createFile("jest.config.js", jest_template_path, jestConfigFile, true);
-        } else {
-            createOutputChannel('uni-app自动化测试配置文件 jest.config.js 已存在，跳过创建。', 'info');
+        if (file_type == 'all' || file_type == 'jest.config.js') {
+            if (!fs.existsSync(jestConfigFile)){
+                let jest_template_path = path.join(path.resolve(__dirname), 'template', 'jest.config.js');
+                await this.createFile("jest.config.js", jest_template_path, jestConfigFile, isPrintLog);
+            } else {
+                createOutputChannel('uni-app自动化测试配置文件 jest.config.js 已存在，跳过创建。', 'info');
+            };
         };
 
+
         // 检查env.js是否存在，如不存在，则创建
-        if (!fs.existsSync(jestEnvFile)){
-            let env_template_path = path.join(path.resolve(__dirname), 'template', 'env.js');
-            await this.createFile('env.js', env_template_path, jestEnvFile, true);
-        } else {
-            createOutputChannel('uni-app自动化测试配置文件 env.js 已存在，跳过创建。', 'info');
+        if (file_type == 'all' || file_type == 'env.js') {
+            if (!fs.existsSync(jestEnvFile)){
+                let env_template_path = path.join(path.resolve(__dirname), 'template', 'env.js');
+                await this.createFile('env.js', env_template_path, jestEnvFile, isPrintLog);
+            } else {
+                createOutputChannel('uni-app自动化测试配置文件 env.js 已存在，跳过创建。', "info");
+            };
         };
     };
 
@@ -278,7 +284,7 @@ class Initialize extends Common {
         };
 
         // 创建：测试配置文件
-        await this.CreateTestEnvConfigFile(projectPath);
+        await this.CreateTestEnvConfigFile(projectPath, 'all');
 
         // 检查默认测试报告目录，如不存在则自动创建
         await mkdirsSync(testReportOutPutDir);
