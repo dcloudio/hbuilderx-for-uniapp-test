@@ -628,6 +628,7 @@ class RunTestForHBuilderXCli extends Common {
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
 
         let argv_uni_platform = uni_platformName;
+        let argv_device_id = params.device_id || '';
         this.projectPath = params.project;
         this.selectedFile = params.file || '';
         
@@ -670,7 +671,7 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android', 'harmony'].includes(argv_uni_platform)) {
+        if (['all', 'ios', 'android', 'harmony'].includes(argv_uni_platform) && argv_device_id == '') {
             await this.print_cli_log(`开始获取可用的测试设备列表 ..... `);
             // 选择要运行的设备
             testPhoneList = await this.getTestDevicesList(argv_uni_platform);
@@ -681,6 +682,10 @@ class RunTestForHBuilderXCli extends Common {
             };
             await this.print_cli_log(`可用的测试设备列表: ${testPhoneList}`);
             console.error("[自动化测试连接的设备]--->", testPhoneList);
+        };
+        if (argv_device_id != '' && ['ios', 'android', 'harmony'].includes(argv_uni_platform) ) {
+            testPhoneList = [`${argv_uni_platform}:${argv_device_id}`];
+            await this.print_cli_log(`指定的测试设备列表: ${testPhoneList}`);
         };
 
         if (argv_uni_platform == 'all') {
@@ -746,6 +751,9 @@ async function check_cli_args(args, client_id) {
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
     };
+    if (device_id == "") {
+        return "device_id 不能为空，请检查。";
+    };
     return "";
 };
 
@@ -759,7 +767,7 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     console.error("[cli参数] params:", params);
     console.error("[cli参数] clientID:", client_id);
     
-    await hx.cliconsole.log({ clientId: client_id, msg: "欢迎使用 uniapp.test for HBuilderX 命令行工具！", status: 'Info' });
+    await hx.cliconsole.log({ clientId: client_id, msg: "欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具！", status: 'Info' });
     let checkResult = await check_cli_args(args, client_id);
     console.error("[cli参数校验] checkResult:", checkResult);
     if (checkResult != "") {
