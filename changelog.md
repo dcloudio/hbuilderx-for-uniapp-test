@@ -2,13 +2,13 @@
 
 ## 4.1.0
 * 调整 cli uniapp.test 选项，调整后:
-    - 运行到Android: cli uniapp.test app-android --project <project_path>
-    - 运行到Harmony: cli uniapp.test app-harmony --project <project_path>
-    - 运行到iOS: cli uniapp.test app-ios-simulator --project <project_path>
-    - 运行到微信: cli uniapp.test mp-wexin --project <project_path>
-    - 运行到Chrome: cli uniapp.test web-chrome --project <project_path>
-    - 运行到Safari: cli uniapp.test web-safari --project <project_path>
-    - 运行到Firefox: cli uniapp.test web-firefox --project <project_path>
+    - 运行到Android: `cli uniapp.test app-android --project <project_path>`
+    - 运行到Harmony: `cli uniapp.test app-harmony --project <project_path>`
+    - 运行到iOS: `cli uniapp.test app-ios-simulator --project <project_path>`
+    - 运行到微信: `cli uniapp.test mp-wexin --project <project_path>`
+    - 运行到Chrome: `cli uniapp.test web-chrome --project <project_path>`
+    - 运行到Safari: `cli uniapp.test web-safari --project <project_path>`
+    - 运行到Firefox: `cli uniapp.test web-firefox --project <project_path>`
 * 新增 HBuilderX cli uniapp.test，增加参数 --device_id, 用于指定android、ios、鸿蒙测试设备ID。`cli uniapp.test app-android --project <project_path> --device_id <uuid>`
 * 新增 HBuilderX cli uniapp.test，增加参数 --testcaseFile, 用于指定测试用例文件路径。`cli uniapp.test app-android --project <project_path> --testcaseFile <testcaseFile>`
 
