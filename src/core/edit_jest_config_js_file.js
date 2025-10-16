@@ -16,9 +16,11 @@ const {
  * @description 修改jest.config.js testMatch字段
  * @param {String} scope - 测试范围，全部测试|单一用例测试
  * @param {Object} proj - 项目信息
+ * @param {String} client_id - 客户端ID . 有此参数，表示命令行模式
+ * @return {Boolean} - true|false
  */
 async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
-    console.log('[modifyJestConfigJSFile]......', scope, proj);
+    console.error('[modifyJestConfigJSFile]......', scope, proj);
     await hx.cliconsole.log({ clientId: client_id, msg: "[uniapp.test] 修改jest.config.js文件", status: 'Info' });
 
     let { projectPath, selectedFile, is_uniapp_cli } = proj;
@@ -41,13 +43,14 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
         return false;
     };
 
-    // 插件配置项：是否自动修改jest.config.js文件中的testMatch
-    let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-    if (userConfig == false) {
-        await logger(`您已关闭自动修改 jest.config.js 配置文件中的 testMatch 字段，跳过此操作。`);
-        return true;
+    if (client_id == "") {
+        // 插件配置项：是否自动修改jest.config.js文件中的testMatch
+        let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
+        if (userConfig == false) {
+            await logger(`您已关闭自动修改 jest.config.js 配置文件中的 testMatch 字段，跳过此操作。`);
+            return true;
+        };
     };
-
 
     let projectTestMatch = is_uniapp_cli
         ? "<rootDir>/src/pages/**/*test.[jt]s?(x)"

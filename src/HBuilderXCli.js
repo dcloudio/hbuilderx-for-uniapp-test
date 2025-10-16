@@ -630,7 +630,7 @@ class RunTestForHBuilderXCli extends Common {
         let argv_uni_platform = uni_platformName;
         let argv_device_id = params.device_id || '';
         this.projectPath = params.project;
-        this.selectedFile = params.file || '';
+        this.selectedFile = params.testcaseFile || '';
         
         this.projectName = path.basename(this.projectPath);
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
@@ -700,8 +700,11 @@ class RunTestForHBuilderXCli extends Common {
             "selectedFile": this.selectedFile,
             "is_uniapp_cli": is_uniapp_cli
         };
+        if (this.selectedFile != undefined && this.selectedFile.trim() != '') {
+            proj["selectedFile"] = path.join(this.projectPath, this.selectedFile);
+        };
         await this.print_cli_log(`jest.config.js测试范围检查，测试文件: ${this.selectedFile || '全部测试'}`);
-        let scope = "";
+        let scope = "all";
         if (this.selectedFile != undefined && this.selectedFile.trim() != '') {
             scope = 'one';
         };
@@ -760,13 +763,21 @@ class RunTestForHBuilderXCli extends Common {
 };
 
 async function check_cli_args(args, client_id) {
-    let { project, device_id } = args;
+    let { project, device_id, testcaseFile } = args;
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
     };
     if (device_id == "") {
-        return "device_id 不能为空，请检查。";
+        return "参数 --device_id 不能为空，请检查。";
     };
+    if (testcaseFile == "") {
+        return "参数 --testcaseFile 不能为空，请检查。";
+    };
+    if (testcaseFile != "" && testcaseFile != undefined) {
+        if (!fs.existsSync(path.join(project, testcaseFile))) {
+            return `测试用例文件 ${testcaseFile} 不存在，请检查。`;
+        };
+    }
     return "";
 };
 

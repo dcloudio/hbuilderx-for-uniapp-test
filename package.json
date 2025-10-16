@@ -198,6 +198,13 @@
                         "usage": "require",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
                     }
                 ]
             },
@@ -214,6 +221,13 @@
                         "name": "project",
                         "descption": "uni-app (x) project path",
                         "usage": "require",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
                         "type": "string",
                         "default": ""
                     }
@@ -234,6 +248,13 @@
                         "usage": "require",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
                     }
                 ]
             },
@@ -252,6 +273,13 @@
                         "usage": "require",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
                     }
                 ]
             },
@@ -268,6 +296,13 @@
                         "name": "project",
                         "descption": "uni-app (x) project path",
                         "usage": "require",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
                         "type": "string",
                         "default": ""
                     },
@@ -297,6 +332,13 @@
                         "default": ""
                     },
                     {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
                         "name": "device_id",
                         "descption": "iOS模拟器设备ID",
                         "usage": "",
@@ -318,6 +360,13 @@
                         "name": "project",
                         "descption": "uni-app (x) project path",
                         "usage": "require",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "usage": "",
                         "type": "string",
                         "default": ""
                     },
