@@ -174,7 +174,7 @@
             {
                 "name": "uniapp.test",
                 "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
-                "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> \n",
+                "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n",
                 "args": [
                     {
                         "name": "help",
@@ -208,7 +208,7 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -233,7 +233,7 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -258,7 +258,7 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -283,7 +283,7 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -308,14 +308,14 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
                     },
                     {
                         "name": "device_id",
-                        "descption": "Android设备ID",
+                        "descption": "(可选) Android设备ID，当存在可用设备时，默认使用第一个设备",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -340,14 +340,14 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
                     },
                     {
                         "name": "device_id",
-                        "descption": "iOS模拟器设备ID",
+                        "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
                         "usage": "",
                         "type": "string",
                         "default": ""
@@ -372,14 +372,14 @@
                     },
                     {
                         "name": "testcaseFile",
-                        "descption": "指定测试用例文件的相对路径（相对于项目根目录）",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
                         "usage": "",
                         "type": "string",
                         "default": ""
                     },
                     {
                         "name": "device_id",
-                        "descption": "Harmony设备ID",
+                        "descption": "(可选) Harmony设备ID，当存在可用设备时，默认使用第一个设备",
                         "usage": "",
                         "type": "string",
                         "default": ""
