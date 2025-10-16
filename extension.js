@@ -7,7 +7,7 @@ const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
-const { RunTestForHBuilderXCli_main } = require('./src/HBuilderXCli.js');
+const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilderXCli.js');
 
 
 function activate(context) {
@@ -172,6 +172,18 @@ function activate(context) {
     context.subscriptions.push(debugLog);
 
     // hbuilderx cli 支持
+    let cli_uni = hx.commands.registerCliCommand('uniapp.test', async (params) => {
+        let {version} = params.args;
+        let client_id = params.cliconsole.clientId;
+        if (version || version == "") {
+            let pkg = await readPluginsPackageJson();
+            const plugin_version = pkg.version;
+            const hx_version = hx.env.appVersion;
+            const msg = `plugin version：${plugin_version}\nHBuilderX version: ${hx_version}`;
+            await hx.cliconsole.log({ hideTime: true, clientId: client_id, msg: msg, status: 'Info' });
+        };
+    });
+    context.subscriptions.push(cli_uni);
     let cli_web_chrome = hx.commands.registerCliCommand('uniapp.test web-chrome', async (params) => {
         await RunTestForHBuilderXCli_main(params, 'web-chrome');
     });

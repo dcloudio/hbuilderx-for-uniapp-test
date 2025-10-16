@@ -781,6 +781,17 @@ async function check_cli_args(args, client_id) {
     return "";
 };
 
+async function readPluginsPackageJson() {
+    let package_path = path.join(path.dirname(__dirname), 'package.json');
+    let pkg = {};
+    try {
+        pkg = require(package_path);
+    } catch (error) {
+        pkg = {};
+    };
+    return pkg;
+};
+
 
 async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     // 解析命令行参数与输入
@@ -809,5 +820,6 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
 
 module.exports = {
     check_cli_args,
-    RunTestForHBuilderXCli_main
+    RunTestForHBuilderXCli_main,
+    readPluginsPackageJson
 };

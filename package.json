@@ -179,6 +179,13 @@
                     {
                         "name": "help",
                         "descption": "uni-app (x) 自动化测试cli命令帮助"
+                    },
+                    {
+                        "name": "version",
+                        "descption": "查看插件版本号",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
                     }
                 ]
             },
