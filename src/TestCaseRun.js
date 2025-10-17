@@ -500,6 +500,10 @@ class RunTest extends Common {
             maxBuffer: 2000 * 1024
         };
 
+        if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
+            cmdOpts["env"]["UNI_OS_NAME"] = UNI_OS_NAME;
+        };
+
         // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
         const _loadResult = this.loadCustomEnv(cmdOpts, this.UNI_AUTOMATOR_CONFIG)
         if (!_loadResult) {
@@ -587,6 +591,11 @@ class RunTest extends Common {
         } else {
             createOutputChannel(config.i18n.msg_env_hx_built_in_node, 'info');
         };
+        // 当用户设置使用内置Node运行jest时
+        let jest_for_node = "node";
+        if (isUseBuiltNodeRunJest) {
+            jest_for_node = config.HBuilderX_BuiltIn_Node_Path;
+        };
 
         // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
         if (nodeStatus == 'N' || nodeStatus == undefined) {
@@ -611,16 +620,6 @@ class RunTest extends Common {
                 `${cliJest}`, "-i", "--forceExit", "--json",
                 `--outputFile="${outputFile}"`
             ];
-        };
-
-        if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
-            cmdOpts["env"]["UNI_OS_NAME"] = UNI_OS_NAME;
-        };
-
-        // 当用户设置使用内置Node运行jest时
-        let jest_for_node = "node";
-        if (isUseBuiltNodeRunJest) {
-            jest_for_node = config.HBuilderX_BuiltIn_Node_Path;
         };
 
         let consoleMsgPrefix = await this.getMsgPrefix(testPlatform, deviceId);
