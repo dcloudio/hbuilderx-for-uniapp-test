@@ -326,6 +326,44 @@ class RunTestForHBuilderXCli extends Common {
         };
     };
 
+    // 【环境变量】设置UNI_OS_NAME和UNI_PLATFORM环境变量
+    async setPlatformVariablesFor_OS(testPlatform) {
+        let UNI_OS_NAME;
+        let UNI_PLATFORM = testPlatform;
+
+        if (testPlatform === 'ios' || testPlatform === 'android') {
+            UNI_OS_NAME = testPlatform;
+            UNI_PLATFORM = 'app-plus';
+        } else if (testPlatform === 'harmony') {
+            UNI_OS_NAME = 'harmony';
+            UNI_PLATFORM = 'app-harmony';
+        } else if (testPlatform.startsWith('h5-')) {
+            UNI_PLATFORM = 'h5';
+        }
+        return { UNI_OS_NAME, UNI_PLATFORM };
+    };
+
+    loadCustomEnv(cmdOpts, configPath) {
+        // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
+        let env_js_path = configPath;
+        try {
+            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
+            delete require.cache[require.resolve(env_js_path)];
+            var envjs = require(env_js_path);
+            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
+            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
+            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
+            	    console.log(key, value);
+                    cmdOpts["env"][key] = value;
+            	});
+            };
+        } catch (e) {
+            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
+            return false;
+        };
+        return true;
+    };
+
     /**
      * @description 测试运行执行方法
      * @param {String} testPlatform - 测试平台, ios|android|h5|mp-weixin
@@ -358,28 +396,15 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         let filename = getFileNameForDate();
-        let outputFile = deviceId
-            ? path.join(ouputDir, `${deviceId}-${filename}.json`)
-            : path.join(ouputDir, `${filename}.json`);
+        let filePrefix = deviceId ? `${deviceId}-` : '';
+        let outputFile = path.join(ouputDir, `${filePrefix}${filename}.json`);
         await this.print_cli_log(`开始在 ${testPlatform} 平台运行测试 ....`);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
 
         // 环境变量：UNI_OS_NAME字段用于android、ios平台测试
-        let UNI_OS_NAME;
-        let UNI_PLATFORM = testPlatform;
-        if (testPlatform == 'ios' || testPlatform == 'android') {
-            UNI_OS_NAME = testPlatform;
-            UNI_PLATFORM = 'app-plus';
-        };
-        if (testPlatform == 'harmony') {
-            UNI_OS_NAME = 'harmony';
-            UNI_PLATFORM = 'app-harmony';
-        };
-        if (testPlatform.substring(0, 3) == "h5-") {
-            UNI_PLATFORM = "h5";
-        };
+        const { UNI_OS_NAME, UNI_PLATFORM } = await this.setPlatformVariablesFor_OS(testPlatform);
 
         // 环境变量：测试端口
         let UNI_AUTOMATOR_PORT = await get_test_port().catch(() => {
@@ -411,19 +436,9 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
-        try {
-            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
-            delete require.cache[require.resolve(env_js_path)];
-            var envjs = require(env_js_path);
-            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
-            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
-            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
-            	    console.log(key, value);
-                    cmdOpts["env"][key] = value;
-            	});
-            };
-        } catch (e) {
-            await this.print_cli_log(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`)
+        const _loadResult = this.loadCustomEnv(cmdOpts, this.UNI_AUTOMATOR_CONFIG)
+        if (!_loadResult) {
+            await this.print_cli_log(`${this.UNI_AUTOMATOR_CONFIG} 测试配置文件, 可能存在语法错误，请检查。`)
             return;
         };
 
@@ -491,14 +506,14 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
-        if (testPlatform == "h5-firefox") {
-            cmdOpts.env.BROWSER = "firefox";
+        const browserMap = {
+            "h5-firefox": "firefox",
+            "h5-safari": "webkit",
+            "h5-webkit": "webkit",
+            "h5-chrome": "chromium"
         };
-        if (testPlatform == "h5-safari" || testPlatform == "h5-webkit") {
-            cmdOpts.env.BROWSER = "webkit";
-        };
-        if (testPlatform == "h5-chrome") {
-            cmdOpts.env.BROWSER = "chromium";
+        if (browserMap[testPlatform]) {
+            cmdOpts.env.BROWSER = browserMap[testPlatform];
         };
 
         // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH

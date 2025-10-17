@@ -361,6 +361,86 @@ class RunTest extends Common {
         };
     };
 
+    async getMsgPrefix(testPlatform, deviceId) {
+        // 解决控制台[]内内容太长的问题
+        let clgDeviceId = deviceId;
+        if (deviceId && deviceId.length >= 8) {
+            clgDeviceId = clgDeviceId.replace(clgDeviceId.substring(6), '..');
+        };
+        let _msgP = deviceId
+            ? `[${this.projectName}:${testPlatform}-${clgDeviceId}]`
+            : `[${this.projectName}:${testPlatform}]`;
+        return _msgP;
+    };
+
+    // 【环境变量】设置UNI_OS_NAME和UNI_PLATFORM环境变量
+    async setPlatformVariablesFor_OS(testPlatform) {
+        let UNI_OS_NAME;
+        let UNI_PLATFORM = testPlatform;
+
+        if (testPlatform === 'ios' || testPlatform === 'android') {
+            UNI_OS_NAME = testPlatform;
+            UNI_PLATFORM = 'app-plus';
+        } else if (testPlatform === 'harmony') {
+            UNI_OS_NAME = 'harmony';
+            UNI_PLATFORM = 'app-harmony';
+        } else if (testPlatform.startsWith('h5-')) {
+            UNI_PLATFORM = 'h5';
+        }
+        return { UNI_OS_NAME, UNI_PLATFORM };
+    };
+
+    loadCustomEnv(cmdOpts, configPath) {
+        // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
+        let env_js_path = configPath;
+        try {
+            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
+            delete require.cache[require.resolve(env_js_path)];
+            var envjs = require(env_js_path);
+            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
+            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
+            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
+            	    console.log(key, value);
+                    cmdOpts["env"][key] = value;
+            	});
+            };
+        } catch (e) {
+            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
+            return false;
+        };
+        return true;
+    };
+
+    async select_app_run_devices(testPlatform) {
+        // 选择要运行的设备
+        let phoneList = await getTestDevices(testPlatform);
+        console.error("[自动化测试连接的设备]--->", phoneList);
+
+        // 异常判断
+        if (phoneList == "-1") {
+            return;
+        };
+
+        // 异常判断
+        if (phoneList == 'error') {
+            hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then( btn => {});
+            return;
+        };
+
+        // 当选择了【全部平台】测试，但是没有选择任何设备，直接关闭。
+        if ((phoneList == 'noSelected' || JSON.stringify(phoneList) == '[]') && testPlatform == 'all') {
+            createOutputChannel(`您选择了【${testPlatform}】测试，但是未选择任何设备，测试中止。`, 'warning');
+            return;
+        };
+
+        // 判断选择的手机设备
+        if (phoneList.length == 0 && ['ios', 'android'].includes(testPlatform)) {
+            createOutputChannel(`您选择了【${testPlatform}】测试，但是未选择相关手机设备，测试中止。`, 'warning');
+            return;
+        };
+        return phoneList;
+    };
+
     /**
      * @description 测试运行执行方法
      * @param {String} testPlatform - 测试平台, ios|android|h5|mp-weixin
@@ -379,43 +459,18 @@ class RunTest extends Common {
         if (result == false) return;
 
         // 测试报告输出文件
-        let ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
+        const ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
         if (ouputDir == false) return;
 
-        let filename = getFileNameForDate();
-        let outputFile = deviceId
-            ? path.join(ouputDir, `${deviceId}-${filename}.json`)
-            : path.join(ouputDir, `${filename}.json`);
-
-        // 解决控制台[]内内容太长的问题
-        let clgDeviceId = deviceId;
-        if (deviceId && deviceId.length >= 8) {
-            clgDeviceId = clgDeviceId.replace(clgDeviceId.substring(6), '..');
-        };
-
-        let consoleMessagePrefix = deviceId
-            ? `[${this.projectName}:${testPlatform}-${clgDeviceId}]`
-            : `[${this.projectName}:${testPlatform}]`;
-        createOutputChannel(`${consoleMessagePrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
-        createOutputChannel(`${consoleMessagePrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
+        const filename = getFileNameForDate();
+        const filePrefix = deviceId ? `${deviceId}-` : '';
+        let outputFile = path.join(ouputDir, `${filePrefix}${filename}.json`);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
 
         // 环境变量：UNI_OS_NAME字段用于android、ios平台测试
-        let UNI_OS_NAME;
-        let UNI_PLATFORM = testPlatform;
-        if (testPlatform == 'ios' || testPlatform == 'android') {
-            UNI_OS_NAME = testPlatform;
-            UNI_PLATFORM = 'app-plus';
-        };
-        if (testPlatform == 'harmony') {
-            UNI_OS_NAME = 'harmony';
-            UNI_PLATFORM = 'app-harmony';
-        };
-        if (testPlatform.substring(0, 3) == "h5-") {
-            UNI_PLATFORM = "h5";
-        };
+        const { UNI_OS_NAME, UNI_PLATFORM } = await this.setPlatformVariablesFor_OS(testPlatform);
 
         // 环境变量：测试端口
         let UNI_AUTOMATOR_PORT = await get_test_port().catch(() => {
@@ -446,19 +501,9 @@ class RunTest extends Common {
         };
 
         // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
-        try {
-            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
-            delete require.cache[require.resolve(env_js_path)];
-            var envjs = require(env_js_path);
-            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
-            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
-            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
-            	    console.log(key, value);
-                    cmdOpts["env"][key] = value;
-            	});
-            };
-        } catch (e) {
-            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
+        const _loadResult = this.loadCustomEnv(cmdOpts, this.UNI_AUTOMATOR_CONFIG)
+        if (!_loadResult) {
+            createOutputChannel(`${this.UNI_AUTOMATOR_CONFIG} 测试配置文件, 可能存在语法错误，请检查。`, 'error');
             return;
         };
 
@@ -526,14 +571,14 @@ class RunTest extends Common {
         };
 
         // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
-        if (testPlatform == "h5-firefox") {
-            cmdOpts.env.BROWSER = "firefox";
+        const browserMap = {
+            "h5-firefox": "firefox",
+            "h5-safari": "webkit",
+            "h5-webkit": "webkit",
+            "h5-chrome": "chromium"
         };
-        if (testPlatform == "h5-safari" || testPlatform == "h5-webkit") {
-            cmdOpts.env.BROWSER = "webkit";
-        };
-        if (testPlatform == "h5-chrome") {
-            cmdOpts.env.BROWSER = "chromium";
+        if (browserMap[testPlatform]) {
+            cmdOpts.env.BROWSER = browserMap[testPlatform];
         };
 
         // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH
@@ -572,14 +617,18 @@ class RunTest extends Common {
             cmdOpts["env"]["UNI_OS_NAME"] = UNI_OS_NAME;
         };
 
-        if (testPlatform == 'mp-weixin') {
-            createOutputChannel(`${consoleMessagePrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
-        };
-
         // 当用户设置使用内置Node运行jest时
         let jest_for_node = "node";
         if (isUseBuiltNodeRunJest) {
             jest_for_node = config.HBuilderX_BuiltIn_Node_Path;
+        };
+
+        let consoleMsgPrefix = await this.getMsgPrefix(testPlatform, deviceId);
+        createOutputChannel(`${consoleMsgPrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
+        createOutputChannel(`${consoleMsgPrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
+
+        if (testPlatform == 'mp-weixin') {
+            createOutputChannel(`${consoleMsgPrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
         };
 
         let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
@@ -588,11 +637,11 @@ class RunTest extends Common {
         if (testResult == 'run_end') {
             // 不要改此处的文本
             if (fs.existsSync(outputFile)) {
-                createOutputViewForHyperLinks(`${consoleMessagePrefix}测试报告:${outputFile}`, 'info');
-                await this.printTestReport(consoleMessagePrefix, outputFile);
-                createOutputChannel(`${consoleMessagePrefix}测试运行结束。\n`, "success");
+                createOutputViewForHyperLinks(`${consoleMsgPrefix}测试报告:${outputFile}`, 'info');
+                await this.printTestReport(consoleMsgPrefix, outputFile);
+                createOutputChannel(`${consoleMsgPrefix}测试运行结束。\n`, "success");
             } else {
-                createOutputChannel(`${consoleMessagePrefix}测试运行结束。详细日志请参考运行日志。\n`, "error");
+                createOutputChannel(`${consoleMsgPrefix}测试运行结束。详细日志请参考运行日志。\n`, "error");
             };
         };
     };
@@ -628,23 +677,12 @@ class RunTest extends Common {
         };
     };
 
-    /**
-     * @description 测试用例运行主入口文件
-     * @param {Object} param 项目管理器或编辑器选中的信息
-     * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | h5-browserName
-     * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
-     */
-    async main(param, UNI_PLATFORM, scope = "all") {
-        // console.log("[main] ->", param, UNI_PLATFORM, scope);
-
+    async run_before(UNI_PLATFORM, param) {
         // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
         if (cmpVerionForH5 > 0 && UNI_PLATFORM.includes('h5-firefox', 'h5-safari')) {
             createOutputChannel(config.i18n.env_h5_test_version_prompt ,'warning');
             return;
         };
-
-        // 初始化变量，用于停止测试
-        this.StopAllTest = false;
 
         // 判断：项目信息。必须在项目管理器、或编辑器选中项目
         if (param == null) {
@@ -663,6 +701,22 @@ class RunTest extends Common {
             createOutputChannel(config.i18n.hx_install_path_space_prompt, 'warning');
             return;
         };
+        return true;
+    };
+
+    /**
+     * @description 测试用例运行主入口文件
+     * @param {Object} param 项目管理器或编辑器选中的信息
+     * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | h5-browserName
+     * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
+     */
+    async main(param, UNI_PLATFORM, scope = "all") {
+        // console.log("[main] ->", param, UNI_PLATFORM, scope);
+        // 初始化变量，用于停止测试
+        this.StopAllTest = false;
+
+        let beforeResult = await this.run_before(UNI_PLATFORM, param);
+        if (beforeResult != true) return;
 
         // 获取项目名称、项目路径、uni-app Vue版本
         let {
@@ -691,32 +745,9 @@ class RunTest extends Common {
 
         let testPhoneList = [];
         if (['all', 'ios', 'android', 'harmony'].includes(UNI_PLATFORM)) {
-            // 选择要运行的设备
-            testPhoneList = await getTestDevices(UNI_PLATFORM);
-            console.error("[自动化测试连接的设备]--->", testPhoneList);
-
-            // 异常判断
-            if (testPhoneList == "-1") {
-                return;
-            };
-
-            // 异常判断
-            if (testPhoneList == 'error') {
-                hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then( btn => {});
-                return;
-            };
-
-            // 当选择了【全部平台】测试，但是没有选择任何设备，直接关闭。
-            if ((testPhoneList == 'noSelected' || JSON.stringify(testPhoneList) == '[]') && UNI_PLATFORM == 'all') {
-                createOutputChannel(`您选择了【${UNI_PLATFORM}】测试，但是未选择任何设备，测试中止。`, 'warning');
-                return;
-            };
-
-            // 判断选择的手机设备
-            if (testPhoneList.length == 0 && ['ios', 'android'].includes(UNI_PLATFORM)) {
-                createOutputChannel(`您选择了【${UNI_PLATFORM}】测试，但是未选择相关手机设备，测试中止。`, 'warning');
-                return;
-            };
+            const sResult = await this.select_app_run_devices(UNI_PLATFORM);
+            if (sResult == undefined) return;
+            testPhoneList = sResult;
         };
 
         if (UNI_PLATFORM == 'all') {
