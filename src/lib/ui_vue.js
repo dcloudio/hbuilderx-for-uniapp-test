@@ -18,12 +18,15 @@ async function ui_vue(testPlatform) {
     subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
     subtitle = subtitle + '<a href="https://uniapp.dcloud.net.cn/tutorial/run/installSimulator.html">如何安装?</a>'
 
+    const footer1 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">插件教程</a>";
+    const footer2 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\">HBuilderX-CLI测试</a>";
+    let footer_text = footer1 + "&nbsp; &nbsp;" + footer2;
     let result = await hx.window.showFormDialog({
         title: "uni-app 自动化测试设备选择",
         subtitle: subtitle,
         submitButtonText: "确定(&S)",
         cancelButtonText: "取消(&C)",
-        footer: "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">自动化测试教程</a>",
+        footer: footer_text,
         width: 600,
         height: window_height,
         showModal: false,
