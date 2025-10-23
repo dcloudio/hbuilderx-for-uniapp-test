@@ -649,7 +649,7 @@ class RunTestForHBuilderXCli extends Common {
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] 测试项目：" + this.projectPath, status: 'Info' });
 
-        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
+        // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         argv_uni_platform = {
             "web-chrome": "h5-chrome",
             "web-safari": "h5-safari",
@@ -703,8 +703,8 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         if (argv_uni_platform == 'all') {
-            let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
-            await this.print_cli_log(`您选择了【全部平台】测试，将依次运行测试到： ${pmsg}`);
+            // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
+            await this.print_cli_log(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`);
             this.stopAllTestRun();
         };
 
@@ -738,13 +738,10 @@ class RunTestForHBuilderXCli extends Common {
         let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
-
-        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
+        
+        // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uni_platform) {
             case 'h5':
-                // h5: 仅代表chrome
-                await this.run_uni_test('h5');
-                break;
             case 'h5-chrome':
                 // 兼容，不可删除
                 await this.run_uni_test('h5-chrome');

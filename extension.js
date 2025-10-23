@@ -48,21 +48,21 @@ function activate(context) {
     });
     context.subscriptions.push(runTestAll);
 
-    // 运行所有测试用例：H5-Chrome
+    // 运行所有测试用例：web-chrome
     let runTestH5 = hx.commands.registerCommand('unitest.runTestH5', (param) => {
-        run.main(param, 'h5');
+        run.main(param, 'web-chrome');
     });
     context.subscriptions.push(runTestH5);
 
-    // 运行所有测试用例：H5-Firefox
+    // 运行所有测试用例：web-firefox
     let runTestH5Firefox = hx.commands.registerCommand('unitest.runTestH5Firefox', (param) => {
-        run.main(param, 'h5-firefox');
+        run.main(param, 'web-firefox');
     });
     context.subscriptions.push(runTestH5Firefox);
 
-    // 运行所有测试用例：H5-Safari
+    // 运行所有测试用例：web-safari
     let runTestH5Safari = hx.commands.registerCommand('unitest.runTestH5Safari', (param) => {
-        run.main(param, 'h5-safari');
+        run.main(param, 'web-safari');
     });
     context.subscriptions.push(runTestH5Safari);
 
@@ -96,21 +96,21 @@ function activate(context) {
     });
     context.subscriptions.push(runCurrentTestToAll);
 
-    // 运行当前选择的测试用例：H5
+    // 运行当前选择的测试用例：web-chrome
     let runCurrentTestToH5 = hx.commands.registerCommand('unitest.runCurrentTestH5', (param) => {
-        run.main(param, 'h5', 'one');
+        run.main(param, 'web-chrome', 'one');
     });
     context.subscriptions.push(runCurrentTestToH5);
 
-    // 运行当前选择的测试用例：H5-Firefox
+    // 运行当前选择的测试用例：web-firefox
     let runCurrentTestToH5Firefox = hx.commands.registerCommand('unitest.runCurrentTestH5Firefox', (param) => {
-        run.main(param, 'h5-firefox', 'one');
+        run.main(param, 'web-firefox', 'one');
     });
     context.subscriptions.push(runCurrentTestToH5Firefox);
 
-    // 运行当前选择的测试用例：H5-Safari
+    // 运行当前选择的测试用例：web-safari
     let runCurrentTestToH5Safari = hx.commands.registerCommand('unitest.runCurrentTestH5Safari', (param) => {
-        run.main(param, 'h5-safari', 'one');
+        run.main(param, 'web-safari', 'one');
     });
     context.subscriptions.push(runCurrentTestToH5Safari);
 

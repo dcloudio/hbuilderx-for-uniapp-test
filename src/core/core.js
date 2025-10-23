@@ -282,12 +282,17 @@ async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
 function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDebug) {
     let { projectName, testPlatform, deviceId } = testInfo;
 
+    let tpf = testPlatform;
+    if (tpf == "h5-chrome" || tpf == "h5-safari" || tpf == "h5-firefox") {
+        tpf = tpf.replace('h5-', 'web-');
+    };
+
     // 解决控制台[]内内容长度太长的问题
     if (deviceId && deviceId.length >= 8) {
         deviceId = deviceId.replace(deviceId.substring(6), '..');
     };
 
-    let MessagePrefix = deviceId ? `[${projectName}:${testPlatform}-${deviceId}]` : `[${projectName}:${testPlatform}]`;
+    let MessagePrefix = deviceId ? `[${projectName}:${tpf}-${deviceId}]` : `[${projectName}:${tpf}]`;
     message_for_test_kill(MessagePrefix);
     createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行测试 ......`, 'success', 'log');
     if (testPlatform == "android") {

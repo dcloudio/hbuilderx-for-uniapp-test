@@ -79,6 +79,9 @@ var isDebug = false;
 // unicloud服务信息
 let unicloud_spaces_info = [];
 
+// 是否打印过测试报告提示，避免重复打印
+let is_print_report_tips = false;
+
 class Common {
     /**
      * @description 检查电脑环境
@@ -277,7 +280,11 @@ class Common {
        };
        
        // 创建默认的测试报告目录
-       createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
+       if (is_print_report_tips == false) {
+            is_print_report_tips = true;
+            createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
+       };
+       
        let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
        mkdirsSync(DefaultReportDir);
        return DefaultReportDir;
@@ -336,6 +343,7 @@ class RunTest extends Common {
         this.projectName = '';
         this.projectPath = '';
         this.UNI_AUTOMATOR_CONFIG = '';
+        this.raw_argv_uni_platform = "";
     };
 
     /**
@@ -354,6 +362,15 @@ class RunTest extends Common {
             config.CROSS_ENV_PATH = path.join(isCustom, "cross-env/src/bin/cross-env.js");
             config.JEST_PATH = path.join(isCustom, "jest/bin/jest.js");
         };
+    };
+
+    // 主要是为了拉平各个提示语
+    testPlatDisplayName(testPlatform) {
+        let tpl = testPlatform;
+        if (tpl == "h5-chrome" || tpl == "h5-safari" || tpl == "h5-firefox") {
+            tpl = tpl.replace('h5-', 'web-');
+        };
+        return tpl;
     };
 
     async getMsgPrefix(testPlatform, deviceId) {
@@ -617,8 +634,9 @@ class RunTest extends Common {
             ];
         };
 
-        let consoleMsgPrefix = await this.getMsgPrefix(testPlatform, deviceId);
-        createOutputChannel(`${consoleMsgPrefix}开始在 ${testPlatform} 平台运行测试 ....`, 'info');
+        let tpl = this.testPlatDisplayName(testPlatform);
+        let consoleMsgPrefix = await this.getMsgPrefix(tpl, deviceId);
+        createOutputChannel(`${consoleMsgPrefix}开始在 ${tpl} 平台运行测试 ....`, 'info');
         createOutputChannel(`${consoleMsgPrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
 
         if (testPlatform == 'mp-weixin') {
@@ -701,7 +719,7 @@ class RunTest extends Common {
     /**
      * @description 测试用例运行主入口文件
      * @param {Object} param 项目管理器或编辑器选中的信息
-     * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | h5-browserName
+     * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | web-browser
      * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
      */
     async main(param, UNI_PLATFORM, scope = "all") {
@@ -709,7 +727,16 @@ class RunTest extends Common {
         // 初始化变量，用于停止测试
         this.StopAllTest = false;
 
-        let beforeResult = await this.run_before(UNI_PLATFORM, param);
+        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
+        this.raw_argv_uni_platform = UNI_PLATFORM;
+        let argv_uniPlatform = {
+            "web-chrome": "h5-chrome",
+            "web-safari": "h5-safari",
+            "web-firefox": "h5-firefox"
+        }[UNI_PLATFORM] || UNI_PLATFORM;
+        console.error("[自动化测试] 运行平台参数 argv_uniPlatform =", argv_uniPlatform);
+
+        let beforeResult = await this.run_before(argv_uniPlatform, param);
         if (beforeResult != true) return;
 
         // 获取项目名称、项目路径、uni-app Vue版本
@@ -728,25 +755,25 @@ class RunTest extends Common {
         await this.setTestCustomEnvironmentVariables();
 
         // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
-        let env = await this.checkAndSetEnv(UNI_PLATFORM, projectPath);
+        let env = await this.checkAndSetEnv(argv_uniPlatform, projectPath);
         if (!env) return;
 
         // 运行：到iOS和android
-        if (['all', 'android'].includes(UNI_PLATFORM) && is_uts_project){
+        if (['all', 'android'].includes(argv_uniPlatform) && is_uts_project){
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) return;
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android', 'harmony'].includes(UNI_PLATFORM)) {
-            const sResult = await this.select_app_run_devices(UNI_PLATFORM);
+        if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
+            const sResult = await this.select_app_run_devices(argv_uniPlatform);
             if (sResult == undefined) return;
             testPhoneList = sResult;
         };
 
-        if (UNI_PLATFORM == 'all') {
-            let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
-            createOutputChannel(`您选择了【全部平台】测试，将依次运行测试到： ${pmsg}`, 'success');
+        if (argv_uniPlatform == 'all') {
+            // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
+            createOutputChannel(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`, 'success');
             this.stopAllTestRun();
         };
 
@@ -758,13 +785,10 @@ class RunTest extends Common {
         };
         let changeResult = await modifyJestConfigJSFile(scope, proj);
         if (changeResult == false) return;
-
-        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
-        switch (UNI_PLATFORM) {
+        
+        // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
+        switch (argv_uniPlatform) {
             case 'h5':
-                // h5: 仅代表chrome
-                this.run_uni_test('h5');
-                break;
             case 'h5-chrome':
                 // 兼容，不可删除
                 this.run_uni_test('h5-chrome');
