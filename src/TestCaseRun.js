@@ -159,12 +159,6 @@ class Common {
             createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
         };
 
-        // 检查测试报告
-        let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
-        if ((userSet == undefined || userSet.trim() == '') && (osName == 'win32')) {
-            createOutputChannel(config.i18n.msg_warning_test_report_path_check, 'info');
-            return false;
-        };
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
         return testEnv;
     };
@@ -267,26 +261,29 @@ class Common {
         };
     };
 
-    // 获取测试报告目录
-    async getReportOutputDir(projectName, testPlatform) {
-        // 创建默认的测试报告目录
-        let projectReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
-        mkdirsSync(projectReportDir);
+   // 获取测试报告目录
+   async getReportOutputDir(projectName, testPlatform) {
+       // 使用用户自定义的目录
+       const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+       if (userSet) {
+           if (!fs.existsSync(userSet)) {
+               createOutputChannel(config.i18n.invalid_custom_test_report_path);
+               return false;
+           };
 
-        let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
-        if (userSet != undefined && userSet.trim() != '') {
-            if (!fs.existsSync(userSet)) {
-                createOutputChannel(config.i18n.invalid_custom_test_report_path, 'error');
-                return false;
-            };
-        } else {
-            return projectReportDir;
-        };
+           let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
+           mkdirsSync(UserProjectReportDir);
+           return UserProjectReportDir;
+       };
 
-        let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
-        mkdirsSync(UserProjectReportDir);
-        return UserProjectReportDir;
-    };
+       let reMsg = config.i18n.msg_warning_test_report_path_tips;
+       createOutputChannel(reMsg);
+
+       // 创建默认的测试报告目录
+       let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
+       mkdirsSync(DefaultReportDir);
+       return DefaultReportDir;
+   };
 
     // 用于【全部平台】测试停止运行
     async stopAllTestRun(MessagePrefix) {

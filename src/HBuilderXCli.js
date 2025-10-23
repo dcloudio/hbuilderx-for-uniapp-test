@@ -154,12 +154,6 @@ class Common {
             await this.print_cli_log(config.i18n.msg_warning_uts_env);
         };
 
-        // 检查测试报告
-        let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
-        if ((userSet == undefined || userSet.trim() == '') && (osName == 'win32')) {
-            await this.print_cli_log(config.i18n.msg_warning_test_report_path_check);
-            return false;
-        };
         this.isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
         return testEnv;
     };
@@ -229,23 +223,26 @@ class Common {
 
     // 获取测试报告目录
     async getReportOutputDir(projectName, testPlatform) {
-        // 创建默认的测试报告目录
-        let projectReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
-        mkdirsSync(projectReportDir);
-
-        let userSet = await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir");
-        if (userSet != undefined && userSet.trim() != '') {
+        // 使用用户自定义的目录
+        const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        if (userSet) {
             if (!fs.existsSync(userSet)) {
                 await this.print_cli_log(config.i18n.invalid_custom_test_report_path);
                 return false;
             };
-        } else {
-            return projectReportDir;
+
+            let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
+            mkdirsSync(UserProjectReportDir);
+            return UserProjectReportDir;
         };
 
-        let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
-        mkdirsSync(UserProjectReportDir);
-        return UserProjectReportDir;
+        let reMsg = "[uniapp.test] " + config.i18n.msg_warning_test_report_path_tips;
+        await this.print_cli_log(reMsg);
+
+        // 创建默认的测试报告目录
+        let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
+        mkdirsSync(DefaultReportDir);
+        return DefaultReportDir;
     };
 
     // 用于【全部平台】测试停止运行
@@ -386,18 +383,18 @@ class RunTestForHBuilderXCli extends Common {
         await this.print_cli_log(`修改项目下测试配置文件 env.js ${envMsg}！`);
 
         // 测试报告输出文件
-        let ouputDir = "";
+        let outputDir = "";
         try {
-            ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
-            await this.print_cli_log(`测试报告输出目录: ${ouputDir}`);
-            if (ouputDir == false) return;
+            outputDir = await this.getReportOutputDir(this.projectName, testPlatform);
+            await this.print_cli_log(`测试报告输出目录: ${outputDir}`);
+            if (outputDir == false) return;
         } catch (error) {
             await this.print_cli_log(`获取测试报告输出目录异常: ${error}`);
         };
 
         let filename = getFileNameForDate();
         let filePrefix = deviceId ? `${deviceId}-` : '';
-        let outputFile = path.join(ouputDir, `${filePrefix}${filename}.json`);
+        let outputFile = path.join(outputDir, `${filePrefix}${filename}.json`);
         await this.print_cli_log(`开始在 ${testPlatform} 平台运行测试 ....`);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
@@ -645,7 +642,7 @@ class RunTestForHBuilderXCli extends Common {
         let argv_device_id = params.device_id || '';
         this.projectPath = params.project;
         this.selectedFile = params.testcaseFile || '';
-        
+
         this.projectName = path.basename(this.projectPath);
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] 测试项目：" + this.projectPath, status: 'Info' });
@@ -815,11 +812,11 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     console.error("[cli参数] args:", args);
     console.error("[cli参数] params:", params);
     console.error("[cli参数] clientID:", client_id);
-    
+
     const hx_version = hx.env.appVersion;
     const plugin_version = (await readPluginsPackageJson()).version || '';
     const welcome_msg = `欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具 (${plugin_version}) ！`;
-    
+
     await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
     await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderX Version ${hx_version}`, status: 'Info' });
 
