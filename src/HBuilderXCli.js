@@ -235,11 +235,9 @@ class Common {
             mkdirsSync(UserProjectReportDir);
             return UserProjectReportDir;
         };
-
-        let reMsg = "[uniapp.test] " + config.i18n.msg_warning_test_report_path_tips;
-        await this.print_cli_log(reMsg);
-
+        
         // 创建默认的测试报告目录
+        await this.print_cli_log(config.i18n.msg_warning_test_report_path_tips);
         let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
         mkdirsSync(DefaultReportDir);
         return DefaultReportDir;

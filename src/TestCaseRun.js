@@ -275,11 +275,9 @@ class Common {
            mkdirsSync(UserProjectReportDir);
            return UserProjectReportDir;
        };
-
-       let reMsg = config.i18n.msg_warning_test_report_path_tips;
-       createOutputChannel(reMsg);
-
+       
        // 创建默认的测试报告目录
+       createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
        let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
        mkdirsSync(DefaultReportDir);
        return DefaultReportDir;
