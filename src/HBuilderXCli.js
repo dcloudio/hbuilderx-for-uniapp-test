@@ -297,6 +297,8 @@ class RunTestForHBuilderXCli extends Common {
         super();
         this.isDebug = false;
         this.consoleMsgPrefix = "[uniapp.test] ";
+        this.raw_argv_uni_platform = "";
+
         this.terminal_id = "";
         this.projectName = '';
         this.projectPath = '';
@@ -395,7 +397,7 @@ class RunTestForHBuilderXCli extends Common {
         let filename = getFileNameForDate();
         let filePrefix = deviceId ? `${deviceId}-` : '';
         let outputFile = path.join(outputDir, `${filePrefix}${filename}.json`);
-        await this.print_cli_log(`开始在 ${testPlatform} 平台运行测试 ....`);
+        await this.print_cli_log(`开始在 ${this.argv_uni_platform} 平台运行测试 ....`);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
@@ -506,7 +508,7 @@ class RunTestForHBuilderXCli extends Common {
             };
         };
 
-        // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
+        // HBuilderX 3.2.10+，web测试增加safari和firefox支持
         const browserMap = {
             "h5-firefox": "firefox",
             "h5-safari": "webkit",
@@ -639,6 +641,8 @@ class RunTestForHBuilderXCli extends Common {
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
 
         let argv_uni_platform = uni_platformName;
+        this.raw_argv_uni_platform = uni_platformName;
+
         let argv_device_id = params.device_id || '';
         this.projectPath = params.project;
         this.selectedFile = params.testcaseFile || '';
@@ -647,12 +651,13 @@ class RunTestForHBuilderXCli extends Common {
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] 测试项目：" + this.projectPath, status: 'Info' });
 
+        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
         argv_uni_platform = {
             "web-chrome": "h5-chrome",
             "web-safari": "h5-safari",
             "web-firefox": "h5-firefox"
         }[argv_uni_platform] || argv_uni_platform;
-        await this.print_cli_log("测试平台：" + argv_uni_platform);
+        await this.print_cli_log("测试平台：" + this.raw_argv_uni_platform);
 
         // 判断：操作系统, uni-app iOS测试，不支持windows
         if (osName != 'darwin' && argv_uni_platform == 'ios') {
@@ -736,6 +741,7 @@ class RunTestForHBuilderXCli extends Common {
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
 
+        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
         switch (argv_uni_platform) {
             case 'h5':
                 // h5: 仅代表chrome

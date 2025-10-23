@@ -761,6 +761,7 @@ class RunTest extends Common {
         let changeResult = await modifyJestConfigJSFile(scope, proj);
         if (changeResult == false) return;
 
+        // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
         switch (UNI_PLATFORM) {
             case 'h5':
                 // h5: 仅代表chrome

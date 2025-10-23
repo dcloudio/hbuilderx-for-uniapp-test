@@ -289,7 +289,7 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
 
     let MessagePrefix = deviceId ? `[${projectName}:${testPlatform}-${deviceId}]` : `[${projectName}:${testPlatform}]`;
     message_for_test_kill(MessagePrefix);
-    createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行 ${testPlatform} 测试`, 'success', 'log');
+    createOutputChannel(`${MessagePrefix} 项目 ${projectName}，开始运行测试 ......`, 'success', 'log');
     if (testPlatform == "android") {
         createOutputChannel(`${MessagePrefix} 提示：如果Android测试设备没有正常运行提示，请检查手机跟电脑IP是否处于同一网段...`, 'warning', 'log');
     };
@@ -386,7 +386,7 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
         deviceId = deviceId.replace(deviceId.substring(6), '..');
     };
 
-    await logger(`${MsgPrefix}项目 ${projectName}，开始运行 ${testPlatform} 测试`);
+    await logger(`${MsgPrefix}项目 ${projectName}，开始运行测试 ......`);
     if (testPlatform == "android") {
         await logger(`${MsgPrefix} 提示：如果Android测试设备没有正常运行提示，请检查手机跟电脑IP是否处于同一网段...`);
     };
