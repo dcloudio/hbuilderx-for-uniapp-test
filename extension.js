@@ -184,6 +184,11 @@ function activate(context) {
         };
     });
     context.subscriptions.push(cli_uni);
+
+    let cli_web = hx.commands.registerCliCommand('uniapp.test web', async (params) => {
+        await RunTestForHBuilderXCli_main(params, 'web');
+    });
+    context.subscriptions.push(cli_web);
     let cli_web_chrome = hx.commands.registerCliCommand('uniapp.test web-chrome', async (params) => {
         await RunTestForHBuilderXCli_main(params, 'web-chrome');
     });

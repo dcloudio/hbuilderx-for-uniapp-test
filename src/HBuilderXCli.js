@@ -821,6 +821,14 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
     await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderX Version ${hx_version}`, status: 'Info' });
 
+    if (uni_platformName == "web") {
+        if (!["chrome", "safari", "firefox"].includes(args.browser)) {
+            await hx.cliconsole.log({ clientId: client_id, msg: `web平台测试时，浏览器必须为chrome|safari|firefox`, status: 'Info' });
+            return;
+        };
+        uni_platformName = "web-" + (args.browser || "chrome");
+    };
+
     let checkResult = await check_cli_args(args, client_id);
     console.error("[cli参数校验] checkResult:", checkResult);
     if (checkResult != "") {
