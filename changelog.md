@@ -1,5 +1,10 @@
 # 更新日志
 
+## 4.2.0
+* 新增 扩展HBuilderX cli uni测试 web用法。示例: `cli uniapp.test web --project <ProjectPath> --browser chrome`
+* 调整 uni-app 测试依赖安装提示语（主要为playwright提示）
+* 调整 uni-app 设置测试报告默认输出路径
+
 ## 4.1.0
 * 调整 cli uniapp.test 选项，调整后:
     - 运行到Android: `cli uniapp.test app-android --project <project_path>`
