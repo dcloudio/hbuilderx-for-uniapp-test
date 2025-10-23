@@ -164,16 +164,18 @@ class Initialize extends Common {
         if (!fs.existsSync(test_lib_node_modules_dir)) {
 			await logger("", 'info');
 
-			const msg_0 = "uniapp自动化测试环境，需要安装jest、adbkit、puppeteer等库，安装相关依赖之后，才可以正常使用此插件."
+			const msg_0 = "uniapp自动化测试环境，需要安装jest、adbkit、puppeteer、playwright等库，安装相关依赖之后，才可以正常使用此插件."
 			await logger(msg_0, 'error');
 
             const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
-            let msg_1 = `方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
-            await logger(msg_1, 'info');
+            let msg_f = `\n方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
+            msg_f = msg_f + `\n  - 运行到Web测试(如Chrome)，需要安装Playwright Test以及相关依赖），下载体积较大，约1G左右（含Chromium、WebKit 和 Firefox等浏览器二进制文件），请耐心等待。`;
+            msg_f = msg_f + `\n  - 如果playwright安装遇到问题，请参考: https://playwright.dev/docs/intro#updating-playwright \n`;
 
             const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
-            let msg_2 = `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
-            await logger(msg_2, 'info');
+            msg_f = msg_f + `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
+            await logger(msg_f, 'info');
+            
             return false;
         };
 
