@@ -59,15 +59,15 @@
             },
             {
                 "command": "unitest.runTestH5",
-                "title": "运行测试到H5-Chrome"
+                "title": "运行测试到Web-Chrome"
             },
             {
                 "command": "unitest.runTestH5Safari",
-                "title": "运行测试到H5-Safari"
+                "title": "运行测试到Web-Safari"
             },
             {
                 "command": "unitest.runTestH5Firefox",
-                "title": "运行测试到H5-Firefox"
+                "title": "运行测试到Web-Firefox"
             },
             {
                 "command": "unitest.runTestWeiXin",
@@ -480,17 +480,17 @@
                 },
                 {
                     "command": "unitest.runTestH5",
-                    "title": "H5-Chrome(&H)",
+                    "title": "Web-Chrome(&H)",
                     "group": "unitest@4"
                 },
                 {
                     "command": "unitest.runTestH5Firefox",
-                    "title": "H5-Firefox(&H)",
+                    "title": "Web-Firefox(&H)",
                     "group": "unitest@5"
                 },
                 {
                     "command": "unitest.runTestH5Safari",
-                    "title": "H5-Safari(&H)",
+                    "title": "Web-Safari(&H)",
                     "group": "unitest@6",
                     "when": "isMac"
                 },
@@ -540,17 +540,17 @@
                 },
                 {
                     "command": "unitest.runCurrentTestH5",
-                    "title": "H5-Chrome(&H)",
+                    "title": "Web-Chrome(&H)",
                     "group": "unitestForCurrent@4"
                 },
                 {
                     "command": "unitest.runCurrentTestH5Firefox",
-                    "title": "H5-Firefox(&H)",
+                    "title": "Web-Firefox(&H)",
                     "group": "unitestForCurrent@4"
                 },
                 {
                     "command": "unitest.runCurrentTestH5Safari",
-                    "title": "H5-Safari(&H)",
+                    "title": "Web-Safari(&H)",
                     "group": "unitestForCurrent@4",
                     "when": "isMac"
                 },
@@ -605,17 +605,17 @@
                 },
                 {
                     "command": "unitest.runCurrentTestH5",
-                    "title": "H5-Chrome(&H)",
+                    "title": "Web-Chrome(&H)",
                     "group": "unitestForCurrent@4"
                 },
                 {
                     "command": "unitest.runCurrentTestH5Firefox",
-                    "title": "H5-Firefox(&H)",
+                    "title": "Web-Firefox(&H)",
                     "group": "unitestForCurrent@4"
                 },
                 {
                     "command": "unitest.runCurrentTestH5Safari",
-                    "title": "H5-Safari(&H)",
+                    "title": "Web-Safari(&H)",
                     "group": "unitestForCurrent@4",
                     "when": "isMac"
                 },
