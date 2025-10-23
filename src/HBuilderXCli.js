@@ -395,7 +395,7 @@ class RunTestForHBuilderXCli extends Common {
         let filename = getFileNameForDate();
         let filePrefix = deviceId ? `${deviceId}-` : '';
         let outputFile = path.join(outputDir, `${filePrefix}${filename}.json`);
-        await this.print_cli_log(`开始在 ${this.argv_uni_platform} 平台运行测试 ....`);
+        await this.print_cli_log(`开始在 ${this.raw_argv_uni_platform} 平台运行测试 ....`);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
