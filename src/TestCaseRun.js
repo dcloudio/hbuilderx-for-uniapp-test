@@ -278,13 +278,13 @@ class Common {
            mkdirsSync(UserProjectReportDir);
            return UserProjectReportDir;
        };
-       
+
        // 创建默认的测试报告目录
        if (is_print_report_tips == false) {
             is_print_report_tips = true;
             createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
        };
-       
+
        let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
        mkdirsSync(DefaultReportDir);
        return DefaultReportDir;
@@ -334,6 +334,19 @@ class Common {
             createOutputChannel(msg);
         } catch (e) { };
     };
+
+    /**
+     * @description 获取项目是否是dom2
+     */
+    async uniapp_x_is_dom2(projectPath, is_uniapp_cli) {
+        try {
+            let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
+            let { data } = fdata;
+            return data["vapor"];
+        } catch (error) {
+            return false
+        }
+    }
 };
 
 
@@ -510,6 +523,11 @@ class RunTest extends Common {
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
+        if (typeof is_dom2 === 'boolean' && is_dom2) {
+            cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
@@ -785,7 +803,7 @@ class RunTest extends Common {
         };
         let changeResult = await modifyJestConfigJSFile(scope, proj);
         if (changeResult == false) return;
-        
+
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uniPlatform) {
             case 'h5':
