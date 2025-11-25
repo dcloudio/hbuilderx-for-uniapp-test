@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.3.0
+* 修复 4.2.0 因cli调整 引发的一些Bug
+
 ## 4.2.0
 * 新增 扩展HBuilderX cli uni测试 web用法。示例: `cli uniapp.test web --project <ProjectPath> --browser chrome`
 * 调整 uni-app 测试依赖安装提示语（主要为playwright提示）
