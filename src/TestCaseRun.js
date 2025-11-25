@@ -785,7 +785,8 @@ class RunTest extends Common {
         let testPhoneList = [];
         if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
             const sResult = await this.select_app_run_devices(argv_uniPlatform);
-            if (sResult == undefined) return;
+            // console.error("=====>", sResult);
+            if (sResult == undefined || sResult == "noSelected") return;
             testPhoneList = sResult;
         };
 

@@ -641,6 +641,7 @@ class RunTestForHBuilderXCli extends Common {
         let argv_uni_platform = uni_platformName;
         this.raw_argv_uni_platform = uni_platformName;
 
+        // console.error("=========>", params);
         let argv_device_id = params.device_id || '';
         this.projectPath = params.project;
         this.selectedFile = params.testcaseFile || '';
