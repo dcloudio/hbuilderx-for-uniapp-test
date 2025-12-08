@@ -18,6 +18,7 @@ const {
     runCmdForHBuilderXCli,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
+    readUniappManifestJson
 } = require('./core/core.js');
 
 const {
@@ -235,7 +236,7 @@ class Common {
             mkdirsSync(UserProjectReportDir);
             return UserProjectReportDir;
         };
-        
+
         // 创建默认的测试报告目录
         await this.print_cli_log(config.i18n.msg_warning_test_report_path_tips);
         let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
@@ -287,6 +288,19 @@ class Common {
             await this.print_cli_log(msg);
         } catch (e) { };
     };
+
+    /**
+     * @description 获取项目是否是dom2
+     */
+    async uniapp_x_is_dom2(projectPath, is_uniapp_cli) {
+        try {
+            let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
+            let { data } = fdata;
+            return data["vapor"];
+        } catch (error) {
+            return false
+        }
+    }
 };
 
 
@@ -430,6 +444,11 @@ class RunTestForHBuilderXCli extends Common {
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
+        if (typeof is_dom2 === 'boolean' && is_dom2) {
+            cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
@@ -739,7 +758,7 @@ class RunTestForHBuilderXCli extends Common {
         let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
-        
+
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uni_platform) {
             case 'h5':
