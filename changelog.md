@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.3.1
+* 新增 src/HBuilderXCli.js 支持dom2
+
 ## 4.3.0
 * 修复 4.2.0 因cli调整 引发的一些Bug
 
