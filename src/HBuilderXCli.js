@@ -22,6 +22,10 @@ const {
 } = require('./core/core.js');
 
 const {
+    isNeedUpgradeHBuilderX
+} = require('../public/about.js');
+
+const {
     checkNode
 } = require('./utils/utils_public.js');
 
@@ -840,6 +844,12 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
 
     await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
     await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderX Version ${hx_version}`, status: 'Info' });
+
+    const needUpgrade = await isNeedUpgradeHBuilderX();
+    if (needUpgrade) {
+        const upgrade_msg = `插件市场此插件版本为 ${needUpgrade}，跟本地版本不一致，建议升级到最新版本以获得更好的测试体验！`;
+        await hx.cliconsole.log({ clientId: client_id, msg: upgrade_msg, status: 'Info' });
+    };
 
     if (uni_platformName == "web") {
         if (!["chrome", "safari", "firefox"].includes(args.browser)) {

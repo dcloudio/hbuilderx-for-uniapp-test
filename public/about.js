@@ -103,7 +103,7 @@ function noUpgrade(version) {
  */
 function getServerVersion() {
     let http = require('http');
-    const versionUrl = 'http://update.dcloud.net.cn/hbuilderx/alpha/win32/plugins/index.json';
+    const versionUrl = 'http://update.liuyingyong.cn/hbuilderx/marketplace/plugin.json';
     return new Promise(function(resolve, reject) {
         http.get(versionUrl, (res) => {
             let data = "";
@@ -115,8 +115,7 @@ function getServerVersion() {
                     let myPluginsVersion;
                     if (isJSON(data)) {
                         let allPlugins = JSON.parse(data);
-                        let {plugins} = allPlugins;
-                        for (let s of plugins) {
+                        for (let s of allPlugins) {
                             if (s.name == 'hbuilderx-for-uniapp-test') {
                                 myPluginsVersion = s.version;
                                 break;
@@ -176,8 +175,25 @@ async function about() {
 };
 
 
+/**
+ * @description 比较本地版本和线上版本, 判断是否需要升级
+ * @returns Boolean
+ */
+async function isNeedUpgradeHBuilderX() {
+    let result = false;
+    try {
+        const serverVersion = await getServerVersion();
+        if (serverVersion != version && serverVersion != undefined) {
+            result = serverVersion;
+        }
+    } catch (err) {};
+    return result;
+}
+
+
 
 module.exports = {
     checkUpgrade,
-    about
+    about,
+    isNeedUpgradeHBuilderX
 };
