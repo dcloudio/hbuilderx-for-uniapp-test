@@ -42,102 +42,39 @@ function activate(context) {
     });
     context.subscriptions.push(reportHistory);
 
-    // 运行所有测试用例：全部
-    let runTestAll = hx.commands.registerCommand('unitest.runTestAll', (param) => {
-        run.main(param, 'all');
-    });
-    context.subscriptions.push(runTestAll);
+    // 批量注册运行命令，避免重复样板代码
+    const registerRunCommand = (commandId, platform, scope) => {
+        const disposable = hx.commands.registerCommand(commandId, (param) => {
+            if (scope) {
+                run.main(param, platform, scope);
+            } else {
+                run.main(param, platform);
+            }
+        });
+        context.subscriptions.push(disposable);
+    };
 
-    // 运行所有测试用例：web-chrome
-    let runTestH5 = hx.commands.registerCommand('unitest.runTestH5', (param) => {
-        run.main(param, 'web-chrome');
-    });
-    context.subscriptions.push(runTestH5);
+    [
+        ['unitest.runTestAll', 'all'],
+        ['unitest.runTestH5', 'web-chrome'],
+        ['unitest.runTestH5Firefox', 'web-firefox'],
+        ['unitest.runTestH5Safari', 'web-safari'],
+        ['unitest.runTestWeiXin', 'mp-weixin'],
+        ['unitest.runTestIOS', 'ios'],
+        ['unitest.runTestAndroid', 'android'],
+        ['unitest.runTestHarmony', 'harmony'],
+    ].forEach(([id, platform]) => registerRunCommand(id, platform));
 
-    // 运行所有测试用例：web-firefox
-    let runTestH5Firefox = hx.commands.registerCommand('unitest.runTestH5Firefox', (param) => {
-        run.main(param, 'web-firefox');
-    });
-    context.subscriptions.push(runTestH5Firefox);
-
-    // 运行所有测试用例：web-safari
-    let runTestH5Safari = hx.commands.registerCommand('unitest.runTestH5Safari', (param) => {
-        run.main(param, 'web-safari');
-    });
-    context.subscriptions.push(runTestH5Safari);
-
-    // 运行所有测试用例：微信小程序
-    let runTestWeiXin = hx.commands.registerCommand('unitest.runTestWeiXin', (param) => {
-        run.main(param, 'mp-weixin');
-    });
-    context.subscriptions.push(runTestWeiXin);
-
-    // 运行所有测试用例：ios
-    let runTestIOS = hx.commands.registerCommand('unitest.runTestIOS', (param) => {
-        run.main(param, 'ios');
-    });
-    context.subscriptions.push(runTestIOS);
-
-    // 运行所有测试用例：android
-    let runTestAndroid = hx.commands.registerCommand('unitest.runTestAndroid', (param) => {
-        run.main(param, 'android');
-    });
-    context.subscriptions.push(runTestAndroid);
-
-    // 运行所有测试用例：Harmony
-    let runTestHarmony = hx.commands.registerCommand('unitest.runTestHarmony', (param) => {
-        run.main(param, 'harmony');
-    });
-    context.subscriptions.push(runTestHarmony);
-
-    // 运行当前选择的测试用例：全部
-    let runCurrentTestToAll = hx.commands.registerCommand('unitest.runCurrentTestAll', (param) => {
-        run.main(param, 'all', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToAll);
-
-    // 运行当前选择的测试用例：web-chrome
-    let runCurrentTestToH5 = hx.commands.registerCommand('unitest.runCurrentTestH5', (param) => {
-        run.main(param, 'web-chrome', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToH5);
-
-    // 运行当前选择的测试用例：web-firefox
-    let runCurrentTestToH5Firefox = hx.commands.registerCommand('unitest.runCurrentTestH5Firefox', (param) => {
-        run.main(param, 'web-firefox', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToH5Firefox);
-
-    // 运行当前选择的测试用例：web-safari
-    let runCurrentTestToH5Safari = hx.commands.registerCommand('unitest.runCurrentTestH5Safari', (param) => {
-        run.main(param, 'web-safari', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToH5Safari);
-
-    // 运行当前选择的测试用例：微信小程序
-    let runCurrentTestToWeiXin = hx.commands.registerCommand('unitest.runCurrentTestWeiXin', (param) => {
-        run.main(param, 'mp-weixin', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToWeiXin);
-
-    // 运行当前选择的测试用例：ios
-    let runCurrentTestToIOS = hx.commands.registerCommand('unitest.runCurrentTestIOS', (param) => {
-        run.main(param, 'ios', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToIOS);
-
-    // 运行当前选择的测试用例：android
-    let runCurrentTestToAndroid = hx.commands.registerCommand('unitest.runCurrentTestAndroid', (param) => {
-        run.main(param, 'android', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToAndroid);
-
-    // 运行当前选择的测试用例：Harmony
-    let runCurrentTestToHarmony = hx.commands.registerCommand('unitest.runCurrentTestHarmony', (param) => {
-        run.main(param, 'harmony', 'one');
-    });
-    context.subscriptions.push(runCurrentTestToHarmony);
-
+    [
+        ['unitest.runCurrentTestAll', 'all'],
+        ['unitest.runCurrentTestH5', 'web-chrome'],
+        ['unitest.runCurrentTestH5Firefox', 'web-firefox'],
+        ['unitest.runCurrentTestH5Safari', 'web-safari'],
+        ['unitest.runCurrentTestWeiXin', 'mp-weixin'],
+        ['unitest.runCurrentTestIOS', 'ios'],
+        ['unitest.runCurrentTestAndroid', 'android'],
+        ['unitest.runCurrentTestHarmony', 'harmony'],
+    ].forEach(([id, platform]) => registerRunCommand(id, platform, 'one'));
     // about
     let aboutPlugins = hx.commands.registerCommand('unitest.about', () => {
         about();
@@ -185,39 +122,24 @@ function activate(context) {
     });
     context.subscriptions.push(cli_uni);
 
-    let cli_web = hx.commands.registerCliCommand('uniapp.test web', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'web');
-    });
-    context.subscriptions.push(cli_web);
-    let cli_web_chrome = hx.commands.registerCliCommand('uniapp.test web-chrome', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'web-chrome');
-    });
-    context.subscriptions.push(cli_web_chrome);
-    let cli_web_safari = hx.commands.registerCliCommand('uniapp.test web-safari', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'web-safari');
-    });
-    context.subscriptions.push(cli_web_safari);
-    let cli_web_firefox = hx.commands.registerCliCommand('uniapp.test web-firefox', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'web-firefox');
-    });
-    context.subscriptions.push(cli_web_firefox);
-    let cli_mp_weixin = hx.commands.registerCliCommand('uniapp.test mp-weixin', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'mp-weixin');
-    });
-    context.subscriptions.push(cli_mp_weixin);
-    let cli_android = hx.commands.registerCliCommand('uniapp.test app-android', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'android');
-    });
-    context.subscriptions.push(cli_android);
-    let cli_ios = hx.commands.registerCliCommand('uniapp.test app-ios-simulator', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'ios');
-    });
-    context.subscriptions.push(cli_ios);
-    let cli_harmony = hx.commands.registerCliCommand('uniapp.test app-harmony', async (params) => {
-        await RunTestForHBuilderXCli_main(params, 'harmony');
-    });
-    context.subscriptions.push(cli_harmony);
-};
+    // 批量注册 CLI 命令
+    const registerCli = (cmdId, platform) => {
+        const disposable = hx.commands.registerCliCommand(cmdId, async (params) => {
+            await RunTestForHBuilderXCli_main(params, platform);
+        });
+        context.subscriptions.push(disposable);
+    };
+
+    [
+        ['uniapp.test web', 'web'],
+        ['uniapp.test web-chrome', 'web-chrome'],
+        ['uniapp.test web-safari', 'web-safari'],
+        ['uniapp.test web-firefox', 'web-firefox'],
+        ['uniapp.test mp-weixin', 'mp-weixin'],
+        ['uniapp.test app-android', 'android'],
+        ['uniapp.test app-ios-simulator', 'ios'],
+        ['uniapp.test app-harmony', 'harmony'],
+    ].forEach(([cmd, platform]) => registerCli(cmd, platform));};
 
 //该方法将在插件禁用的时候调用（目前是在插件卸载的时候触发）
 function deactivate() {
