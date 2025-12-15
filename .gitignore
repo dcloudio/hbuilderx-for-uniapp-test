@@ -16,3 +16,5 @@ unpackage/dist/dev/
 *.pyc
 
 *.zip
+
+.hbuilderx/code-chat-project-sessions.json
