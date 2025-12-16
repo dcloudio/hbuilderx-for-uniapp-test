@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.3.2
+* 优化 ui_vue.vue 当运行测试到android、ios、鸿蒙时，如果设备窗口只有一个设备，则默认选中
+
 ## 4.3.1
 * 新增 src/HBuilderXCli.js 支持dom2
 
