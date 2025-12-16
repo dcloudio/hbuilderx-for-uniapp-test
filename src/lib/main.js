@@ -12,8 +12,10 @@ const hxVersion = hx.env.appVersion;
 const hxVersionForDiff = hxVersion.replace('-alpha', '').replace('-dev', '').replace(/.\d{10}/, '');
 const cmpVerionForVue = compareHBuilderXVersions(hxVersionForDiff, '4.40');
 
-// 测试设备
+// 全局：测试设备
 global.global_devicesList = {};
+
+// 全局：测试配置
 global.global_uniSettings = {};
 
 /**

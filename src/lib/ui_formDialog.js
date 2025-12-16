@@ -7,7 +7,7 @@ const {
     getAndroidDeivcesListFormCmd
 } = require('./cmd_devices.js');
 
-// 测试设备
+// 全局：测试设备
 global.global_devicesList = {};
 
 /**

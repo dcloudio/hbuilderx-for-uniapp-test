@@ -4,7 +4,10 @@ const os = require('os');
 
 const osName = os.platform();
 
+const { getPluginConfig } = require('../core/core.js');
+
 async function ui_vue(testPlatform) {
+    // hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"), false);
     hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"));
 
     let window_height = 750;
@@ -21,6 +24,20 @@ async function ui_vue(testPlatform) {
     const footer1 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">插件教程</a>";
     const footer2 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\">HBuilderX-CLI测试</a>";
     let footer_text = footer1 + "&nbsp; &nbsp;" + footer2;
+    
+    // 读取配置项
+    let cfg_isDebug = true;
+    let cfg_AutomaticModificationTestMatch = true;
+
+    let is_debug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+    if (typeof is_debug === 'boolean') {
+        cfg_isDebug = is_debug;
+    };
+    let is_modify_testMath = await getPluginConfig("hbuilderx-for-uniapp-test.AutomaticModificationTestMatch");
+    if (typeof is_modify_testMath === 'boolean') {
+        cfg_AutomaticModificationTestMatch = is_modify_testMath;
+    };
+
     let result = await hx.window.showFormDialog({
         title: "uni-app 自动化测试设备选择",
         subtitle: subtitle,
@@ -45,7 +62,9 @@ async function ui_vue(testPlatform) {
             "name": "uniTest",
             "value": {
                 "osName": osName,
-                "access": testPlatform
+                "access": testPlatform,
+                cfg_isDebug,
+                cfg_AutomaticModificationTestMatch
             },
             event: {
                 showMsg(msg) {

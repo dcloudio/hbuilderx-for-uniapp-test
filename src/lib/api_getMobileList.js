@@ -7,7 +7,7 @@ const {
 
 const osName = os.platform();
 
-// 测试设备
+// 全局：测试设备
 global.global_devicesList = {};
 
 var extension_launcher = undefined;

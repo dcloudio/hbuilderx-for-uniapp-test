@@ -32,7 +32,7 @@
                 <!-- <q-view horizontal-size-policy='Expanding'></q-view> -->
                 <q-button id="refreshBtn" text="刷新设备" @clicked="refresh_device('ios')"></q-button>
             </q-view>
-            <q-list-view id="QListView" :minimumHeight = "150">
+            <q-list-view id="QListView" :minimumHeight = "140">
                 <q-list-item layout='hbox' v-for="item in filter_ios_simulator_list">
                     <q-checkbox id='elCBoxItem' :text="'  ' + item.name + '    ' + item.udid"
                         :checked='selected_list["ios"].includes(item.udid)'
@@ -84,24 +84,24 @@
         </q-view>
 
         <!-- 配置项 -->
-        <!-- <q-view layout='hbox' style="padding-top: 15px;">
-            <q-checkbox id="elCheckBox"
+        <q-view layout='hbox' style="padding-top: 5px;">
+            <q-checkbox id="elCheckBox2"
                 text=" 是否输出 Debug 调试日志"
                 :checked='cfg_isDebug'
                 accessibleName="cfg_isDebug"
                 @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
-        </q-view> -->
+        </q-view>
 
         <!-- 配置项 -->
-        <!-- <q-view layout='hbox'>
-            <q-checkbox id="elCheckBox"
+        <q-view layout='hbox'>
+            <q-checkbox id="elCheckBox2"
                 text=" 自动修改 jest.config.js 文件中的 testMatch"
                 :checked='cfg_AutomaticModificationTestMatch'
                 accessibleName="cfg_AutomaticModificationTestMatch"
                 @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
-        </q-view> -->
+        </q-view>
 
         <!-- vertical-size-policy 垂直填充 -->
         <q-view vertical-size-policy="Expanding"></q-view>
@@ -111,7 +111,8 @@
 
 <script>
     let api_getMobileList = require("./api_getMobileList.js");
-
+    let hx = require("hbuilderx");
+    
     export default {
         data() {
             return {
@@ -163,6 +164,7 @@
                 this.updateUi();
                 await this.set_default_device();
             },
+
             // 2025-12-16 当只有一个设备时，自动选中
             async set_default_device() {
                 try {
@@ -182,21 +184,31 @@
                     console.error("设置默认设备失败", error);
                 };
             },
+
             removeElementUsingFilter(arr, value) {
                 return arr.filter(function(element) {
                     return element !== value;
                 });
             },
+
             el_set(e) {
                 // console.log(e);
                 const accessibleName = e.target.accessibleName;
                 const data_value = e.target["data-value"];
                 const checked = e.target.checked;
 
-                const checkbox = ["mp_weixin", "h5_chrome", "h5_firefox", "h5_safari", "cfg_isDebug", "cfg_AutomaticModificationTestMatch"];
+                // 测试配置型选项
+                const cfg_checkbox = ["cfg_isDebug", "cfg_AutomaticModificationTestMatch"];
+                if (cfg_checkbox.includes(accessibleName)) {
+                    this[accessibleName] = e.target.checked;
+                    this.update_test_settings(accessibleName, e.target.checked);
+                };
+
+                const checkbox = ["mp_weixin", "h5_chrome", "h5_firefox", "h5_safari"];
                 if (checkbox.includes(accessibleName)) {
                     this[accessibleName] = e.target.checked;
                 };
+
                 if (["android", "ios", "harmony"].includes(accessibleName)) {
                     let tmp = [...this.selected_list[accessibleName]];
                     if (tmp.includes(data_value) && checked == false) {
@@ -230,6 +242,26 @@
                 } catch (error) {};
                 this.updateUi();
                 await this.set_default_device();
+            },
+
+            // 更新测试配置项
+            async update_test_settings(setting_name, value) {
+                let config_name = "";
+                if (setting_name == "cfg_isDebug") {
+                    config_name = "hbuilderx-for-uniapp-test.isDebug";
+                } else if (setting_name == "cfg_AutomaticModificationTestMatch") {
+                    config_name = "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch";
+                };
+                console.error(`[UI窗口] 更新配置项 ${config_name} 为 ${value}`);
+                if (config_name == "") return;
+
+                let config = await hx.workspace.getConfiguration();
+                config.update(config_name, value).then( () => {
+                    hx.window.setStatusBarMessage(`[UI窗口] 更新配置项 ${config_name} 成功`, 'info', 10000);
+                }).catch( (err) => {
+                    console.error(`[UI窗口] 更新配置项 ${config_name} 失败`, err);
+                    hx.window.showErrorMessage(`更新配置项 ${config_name} 失败: ${err.message}`);
+                });
             }
         },
     }
@@ -285,6 +317,7 @@
 
     #elCheckBox {
         min-width: 90px;
+        font-size: 12px;
     }
 
     #elCheckBox::indicator::unchecked {
@@ -292,6 +325,20 @@
     }
 
     #elCheckBox::indicator::checked {
+        image: url(:/hxui/resource/chbx-checked.png);
+    }
+
+    #elCheckBox2 {
+        min-width: 90px;
+        font-size: 12px;
+        color: rgb(64, 94, 66);
+    }
+
+    #elCheckBox2::indicator::unchecked {
+        image: url(:/hxui/resource/chbx.png);
+    }
+
+    #elCheckBox2::indicator::checked {
         image: url(:/hxui/resource/chbx-checked.png);
     }
 
