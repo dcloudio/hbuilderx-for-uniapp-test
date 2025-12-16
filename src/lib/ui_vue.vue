@@ -83,6 +83,26 @@
             </q-list-view>
         </q-view>
 
+        <!-- 配置项 -->
+        <!-- <q-view layout='hbox' style="padding-top: 15px;">
+            <q-checkbox id="elCheckBox"
+                text=" 是否输出 Debug 调试日志"
+                :checked='cfg_isDebug'
+                accessibleName="cfg_isDebug"
+                @clicked="el_set" />
+            <q-view horizontal-size-policy="Expanding"></q-view>
+        </q-view> -->
+
+        <!-- 配置项 -->
+        <!-- <q-view layout='hbox'>
+            <q-checkbox id="elCheckBox"
+                text=" 自动修改 jest.config.js 文件中的 testMatch"
+                :checked='cfg_AutomaticModificationTestMatch'
+                accessibleName="cfg_AutomaticModificationTestMatch"
+                @clicked="el_set" />
+            <q-view horizontal-size-policy="Expanding"></q-view>
+        </q-view> -->
+
         <!-- vertical-size-policy 垂直填充 -->
         <q-view vertical-size-policy="Expanding"></q-view>
 
@@ -110,7 +130,10 @@
                     "harmony": [],
                     "android": [],
                     "ios": [],
-                }
+                },
+                // 配置项
+                cfg_isDebug: true,
+                cfg_AutomaticModificationTestMatch: true
             }
         },
 
@@ -170,7 +193,7 @@
                 const data_value = e.target["data-value"];
                 const checked = e.target.checked;
 
-                const checkbox = ["mp_weixin", "h5_chrome", "h5_firefox", "h5_safari"];
+                const checkbox = ["mp_weixin", "h5_chrome", "h5_firefox", "h5_safari", "cfg_isDebug", "cfg_AutomaticModificationTestMatch"];
                 if (checkbox.includes(accessibleName)) {
                     this[accessibleName] = e.target.checked;
                 };

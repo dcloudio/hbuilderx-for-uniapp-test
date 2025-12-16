@@ -14,6 +14,7 @@ const cmpVerionForVue = compareHBuilderXVersions(hxVersionForDiff, '4.40');
 
 // 测试设备
 global.global_devicesList = {};
+global.global_uniSettings = {};
 
 /**
  * @description 内部使用。返回具体的测试设备信息
@@ -64,14 +65,24 @@ async function getTestDevices(testPlatform) {
     // ]
 
     let selected = "";
+    let uiSettings = {};
     // console.log("======", cmpVerionForVue);
     // selected = await ui_formDialog(testPlatform);
 
     if (cmpVerionForVue < 0) {
-        selected = await ui_vue(testPlatform);
+        let _result = await ui_vue(testPlatform);
+        if (Array.isArray(_result) && _result.length == 2) {
+            [selected, uiSettings] = _result;
+            if (uiSettings && Object.keys(uiSettings).length > 0) {
+                global.global_uniSettings = uiSettings;
+            };
+        } else {
+            selected = _result;
+        };
     } else {
         selected = await ui_formDialog(testPlatform);
     };
+    console.error("[_result_]", selected, uiSettings);
 
     // return [];
     return selected;

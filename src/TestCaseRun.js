@@ -440,6 +440,7 @@ class RunTest extends Common {
         // 选择要运行的设备
         let phoneList = await getTestDevices(testPlatform);
         console.error("[自动化测试连接的设备]--->", phoneList);
+        console.error("[global_uniSettings]--->", global_uniSettings);
 
         // 异常判断
         if (phoneList == "-1") {

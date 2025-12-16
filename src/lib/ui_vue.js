@@ -7,11 +7,11 @@ const osName = os.platform();
 async function ui_vue(testPlatform) {
     hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"));
 
-    let window_height = 700;
+    let window_height = 750;
     if (osName == "win32") {
-        window_height = testPlatform == "all" ? 500 : 400;
+        window_height = testPlatform == "all" ? 550 : 450;
     } else {
-        window_height = testPlatform == "all" ? 700 : 400;
+        window_height = testPlatform == "all" ? 750 : 450;
     };
 
     let subtitle = "选择要测试的手机设备或模拟器";
@@ -66,6 +66,8 @@ async function ui_vue(testPlatform) {
         };
         return 'error';
     });
+    // console.error("--------->", result);
+
     // 未选择设备：返回noSelected
     if (result == "noSelected" || result == "-1") {
         return "noSelected";
@@ -75,6 +77,7 @@ async function ui_vue(testPlatform) {
     };
     // console.log("-->", result, result["selected_list"]);
 
+    let uiSettings = {};
     let selectedList = [];
     let windows_selected_harmony_list = result["selected_list"]["harmony"];
     let windows_selected_android_list = result["selected_list"]["android"];
@@ -107,9 +110,17 @@ async function ui_vue(testPlatform) {
     if (result["h5_safari"]) {
         selectedList.push(`h5:h5-safari`);
     };
-    // console.log("[selectedList] ->", selectedList);
-    // return [];
-    return selectedList;
+
+    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch'];
+    _cfg_keys.forEach(key => {
+      if (Object.hasOwn(result, key)) {
+        uiSettings[key] = result[key];
+      }
+    });
+    // console.error("[selectedList] ->", selectedList);
+    // return [], uiSettings;
+
+    return [selectedList, uiSettings];
 };
 
 /**
