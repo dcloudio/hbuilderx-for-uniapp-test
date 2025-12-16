@@ -138,6 +138,26 @@
                     };
                 } catch (error) {};
                 this.updateUi();
+                await this.set_default_device();
+            },
+            // 2025-12-16 当只有一个设备时，自动选中
+            async set_default_device() {
+                try {
+                    if (this.access == "android" && this.android_list.length == 1) {
+                        this.selected_list['android'] = [this.android_list[0].udid];
+                        this.updateUi();
+                    };
+                    if (this.access == "ios" && this.ios_simulator_list.length == 1) {
+                        this.selected_list['ios'] = [this.ios_simulator_list[0].udid];
+                        this.updateUi();
+                    };
+                    if (this.access == "harmony" && this.harmony_list.length == 1) {
+                        this.selected_list['harmony'] = [this.harmony_list[0].udid];
+                        this.updateUi();
+                    };
+                } catch (error) {
+                    console.error("设置默认设备失败", error);
+                };
             },
             removeElementUsingFilter(arr, value) {
                 return arr.filter(function(element) {
@@ -185,8 +205,8 @@
                         this.harmony_list = result.harmony ? result.harmony : [];
                     };
                 } catch (error) {};
-
                 this.updateUi();
+                await this.set_default_device();
             }
         },
     }
