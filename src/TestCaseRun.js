@@ -74,31 +74,17 @@ const BROWSER_MAP = {
     'h5-chrome': 'chromium'
 };
 
-// Module-level state (to be refactored into class properties)
-const moduleState = {
-    nodeStatus: undefined,
-    isUniappCli: false,
-    isUniapp3: false,
-    isUniappX: false,
-    isStopAllTest: false,
-    isUseBuiltNodeCompileUniapp: undefined,
-    isUseBuiltNodeRunJest: undefined,
-    isUtsProject: false,
-    isDebug: false,
-    unicloudSpacesInfo: [],
-    isPrintReportTips: false
-};
-
-// Legacy global variable references (for backward compatibility)
+// Global state variables (maintained for backward compatibility)
+// TODO: Consider refactoring into class properties in future versions
 let nodeStatus;
-var is_uniapp_cli = false;
-var is_uniapp_3 = false;
-var is_uniapp_x = false;
-var isStopAllTest = false;
-var isUseBuiltNodeCompileUniapp;
-var isUseBuiltNodeRunJest;
-var is_uts_project = false;
-var isDebug = false;
+let is_uniapp_cli = false;
+let is_uniapp_3 = false;
+let is_uniapp_x = false;
+let isStopAllTest = false;
+let isUseBuiltNodeCompileUniapp;
+let isUseBuiltNodeRunJest;
+let is_uts_project = false;
+let isDebug = false;
 let unicloud_spaces_info = [];
 let is_print_report_tips = false;
 
@@ -612,12 +598,11 @@ class RunTest extends Common {
      * @returns {String} 标准化的平台显示名称
      */
     normalizePlatformDisplayName(testPlatform) {
-        const platformName = testPlatform;
         // 将 h5-* 格式转换为 web-* 格式以保持一致性
-        if (platformName.startsWith('h5-')) {
-            return platformName.replace('h5-', 'web-');
+        if (testPlatform.startsWith('h5-')) {
+            return testPlatform.replace('h5-', 'web-');
         }
-        return platformName;
+        return testPlatform;
     };
 
     /**
@@ -642,10 +627,14 @@ class RunTest extends Common {
      * @returns {String} 截断后的设备ID
      */
     truncateDeviceId(deviceId) {
-        if (!deviceId || deviceId.length < 8) {
+        const MIN_TRUNCATE_LENGTH = 8;
+        const TRUNCATE_PREFIX_LENGTH = 6;
+        const TRUNCATE_SUFFIX = '..';
+        
+        if (!deviceId || deviceId.length < MIN_TRUNCATE_LENGTH) {
             return deviceId;
         }
-        return deviceId.substring(0, 6) + '..';
+        return deviceId.substring(0, TRUNCATE_PREFIX_LENGTH) + TRUNCATE_SUFFIX;
     };
 
     /**
@@ -958,7 +947,7 @@ class RunTest extends Common {
      * @returns {Boolean}
      */
     isPlainObject(obj) {
-        return obj != null && Object.prototype.toString.call(obj) === '[object Object]';
+        return obj !== null && obj !== undefined && Object.prototype.toString.call(obj) === '[object Object]';
     };
 
     /**
@@ -1209,8 +1198,16 @@ class RunTest extends Common {
      * @returns {{platform: String, deviceId: String}}
      */
     parseDeviceInfo(deviceInfo) {
+        // 输入验证
+        if (!deviceInfo || typeof deviceInfo !== 'string') {
+            if (isDebug) {
+                console.warn('[自动化测试] 无效的设备信息:', deviceInfo);
+            }
+            return { platform: '', deviceId: '' };
+        }
+
         const parts = deviceInfo.split(':');
-        const platform = parts[0];
+        const platform = parts[0] || '';
         // 处理设备ID可能包含冒号的情况（如iOS设备）
         const deviceId = parts.slice(1).join(':');
         
