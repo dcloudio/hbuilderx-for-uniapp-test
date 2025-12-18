@@ -9,10 +9,31 @@ const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilderXCli.js');
 
+function handerUri(uri) {
+    console.error("uri = ", uri);
+    let url_path = uri.path;
+    let actions = url_path.split('/').pop();
+    console.error("actions = ", actions);
+
+    let query_params = uri.query;
+    if (query_params) {
+        query_params = Object.fromEntries(new URLSearchParams(query_params));
+        if (actions == "command") {
+            hx.commands.executeCommand(query_params.id);
+        }
+    }
+};
+
 
 function activate(context) {
     // 检查升级
     checkUpgrade();
+
+    hx.window.registerUriHandler({
+        handleUri: function(uri) {
+            handerUri(uri);
+        }
+    }, context);
 
     let run = new RunTest();
 
@@ -107,6 +128,12 @@ function activate(context) {
         });
     });
     context.subscriptions.push(debugLog);
+
+    // 更多设置
+    let moreSet = hx.commands.registerCommand('unitest.moreSettings', () => {
+        hx.workspace.gotoConfiguration('hbuilderx-for-uniapp-test.uniappCompileNodeType')
+    });
+    context.subscriptions.push(moreSet);
 
     // hbuilderx cli 支持
     let cli_uni = hx.commands.registerCliCommand('uniapp.test', async (params) => {

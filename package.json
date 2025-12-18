@@ -130,6 +130,10 @@
                 "title": "是否输出Debug调试日志"
             },
             {
+                "command": "unitest.moreSettings",
+                "title": "更多插件配置"
+            },
+            {
                 "command": "unitest.reloadEnv",
                 "title": "重装测试环境依赖"
             },
@@ -680,6 +684,10 @@
                 {
                     "command": "unitest.enableDebugLog",
                     "checked": "expression.isDebugLog",
+                    "group": "unitest@1"
+                },
+                {
+                    "command": "unitest.moreSettings",
                     "group": "unitest@1"
                 },
                 {

@@ -22,9 +22,12 @@ async function ui_vue(testPlatform) {
     subtitle = subtitle + '<a href="https://uniapp.dcloud.net.cn/tutorial/run/installSimulator.html">如何安装?</a>'
 
     const footer1 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">插件教程</a>";
-    const footer2 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\">HBuilderX-CLI测试</a>";
-    let footer_text = footer1 + "&nbsp; &nbsp;" + footer2;
-    
+    const footer2 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\">使用CLI测试</a>";
+    const footer3 = "<a href=\"hbuilderx://requestExtension/hbuilderx-for-uniapp-test/command?id=unitest.moreSettings\">更多插件配置</a>";
+    // hx.workspace.gotoConfiguration('hbuilderx-for-uniapp-test.target')
+    // hxcommand://hbuilderx-for-uniapp-test
+    let footer_text = footer1 + "&nbsp; &nbsp;" + footer2 + "&nbsp; &nbsp;" + footer3;
+
     // 读取配置项
     let cfg_isDebug = true;
     let cfg_AutomaticModificationTestMatch = true;
