@@ -49,302 +49,517 @@ const {
 
 const osName = os.platform();
 
-// 检查本机是否安装node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
+// Constants for platform types
+const PLATFORM_TYPES = {
+    IOS: 'ios',
+    ANDROID: 'android',
+    HARMONY: 'harmony',
+    H5_CHROME: 'h5-chrome',
+    H5_SAFARI: 'h5-safari',
+    H5_FIREFOX: 'h5-firefox',
+    MP_WEIXIN: 'mp-weixin',
+    ALL: 'all'
+};
+
+const WEB_PLATFORM_MAP = {
+    'web-chrome': 'h5-chrome',
+    'web-safari': 'h5-safari',
+    'web-firefox': 'h5-firefox'
+};
+
+const BROWSER_MAP = {
+    'h5-firefox': 'firefox',
+    'h5-safari': 'webkit',
+    'h5-webkit': 'webkit',
+    'h5-chrome': 'chromium'
+};
+
+// Global state variables (maintained for backward compatibility)
+// TODO: Consider refactoring into class properties in future versions
 let nodeStatus;
-
-// 是否是uniapp-cli项目
-var is_uniapp_cli = false;
-
-// 是否是uniapp vue3项目
-var is_uniapp_3 = false;
-
-// 判断是否是uniapp-x项目
-var is_uniapp_x = false;
-
-// 是否全部停止测试运行
-var isStopAllTest = false;
-
-// 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
-var isUseBuiltNodeCompileUniapp;
-
-// 配置项：获取用户是否设置使用HBuilderX内置的Node运行jest测试程序
-var isUseBuiltNodeRunJest;
-
-// 临时变量，判断是否是uts项目
-var is_uts_project = false;
-
-// 是否正在调试，当勾选后，将会在控制台输出更多日志
-var isDebug = false;
-
-// unicloud服务信息
+let is_uniapp_cli = false;
+let is_uniapp_3 = false;
+let is_uniapp_x = false;
+let isStopAllTest = false;
+let isUseBuiltNodeCompileUniapp;
+let isUseBuiltNodeRunJest;
+let is_uts_project = false;
+let isDebug = false;
 let unicloud_spaces_info = [];
-
-// 是否打印过测试报告提示，避免重复打印
 let is_print_report_tips = false;
 
 class Common {
     /**
-     * @description 检查电脑环境
-     *  - 检查电脑本机是否安装node
-     *  - 检查插件运行，相关依赖是否安装完整
-     *  - 检查是否安装uniapp-cli、launcher
-     * @param {String} platform - 测试平台，ios|android|h5|mp-weixin
-     * @param {String} projectPath - 项目路径，用于判断uniapp-cli环境
+     * @description 检查测试环境并设置必要的配置
+     *  - 检查本机是否安装node
+     *  - 检查插件依赖是否安装完整
+     *  - 检查必需插件（uniapp-cli、launcher等）
+     * @param {String} platform - 测试平台
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<Boolean>} 环境检查通过返回true
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
-        let testEnv = true;
-        if (nodeStatus == undefined || nodeStatus == 'N') {
-            nodeStatus = await checkNode().catch(error => {
-                createOutputChannel(config.i18n.msg_env_node_check, "error");
-                return error;
-            });
-        };
+        // 检查Node.js环境
+        await this.checkNodeEnvironment();
 
-        // 检查插件依赖
-        let init = new Initialize();
-        if (is_uniapp_cli) {
-            testEnv = await init.checkUniappCliProject(projectPath);
-        } else {
-            testEnv = await init.checkPluginDependencies();
-        };
+        // 检查项目依赖
+        const testEnv = await this.checkProjectDependencies(projectPath);
 
-        // 检查测试报告目录是否存在，如不存在则创建
-        await mkdirsSync(config.testReportOutPutDir);
+        // 创建必需的目录
+        await this.ensureRequiredDirectories();
 
-        // 检查uts cache目录，如不存在则自动创建
-        if (is_uts_project) {
-            await mkdirsSync(config.UTS_USER_DATA_PATH);
-        };
+        // 验证HBuilderX插件
+        const requiredPlugins = this.getRequiredPlugins(platform);
+        this.validateRequiredPlugins(requiredPlugins);
 
-        // 检查是否安装uniapp-cli、launcher
-        var plugin_list = {};
-
-        // check：运行自动化测试需要安装的插件
-        if (is_uniapp_3) {
-            plugin_list["uniapp-cli-vite"] = config.UNI_CLI_VITE_PATH;
-        } else {
-            plugin_list["uniapp-cli"] = config.UNI_CLI_PATH;
-        };
-
-        if (["android", "ios", "all"].includes(platform)) {
-            plugin_list["launcher"] = config.LAUNCHER_ANDROID;
-        };
-
-        if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
-        };
-
-        if (is_uts_project || is_uniapp_x) {
-            plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
-        };
-
-        if (["android", "all"].includes(platform)) {
-            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
-            plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
-        };
-
-        // 判断是否安装测试环境必须的插件
-        let uni_plugin_check = true;
-        for (let e of Object.keys(plugin_list)) {
-            // console.error("=============", plugin_list[e], fs.existsSync(plugin_list[e]));
-            if (fs.existsSync(plugin_list[e]) == false) {
-                uni_plugin_check = false;
-                const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
-                createOutputChannel(log_for_plugin, 'info');
-            };
-        };
-
-        if (uni_plugin_check == false && is_uniapp_x) {
-            createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
-        };
-        if (uni_plugin_check == false && is_uts_project) {
-            createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
-        };
-
+        // 加载调试配置
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        
         return testEnv;
     };
 
     /**
-     * @description 检查并设置UTS运行环境（ios和android）
+     * @description 检查Node.js环境
+     * @returns {Promise<void>}
      */
-    async checkAndSetUTSTestEnv() {
-        let path_gradleHome = await getPluginConfig('uts-development-android.gradleHome');
-        if (path_gradleHome != undefined && path_gradleHome.trim() != "" && fs.existsSync(path_gradleHome)) {
-            config.UTS_GRADLE_HOME = path_gradleHome;
-        };
-
-        let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
-        if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
-            config.UTS_JDK_PATH = path_Android_sdkDir;
-        };
+    async checkNodeEnvironment() {
+        if (nodeStatus === undefined || nodeStatus === 'N') {
+            nodeStatus = await checkNode().catch(error => {
+                createOutputChannel(config.i18n.msg_env_node_check, "error");
+                return error;
+            });
+        }
     };
 
     /**
-     * @description 获取unicloud服务信息
+     * @description 检查项目依赖
      * @param {String} projectPath - 项目路径
-     * @param {Object} param - 参数
+     * @returns {Promise<Boolean>}
+     */
+    async checkProjectDependencies(projectPath) {
+        const init = new Initialize();
+        
+        if (is_uniapp_cli) {
+            return await init.checkUniappCliProject(projectPath);
+        } else {
+            return await init.checkPluginDependencies();
+        }
+    };
+
+    /**
+     * @description 确保必需的目录存在
+     * @returns {Promise<void>}
+     */
+    async ensureRequiredDirectories() {
+        // 创建测试报告目录
+        await mkdirsSync(config.testReportOutPutDir);
+
+        // 创建UTS缓存目录（如需要）
+        if (is_uts_project) {
+            await mkdirsSync(config.UTS_USER_DATA_PATH);
+        }
+    };
+
+    /**
+     * @description 获取平台所需的插件列表
+     * @param {String} platform - 测试平台
+     * @returns {Object} 插件名称和路径的映射
+     */
+    getRequiredPlugins(platform) {
+        const plugins = {};
+
+        // uni-app CLI插件
+        if (is_uniapp_3) {
+            plugins["uniapp-cli-vite"] = config.UNI_CLI_VITE_PATH;
+        } else {
+            plugins["uniapp-cli"] = config.UNI_CLI_PATH;
+        }
+
+        // Launcher插件（移动平台）
+        const mobilePlatforms = [PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.IOS, PLATFORM_TYPES.ALL];
+        if (mobilePlatforms.includes(platform)) {
+            plugins["launcher"] = config.LAUNCHER_ANDROID;
+        }
+
+        // uni-app X 专用插件
+        if (is_uniapp_x) {
+            plugins["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        }
+
+        // UTS项目插件
+        if (is_uts_project || is_uniapp_x) {
+            plugins["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
+        }
+
+        // Android平台额外插件
+        if ([PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.ALL].includes(platform)) {
+            plugins["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            plugins["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
+        }
+
+        return plugins;
+    };
+
+    /**
+     * @description 验证必需插件是否已安装
+     * @param {Object} pluginList - 插件列表
+     * @returns {Boolean} 所有插件都已安装返回true
+     */
+    validateRequiredPlugins(pluginList) {
+        let allPluginsInstalled = true;
+
+        for (const [pluginName, pluginPath] of Object.entries(pluginList)) {
+            if (!fs.existsSync(pluginPath)) {
+                allPluginsInstalled = false;
+                const displayName = config.HX_PLUGINS_DISPLAYNAME_LIST[pluginName] || pluginName;
+                const message = `[提示]：测试环境检查，未安装 ${pluginName}。点击菜单【工具 - 插件安装】，安装【${displayName}】插件。`;
+                createOutputChannel(message, 'info');
+            }
+        }
+
+        // 显示特定项目类型的警告
+        if (!allPluginsInstalled) {
+            if (is_uniapp_x) {
+                createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
+            }
+            if (is_uts_project) {
+                createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
+            }
+        }
+
+        return allPluginsInstalled;
+    };
+
+    /**
+     * @description 检查并设置UTS测试环境（适用于iOS和Android平台）
+     * @returns {Promise<void>}
+     */
+    async checkAndSetUTSTestEnv() {
+        // 设置Gradle路径
+        const gradleHome = await this.getValidConfigPath('uts-development-android.gradleHome');
+        if (gradleHome) {
+            config.UTS_GRADLE_HOME = gradleHome;
+        }
+
+        // 设置Android SDK路径
+        const androidSdkDir = await this.getValidConfigPath('uts-development-android.sdkDir');
+        if (androidSdkDir) {
+            config.UTS_JDK_PATH = androidSdkDir;
+        }
+    };
+
+    /**
+     * @description 获取有效的配置路径（存在且非空）
+     * @param {String} configKey - 配置键名
+     * @returns {Promise<String|null>} 有效路径或null
+     */
+    async getValidConfigPath(configKey) {
+        const configPath = await getPluginConfig(configKey);
+        
+        if (configPath && configPath.trim() !== "" && fs.existsSync(configPath)) {
+            return configPath;
+        }
+        
+        return null;
+    };
+
+    /**
+     * @description 获取uniCloud服务空间信息
+     * @param {String} projectPath - 项目路径
+     * @param {Object} param - 项目参数对象
+     * @returns {Promise<void>}
      */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
 
-        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay", "uniCloud-dcloud"];
-        const uniCloudExists = uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
-        if (!uniCloudExists) {
+        // 检查是否存在uniCloud目录
+        if (!this.hasUniCloudDirectory(projectPath)) {
             return;
-        };
+        }
 
-        let workspaceFolder = param.workspaceFolder;
+        // 获取工作区文件夹
+        const workspaceFolder = this.extractWorkspaceFolder(param);
         if (!workspaceFolder) {
-            workspaceFolder = param.document.workspaceFolder
-        };
-        if (!workspaceFolder) { return };
+            return;
+        }
 
+        // 获取uniCloud数据
         try {
             unicloud_spaces_info = await getProjectUnicloudData(workspaceFolder);
         } catch (error) {
-            console.error("[自动化测试] 执行getProjectUnicloudData异常", error);
+            console.error("[自动化测试] 获取uniCloud数据异常:", error);
+        }
+    };
+
+    /**
+     * @description 检查项目是否包含uniCloud目录
+     * @param {String} projectPath - 项目路径
+     * @returns {Boolean}
+     */
+    hasUniCloudDirectory(projectPath) {
+        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay", "uniCloud-dcloud"];
+        return uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
+    };
+
+    /**
+     * @description 从参数对象中提取工作区文件夹
+     * @param {Object} param - 参数对象
+     * @returns {Object|null} 工作区文件夹对象或null
+     */
+    extractWorkspaceFolder(param) {
+        return param.workspaceFolder || param.document?.workspaceFolder || null;
+    };
+
+    /**
+     * @description 获取项目信息并检测项目类型
+     * @param {Object} param - 项目管理器或编辑器提供的参数
+     * @returns {Promise<Object>} 项目信息对象
+     */
+    async getProjectInfo(param) {
+        // 提取基本项目信息
+        const basicInfo = this.extractBasicProjectInfo(param);
+        
+        // 获取uniCloud配置
+        await this.getProjectUniCloudInfo(basicInfo.projectPath, param);
+
+        // 检测项目类型
+        await this.detectProjectTypes(basicInfo.projectPath);
+
+        if (isDebug) {
+            console.error("[自动化测试] 项目类型检测 - uni-app-x:", is_uniapp_x);
+        }
+
+        return {
+            projectName: basicInfo.projectName,
+            projectPath: basicInfo.projectPath,
+            projectType: basicInfo.projectType,
+            selectedFile: basicInfo.selectedFile,
+            projectVueVersion: basicInfo.projectVueVersion
         };
     };
 
     /**
-     * 获取项目管理器选中的信息，并推测项目类型（比如是否是uniapp-cli、是否是uniapp-x）
-     * @param {Object} param
-     * @returns {Object}
+     * @description 提取基本项目信息
+     * @param {Object} param - 参数对象
+     * @returns {Object} 基本项目信息
      */
-    async getProjectInfo(param) {
-        let projectType, projectName, projectPath, selectedFile;
-        let projectVueVersion = "2";
-        try {
-            projectName = param.workspaceFolder.name;
-            projectType = param.workspaceFolder.nature;
-            projectPath = param.workspaceFolder.uri.fsPath;
-            selectedFile = param.fsPath;
-        } catch (e) {
-            projectName = param.document.workspaceFolder.name;
-            projectPath = param.document.workspaceFolder.uri.fsPath;
-            selectedFile = param.document.uri.fsPath;
-            projectType = param.document.workspaceFolder.nature;
+    extractBasicProjectInfo(param) {
+        let projectInfo = {
+            projectType: '',
+            projectName: '',
+            projectPath: '',
+            selectedFile: '',
+            projectVueVersion: "2"
         };
 
-        await this.getProjectUniCloudInfo(projectPath, param);
+        try {
+            // 优先从workspaceFolder获取
+            projectInfo.projectName = param.workspaceFolder.name;
+            projectInfo.projectType = param.workspaceFolder.nature;
+            projectInfo.projectPath = param.workspaceFolder.uri.fsPath;
+            projectInfo.selectedFile = param.fsPath;
+        } catch (e) {
+            // 回退到document.workspaceFolder
+            projectInfo.projectName = param.document.workspaceFolder.name;
+            projectInfo.projectPath = param.document.workspaceFolder.uri.fsPath;
+            projectInfo.selectedFile = param.document.uri.fsPath;
+            projectInfo.projectType = param.document.workspaceFolder.nature;
+        }
 
-        // 判断项目类型：uni-app普通项目、uniapp-cli项目
+        return projectInfo;
+    };
+
+    /**
+     * @description 检测项目类型（CLI、uni-app X、Vue版本等）
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<void>}
+     */
+    async detectProjectTypes(projectPath) {
+        // 检测是否为CLI项目
         is_uniapp_cli = await isUniAppCli(projectPath);
 
-        // 判断项目类型 uni-app普通项目、uni-appx项目
+        // 检测是否为uni-app X项目
         is_uniapp_x = await isUniAppX(projectPath);
-        console.error("是否是uniapp-x", is_uniapp_x);
 
-        // 非uni-app-x项目，才需要判断这些。uni-app-x默认就是vue3
-        if (!is_uniapp_x) {
-            // 从manifest.json获取 vueVersion
-            let file_data = await readUniappManifestJson(projectPath, is_uniapp_cli, "vueVersion");
-            let { data } = file_data;
-
-            // 判断项目是vue2 还是vue3
-            is_uniapp_3 = data == "3" ? true : false;
-
-            // 判断项目是否是uts项目
-            is_uts_project = await checkUtsProject(projectPath, is_uniapp_cli);
-        };
-
+        // uni-app X项目默认使用Vue3和UTS
         if (is_uniapp_x) {
             is_uniapp_3 = true;
             is_uts_project = true;
-        };
+            return;
+        }
 
-        return {
-            "projectName": projectName,
-            "projectPath": projectPath,
-            "projectType": projectType,
-            "selectedFile": selectedFile,
-            "projectVueVersion": projectVueVersion
-        };
+        // 非uni-app X项目需要检测Vue版本和UTS
+        await this.detectVueVersionAndUTS(projectPath);
     };
 
-   // 获取测试报告目录
-   async getReportOutputDir(projectName, testPlatform) {
-       // 使用用户自定义的目录
-       const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
-       if (userSet) {
-           if (!fs.existsSync(userSet)) {
-               createOutputChannel(config.i18n.invalid_custom_test_report_path);
-               return false;
-           };
+    /**
+     * @description 检测Vue版本和UTS支持
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<void>}
+     */
+    async detectVueVersionAndUTS(projectPath) {
+        // 读取Vue版本
+        const manifestData = await readUniappManifestJson(projectPath, is_uniapp_cli, "vueVersion");
+        const vueVersion = manifestData?.data;
+        is_uniapp_3 = vueVersion === "3";
 
-           let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
-           mkdirsSync(UserProjectReportDir);
-           return UserProjectReportDir;
-       };
+        // 检测UTS项目
+        is_uts_project = await checkUtsProject(projectPath, is_uniapp_cli);
+    };
 
-       // 创建默认的测试报告目录
-       if (is_print_report_tips == false) {
+    /**
+     * @description 获取测试报告输出目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {Promise<String|Boolean>} 报告目录路径，失败返回false
+     */
+    async getReportOutputDir(projectName, testPlatform) {
+        // 尝试使用用户自定义目录
+        const customDir = await this.getCustomReportDirectory(projectName, testPlatform);
+        if (customDir !== null) {
+            return customDir;
+        }
+
+        // 使用默认目录
+        return this.getDefaultReportDirectory(projectName, testPlatform);
+    };
+
+    /**
+     * @description 获取用户自定义的测试报告目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {Promise<String|null|Boolean>} 目录路径、null（未配置）或false（配置无效）
+     */
+    async getCustomReportDirectory(projectName, testPlatform) {
+        const customPath = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        
+        if (!customPath) {
+            return null;
+        }
+
+        // 验证自定义路径是否存在
+        if (!fs.existsSync(customPath)) {
+            createOutputChannel(config.i18n.invalid_custom_test_report_path);
+            return false;
+        }
+
+        // 创建项目特定的报告目录
+        const reportDir = path.join(customPath, projectName, testPlatform);
+        mkdirsSync(reportDir);
+        return reportDir;
+    };
+
+    /**
+     * @description 获取默认测试报告目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {String} 报告目录路径
+     */
+    getDefaultReportDirectory(projectName, testPlatform) {
+        // 首次使用默认目录时显示提示
+        if (!is_print_report_tips) {
             is_print_report_tips = true;
             createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
-       };
+        }
 
-       let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
-       mkdirsSync(DefaultReportDir);
-       return DefaultReportDir;
-   };
+        const reportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
+        mkdirsSync(reportDir);
+        return reportDir;
+    };
 
-    // 用于【全部平台】测试停止运行
+    /**
+     * @description 显示【全部平台】测试停止控制界面
+     * @param {String} MessagePrefix - 消息前缀（未使用但保留兼容性）
+     * @returns {Promise<void>}
+     */
     async stopAllTestRun(MessagePrefix) {
-        let outputView = hx.window.createOutputView({
+        const outputView = hx.window.createOutputView({
             id: "hbuilderx.uniapp.test",
             title: "uni-app自动化测试"
         });
         outputView.show();
 
-        let msg = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
+        const message = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
+        const stopText = "全部停止";
+        
         outputView.appendLine({
-            line: msg + "全部停止\n",
+            line: `${message}${stopText}\n`,
             level: "info",
-            hyperlinks:[
-                {
-                    linkPosition: {
-                        start: msg.length,
-                        end: (msg + '全部停止').length
-                    },
-                    onOpen: function() {
-                        isStopAllTest = true;
-                    }
+            hyperlinks: [{
+                linkPosition: {
+                    start: message.length,
+                    end: message.length + stopText.length
+                },
+                onOpen: () => {
+                    isStopAllTest = true;
                 }
-            ]
+            }]
         });
     };
 
     /**
-     * @description 控制台打印测试报告某些信息
-     * @param {String} outputFile - 测试报告路径
+     * @description 在控制台打印测试报告摘要信息
+     * @param {String} consoleMessagePrefix - 控制台消息前缀
+     * @param {String} outputFile - 测试报告文件路径
+     * @returns {Promise<void>}
      */
-    async printTestReport(consoleMessagePrefix, outputFile) {
+    async printTestReportSummary(consoleMessagePrefix, outputFile) {
         try {
-            let report = require(outputFile);
-            let {
-                numTotalTestSuites,
-                numRuntimeErrorTestSuites,
-                numPassedTestSuites,
-                numFailedTestSuites
+            // 清除require缓存以获取最新报告数据
+            delete require.cache[require.resolve(outputFile)];
+            const report = require(outputFile);
+            
+            const {
+                numTotalTestSuites = 0,
+                numRuntimeErrorTestSuites = 0,
+                numPassedTestSuites = 0,
+                numFailedTestSuites = 0
             } = report;
-            let msg = `${consoleMessagePrefix}测试用例总计：${numTotalTestSuites}，` +
-                `运行通过 ${numPassedTestSuites}，运行失败 ${numFailedTestSuites}，运行异常 ${numRuntimeErrorTestSuites}`;
-            createOutputChannel(msg);
-        } catch (e) { };
+            
+            const summaryMessage = this.formatTestSummary(
+                consoleMessagePrefix,
+                numTotalTestSuites,
+                numPassedTestSuites,
+                numFailedTestSuites,
+                numRuntimeErrorTestSuites
+            );
+            
+            createOutputChannel(summaryMessage);
+        } catch (error) {
+            // 静默失败 - 报告文件可能尚未生成或格式不正确
+            console.error('[自动化测试] 读取测试报告失败:', error.message);
+        }
     };
 
     /**
-     * @description 获取项目是否是dom2
+     * @description 格式化测试摘要消息
+     * @param {String} prefix - 消息前缀
+     * @param {Number} total - 总测试套件数
+     * @param {Number} passed - 通过测试套件数
+     * @param {Number} failed - 失败测试套件数
+     * @param {Number} errors - 异常测试套件数
+     * @returns {String} 格式化的摘要消息
      */
-    async uniapp_x_is_dom2(projectPath, is_uniapp_cli) {
+    formatTestSummary(prefix, total, passed, failed, errors) {
+        return `${prefix}测试用例总计：${total}，` +
+               `运行通过 ${passed}，运行失败 ${failed}，运行异常 ${errors}`;
+    };
+
+    /**
+     * @description 检测uni-app X项目是否使用DOM2模式
+     * @param {String} projectPath - 项目路径
+     * @param {Boolean} isUniappCli - 是否为CLI项目
+     * @returns {Promise<Boolean>} 使用DOM2返回true
+     */
+    async uniapp_x_is_dom2(projectPath, isUniappCli) {
         try {
-            let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
-            let { data } = fdata;
-            return data["vapor"];
+            const manifestData = await readUniappManifestJson(projectPath, isUniappCli, "uni-app-x");
+            return manifestData?.data?.vapor || false;
         } catch (error) {
-            return false
+            if (isDebug) {
+                console.error("[自动化测试] 检测DOM2模式失败:", error);
+            }
+            return false;
         }
     }
 };
@@ -377,361 +592,707 @@ class RunTest extends Common {
         };
     };
 
-    // 主要是为了拉平各个提示语
-    testPlatDisplayName(testPlatform) {
-        let tpl = testPlatform;
-        if (tpl == "h5-chrome" || tpl == "h5-safari" || tpl == "h5-firefox") {
-            tpl = tpl.replace('h5-', 'web-');
-        };
-        return tpl;
-    };
-
-    async getMsgPrefix(testPlatform, deviceId) {
-        // 解决控制台[]内内容太长的问题
-        let clgDeviceId = deviceId;
-        if (deviceId && deviceId.length >= 8) {
-            clgDeviceId = clgDeviceId.replace(clgDeviceId.substring(6), '..');
-        };
-        let _msgP = deviceId
-            ? `[${this.projectName}:${testPlatform}-${clgDeviceId}]`
-            : `[${this.projectName}:${testPlatform}]`;
-        return _msgP;
-    };
-
-    // 【环境变量】设置UNI_OS_NAME和UNI_PLATFORM环境变量
-    async setPlatformVariablesFor_OS(testPlatform) {
-        let UNI_OS_NAME;
-        let UNI_PLATFORM = testPlatform;
-
-        if (testPlatform === 'ios' || testPlatform === 'android') {
-            UNI_OS_NAME = testPlatform;
-            UNI_PLATFORM = 'app-plus';
-        } else if (testPlatform === 'harmony') {
-            UNI_OS_NAME = 'harmony';
-            UNI_PLATFORM = 'app-harmony';
-        } else if (testPlatform.startsWith('h5-')) {
-            UNI_PLATFORM = 'h5';
+    /**
+     * @description 将测试平台名称标准化为显示名称
+     * @param {String} testPlatform - 测试平台标识
+     * @returns {String} 标准化的平台显示名称
+     */
+    normalizePlatformDisplayName(testPlatform) {
+        // 将 h5-* 格式转换为 web-* 格式以保持一致性
+        if (testPlatform.startsWith('h5-')) {
+            return testPlatform.replace('h5-', 'web-');
         }
-        return { UNI_OS_NAME, UNI_PLATFORM };
-    };
-
-    loadCustomEnv(cmdOpts, configPath) {
-        // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
-        let env_js_path = configPath;
-        try {
-            let env_js_path = this.UNI_AUTOMATOR_CONFIG;
-            delete require.cache[require.resolve(env_js_path)];
-            var envjs = require(env_js_path);
-            let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
-            if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
-            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
-            	    console.log(key, value);
-                    cmdOpts["env"][key] = value;
-            	});
-            };
-        } catch (e) {
-            createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
-            return false;
-        };
-        return true;
-    };
-
-    async select_app_run_devices(testPlatform) {
-        // 选择要运行的设备
-        let phoneList = await getTestDevices(testPlatform);
-        console.error("[自动化测试连接的设备]--->", phoneList);
-        console.error("[global_uniSettings]--->", global_uniSettings);
-
-        // 异常判断
-        if (phoneList == "-1") {
-            return;
-        };
-
-        // 异常判断
-        if (phoneList == 'error') {
-            hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then( btn => {});
-            return;
-        };
-
-        // 当选择了【全部平台】测试，但是没有选择任何设备，直接关闭。
-        if ((phoneList == 'noSelected' || JSON.stringify(phoneList) == '[]') && testPlatform == 'all') {
-            createOutputChannel(`您选择了【${testPlatform}】测试，但是未选择任何设备，测试中止。`, 'warning');
-            return;
-        };
-
-        // 判断选择的手机设备
-        if (phoneList.length == 0 && ['ios', 'android'].includes(testPlatform)) {
-            createOutputChannel(`您选择了【${testPlatform}】测试，但是未选择相关手机设备，测试中止。`, 'warning');
-            return;
-        };
-        return phoneList;
+        return testPlatform;
     };
 
     /**
-     * @description 测试运行执行方法
-     * @param {String} testPlatform - 测试平台, ios|android|h5|mp-weixin
-     * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
+     * @description 生成控制台消息前缀
+     * @param {String} testPlatform - 测试平台
+     * @param {String} deviceId - 设备ID（可选）
+     * @returns {String} 格式化的消息前缀
      */
-    async run_uni_test(testPlatform, deviceId) {
+    async getConsoleMessagePrefix(testPlatform, deviceId) {
+        // 截断过长的设备ID以保持日志整洁
+        const truncatedDeviceId = this.truncateDeviceId(deviceId);
+        
+        if (deviceId) {
+            return `[${this.projectName}:${testPlatform}-${truncatedDeviceId}]`;
+        }
+        return `[${this.projectName}:${testPlatform}]`;
+    };
 
-        let envJSArgs = {
-            "is_uniapp_x": is_uniapp_x
-        };
-        let result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, envJSArgs).catch(error => {
-            console.error("[error]....", error);
-            createOutputChannel(`${testPlatform}，修改项目下测试配置文件 env.js出错，请检查！`, 'error');
+    /**
+     * @description 截断设备ID以适应控制台显示
+     * @param {String} deviceId - 设备ID
+     * @returns {String} 截断后的设备ID
+     */
+    truncateDeviceId(deviceId) {
+        const MIN_TRUNCATE_LENGTH = 8;
+        const TRUNCATE_PREFIX_LENGTH = 6;
+        const TRUNCATE_SUFFIX = '..';
+        
+        if (!deviceId || deviceId.length < MIN_TRUNCATE_LENGTH) {
+            return deviceId;
+        }
+        return deviceId.substring(0, TRUNCATE_PREFIX_LENGTH) + TRUNCATE_SUFFIX;
+    };
+
+    /**
+     * @description 准备测试环境配置文件
+     * @param {String} testPlatform - 测试平台
+     * @param {String} deviceId - 设备ID
+     * @returns {Promise<Boolean>} 准备成功返回true
+     */
+    async prepareTestEnvironment(testPlatform, deviceId) {
+        const envArgs = { is_uniapp_x };
+        
+        try {
+            const result = await editEnvjsFile(
+                this.UNI_AUTOMATOR_CONFIG, 
+                testPlatform, 
+                deviceId, 
+                envArgs
+            );
+            return result !== false;
+        } catch (error) {
+            console.error("[自动化测试] 环境配置错误:", error);
+            createOutputChannel(
+                `${testPlatform} 平台测试配置文件 env.js 修改失败，请检查！`, 
+                'error'
+            );
             return false;
-        });
-        if (result == false) return;
+        }
+    };
 
-        // 测试报告输出文件
-        const ouputDir = await this.getReportOutputDir(this.projectName, testPlatform);
-        if (ouputDir == false) return;
+    /**
+     * @description 准备测试报告输出路径
+     * @param {String} testPlatform - 测试平台
+     * @param {String} deviceId - 设备ID
+     * @returns {Promise<String|null>} 报告文件路径或null
+     */
+    async prepareTestReportPath(testPlatform, deviceId) {
+        const outputDir = await this.getReportOutputDir(this.projectName, testPlatform);
+        if (!outputDir) {
+            return null;
+        }
 
         const filename = getFileNameForDate();
         const filePrefix = deviceId ? `${deviceId}-` : '';
-        let outputFile = path.join(ouputDir, `${filePrefix}${filename}.json`);
+        return path.join(outputDir, `${filePrefix}${filename}.json`);
+    };
 
-        // 环境变量：用于传递给编译器。用于最终测试报告展示
-        let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
+    /**
+     * @description 构建命令选项和环境变量
+     * @param {String} testPlatform - 测试平台
+     * @param {String} deviceId - 设备ID
+     * @returns {Promise<Object>} 命令选项对象
+     */
+    async buildCommandOptions(testPlatform, deviceId) {
+        // 获取基础环境变量
+        const { UNI_OS_NAME, UNI_PLATFORM } = await this.setPlatformEnvironmentVariables(testPlatform);
+        const uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
+        const testPort = await get_test_port().catch(() => 9520);
 
-        // 环境变量：UNI_OS_NAME字段用于android、ios平台测试
-        const { UNI_OS_NAME, UNI_PLATFORM } = await this.setPlatformVariablesFor_OS(testPlatform);
-
-        // 环境变量：测试端口
-        let UNI_AUTOMATOR_PORT = await get_test_port().catch(() => {
-            return 9520;
-        });
-
-        // 环境变量：命令行运行
-        let cmdOpts = {
+        // 创建基础命令选项
+        const cmdOpts = {
             cwd: this.projectPath,
             env: {
-                "HOME": process.env.HOME,
-                "PATH": process.env.PATH,
-                "NODE_PATH": config.NODE_LIB_PATH,
-                "NO_COLOR": true,
-                "UNI_CLI_PATH": config.UNI_CLI_PATH,
-                "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
-                "UNI_PLATFORM": UNI_PLATFORM,
-                "HX_Version": hxVersion,
-                "uniTestProjectName": this.projectName,
-                "uniTestPlatformInfo": uniTestPlatformInfo,
-                "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT,
-                "HX_CONFIG_ADB_PATH": "",
-                // "LANG": "en_US.UTF-8",
-                // "LC_ALL": "en_US.UTF-8"
-                // "UNI_APP_X": false
+                HOME: process.env.HOME,
+                PATH: process.env.PATH,
+                NODE_PATH: config.NODE_LIB_PATH,
+                NO_COLOR: true,
+                UNI_CLI_PATH: config.UNI_CLI_PATH,
+                UNI_AUTOMATOR_CONFIG: this.UNI_AUTOMATOR_CONFIG,
+                UNI_PLATFORM: UNI_PLATFORM,
+                HX_Version: hxVersion,
+                uniTestProjectName: this.projectName,
+                uniTestPlatformInfo: uniTestPlatformInfo,
+                UNI_AUTOMATOR_PORT: testPort,
+                HX_CONFIG_ADB_PATH: ""
             },
             maxBuffer: 2000 * 1024
         };
 
-        let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
-        if (typeof is_dom2 === 'boolean' && is_dom2) {
-            cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
-        };
+        // 添加平台特定环境变量
+        await this.addPlatformSpecificEnv(cmdOpts, testPlatform, UNI_OS_NAME);
+        
+        // 加载自定义环境变量
+        if (!this.loadCustomEnv(cmdOpts, this.UNI_AUTOMATOR_CONFIG)) {
+            throw new Error('加载自定义环境变量失败');
+        }
 
-        if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
-            cmdOpts["env"]["UNI_OS_NAME"] = UNI_OS_NAME;
-        };
+        return cmdOpts;
+    };
 
-        // 2024/9/20 在env.js中扩展UNI_TEST_CUSTOM_ENV字段，从中读取自定义环境变量，并传递给自动化测试框架
-        const _loadResult = this.loadCustomEnv(cmdOpts, this.UNI_AUTOMATOR_CONFIG)
-        if (!_loadResult) {
-            createOutputChannel(`${this.UNI_AUTOMATOR_CONFIG} 测试配置文件, 可能存在语法错误，请检查。`, 'error');
-            return;
-        };
+    /**
+     * @description 添加平台特定的环境变量
+     * @param {Object} cmdOpts - 命令选项对象
+     * @param {String} testPlatform - 测试平台
+     * @param {String} UNI_OS_NAME - 操作系统名称
+     * @returns {Promise<void>}
+     */
+    async addPlatformSpecificEnv(cmdOpts, testPlatform, UNI_OS_NAME) {
+        const env = cmdOpts.env;
 
-        // 2025-03-31 hello-uniapp-x项目，增加下列环境变量，以便测试unipush
-        if (testPlatform == 'harmony') {
-            const envKeys = ["UNI_getui_appid", "UNI_harmony_client_id", "UNI_getui_verify_appid"];
-            envKeys.forEach(key => {
-                if (cmdOpts["env"]?.[key] === undefined) {
-                    cmdOpts["env"][key] = "";
-                }
-            });
-        };
+        // DOM2模式检测（uni-app X）
+        const isDom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
+        if (isDom2) {
+            env.UNI_APP_X_DOM2 = true;
+        }
 
-        // 配置项：获取用户是否设置使用内置adb路径
-        const hx_config_adb_path = await getPluginConfig('adb.path');
-        if (hx_config_adb_path && fs.existsSync(hx_config_adb_path)) {
-            cmdOpts.env.HX_CONFIG_ADB_PATH = hx_config_adb_path;
-        };
+        // 移动平台操作系统名称
+        if ([PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.IOS, PLATFORM_TYPES.HARMONY].includes(UNI_OS_NAME)) {
+            env.UNI_OS_NAME = UNI_OS_NAME;
+        }
 
-        // 配置项：UNIAPPX_KOTLIN_COMPILER_MEMORY
-        const hx_config__uniappx_kotlin_compiler_memory = await getPluginConfig('uniappx.kotlin.compiler.memory');
-        if (hx_config__uniappx_kotlin_compiler_memory && /^\d+$/.test(hx_config__uniappx_kotlin_compiler_memory)) {
-            cmdOpts.env.UNIAPPX_KOTLIN_COMPILER_MEMORY = hx_config__uniappx_kotlin_compiler_memory;
-        };
+        // Harmony平台额外环境变量
+        if (testPlatform === PLATFORM_TYPES.HARMONY) {
+            this.addHarmonyEnvironmentVariables(env);
+        }
 
-        // console.error("unicloud_spaces_info =>", JSON.stringify(unicloud_spaces_info));
+        // ADB路径配置
+        await this.addADBConfiguration(env);
+
+        // Kotlin编译器内存配置
+        await this.addKotlinMemoryConfiguration(env);
+
+        // uniCloud配置
         if (unicloud_spaces_info.length > 0) {
-            cmdOpts.env.UNI_CLOUD_SPACES = JSON.stringify(unicloud_spaces_info);
-        };
+            env.UNI_CLOUD_SPACES = JSON.stringify(unicloud_spaces_info);
+        }
 
-        // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
+        // 调试模式
         if (isDebug) {
-            cmdOpts.env.DEBUG = "automator:*";
-        };
+            env.DEBUG = "automator:*";
+        }
 
-        // 是否是vue3，决定UNI_CLI_PATH值
+        // Vue3项目配置
         if (is_uniapp_3) {
-            cmdOpts.env.UNI_CLI_PATH = config.UNI_CLI_VITE_PATH;
-            config.UNI_CLI_ENV = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/environment.js');
-            config.UNI_CLI_teardown = path.join(config.UNI_CLI_VITE_PATH, 'node_modules/@dcloudio/uni-automator/dist/teardown.js');
-        };
+            this.configureVue3Environment(env);
+        }
 
-        // 判断是否是uts项目，如果是，则传递uts需要的变量
-        if (is_uts_project || testPlatform == 'harmony') {
-            cmdOpts.env.JDK_PATH = config.UTS_JDK_PATH;
-            cmdOpts.env.GRADLE_HOME = config.UTS_GRADLE_HOME;
-            cmdOpts.env.APP_ROOT = config.UTS_APP_ROOT;
-            cmdOpts.env.HX_APP_ROOT = config.UTS_APP_ROOT;
-            cmdOpts.env.USER_DATA_PATH = config.UTS_USER_DATA_PATH;
+        // UTS项目配置
+        if (is_uts_project || testPlatform === PLATFORM_TYPES.HARMONY) {
+            this.configureUTSEnvironment(env, testPlatform);
+        }
 
-            // 2023-01-31 如下两个参数，暂时无用。以后可能用得到。先不清除。
-            cmdOpts.env.UNIAPP_RUNEXTENSION_PATH = config.UNIAPP_RUNEXTENSION_PATH;
-            cmdOpts.env.UNIAPP_UTS_V1_PATH = config.UNIAPP_UTS_V1_PATH;
+        // H5浏览器配置
+        if (BROWSER_MAP[testPlatform]) {
+            env.BROWSER = BROWSER_MAP[testPlatform];
+        }
 
-            // HBulderX 3.98+，增加UNI_UTS_PLATFORM
-            if (testPlatform.substring(0, 2) == "h5") {
-                cmdOpts.env.UNI_UTS_PLATFORM = "web";
-            };
-            if (["ios", "android", "harmony"].includes(testPlatform)) {
-                cmdOpts.env.UNI_UTS_PLATFORM = `app-${testPlatform}`;
-            };
-            if (testPlatform.substring(0, 2) == "mp") {
-                cmdOpts.env.UNI_UTS_PLATFORM = testPlatform;
-            };
-        };
+        // Node路径配置
+        this.configureNodePaths(env);
+    };
 
-        // HBuilderX 3.2.10+，h5测试增加safari和firefox支持
-        const browserMap = {
-            "h5-firefox": "firefox",
-            "h5-safari": "webkit",
-            "h5-webkit": "webkit",
-            "h5-chrome": "chromium"
-        };
-        if (browserMap[testPlatform]) {
-            cmdOpts.env.BROWSER = browserMap[testPlatform];
-        };
+    /**
+     * @description 添加Harmony平台环境变量
+     * @param {Object} env - 环境变量对象
+     */
+    addHarmonyEnvironmentVariables(env) {
+        const harmonyKeys = ["UNI_getui_appid", "UNI_harmony_client_id", "UNI_getui_verify_appid"];
+        harmonyKeys.forEach(key => {
+            if (env[key] === undefined) {
+                env[key] = "";
+            }
+        });
+    };
 
-        // 当用户设置使用内置Node编译uni-app项目时，则输入UNI_NODE_PATH
+    /**
+     * @description 添加ADB配置
+     * @param {Object} env - 环境变量对象
+     * @returns {Promise<void>}
+     */
+    async addADBConfiguration(env) {
+        const adbPath = await getPluginConfig('adb.path');
+        if (adbPath && fs.existsSync(adbPath)) {
+            env.HX_CONFIG_ADB_PATH = adbPath;
+        }
+    };
+
+    /**
+     * @description 添加Kotlin编译器内存配置
+     * @param {Object} env - 环境变量对象
+     * @returns {Promise<void>}
+     */
+    async addKotlinMemoryConfiguration(env) {
+        const memoryConfig = await getPluginConfig('uniappx.kotlin.compiler.memory');
+        if (memoryConfig && /^\d+$/.test(memoryConfig)) {
+            env.UNIAPPX_KOTLIN_COMPILER_MEMORY = memoryConfig;
+        }
+    };
+
+    /**
+     * @description 配置Vue3环境
+     * @param {Object} env - 环境变量对象
+     */
+    configureVue3Environment(env) {
+        env.UNI_CLI_PATH = config.UNI_CLI_VITE_PATH;
+        config.UNI_CLI_ENV = path.join(
+            config.UNI_CLI_VITE_PATH, 
+            'node_modules/@dcloudio/uni-automator/dist/environment.js'
+        );
+        config.UNI_CLI_teardown = path.join(
+            config.UNI_CLI_VITE_PATH, 
+            'node_modules/@dcloudio/uni-automator/dist/teardown.js'
+        );
+    };
+
+    /**
+     * @description 配置UTS环境
+     * @param {Object} env - 环境变量对象
+     * @param {String} testPlatform - 测试平台
+     */
+    configureUTSEnvironment(env, testPlatform) {
+        env.JDK_PATH = config.UTS_JDK_PATH;
+        env.GRADLE_HOME = config.UTS_GRADLE_HOME;
+        env.APP_ROOT = config.UTS_APP_ROOT;
+        env.HX_APP_ROOT = config.UTS_APP_ROOT;
+        env.USER_DATA_PATH = config.UTS_USER_DATA_PATH;
+        env.UNIAPP_RUNEXTENSION_PATH = config.UNIAPP_RUNEXTENSION_PATH;
+        env.UNIAPP_UTS_V1_PATH = config.UNIAPP_UTS_V1_PATH;
+
+        // 设置UNI_UTS_PLATFORM
+        if (testPlatform.startsWith('h5')) {
+            env.UNI_UTS_PLATFORM = "web";
+        } else if ([PLATFORM_TYPES.IOS, PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.HARMONY].includes(testPlatform)) {
+            env.UNI_UTS_PLATFORM = `app-${testPlatform}`;
+        } else if (testPlatform.startsWith('mp')) {
+            env.UNI_UTS_PLATFORM = testPlatform;
+        }
+    };
+
+    /**
+     * @description 配置Node路径
+     * @param {Object} env - 环境变量对象
+     */
+    configureNodePaths(env) {
+        // 编译uni-app时使用内置Node
         if (isUseBuiltNodeCompileUniapp) {
-            cmdOpts["env"]["UNI_NODE_PATH"] = config.HBuilderX_BuiltIn_Node_Path;
+            env.UNI_NODE_PATH = config.HBuilderX_BuiltIn_Node_Path;
         } else {
             createOutputChannel(config.i18n.msg_env_hx_built_in_node, 'info');
-        };
-        // 当用户设置使用内置Node运行jest时
-        let jest_for_node = "node";
-        if (isUseBuiltNodeRunJest) {
-            jest_for_node = config.HBuilderX_BuiltIn_Node_Path;
-        };
+        }
 
-        // node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
-        if (nodeStatus == 'N' || nodeStatus == undefined) {
-            let symbols = osName == 'darwin' ? ":" : ";";
-            let PATH = process.env.PATH + symbols + config.HBuilderX_BuiltIn_Node_Dir
-            cmdOpts["env"]["PATH"] = PATH;
-        };
+        // 本机未安装Node时使用HBuilderX内置Node
+        if (nodeStatus === 'N' || nodeStatus === undefined) {
+            const separator = osName === 'darwin' ? ":" : ";";
+            env.PATH = process.env.PATH + separator + config.HBuilderX_BuiltIn_Node_Dir;
+        }
+    };
 
-        // 适用于uni-app普通项目
-        let cmd = [
-            `${config.JEST_PATH}`, "-i", "--forceExit", "--json",
-            `--outputFile="${outputFile}"`,
-            `--env="${config.UNI_CLI_ENV}"`, `--globalTeardown="${config.UNI_CLI_teardown}"`
-        ];
+    /**
+     * @description 根据测试平台设置UNI_OS_NAME和UNI_PLATFORM环境变量
+     * @param {String} testPlatform - 测试平台标识
+     * @returns {Promise<{UNI_OS_NAME: String|undefined, UNI_PLATFORM: String}>}
+     */
+    async setPlatformEnvironmentVariables(testPlatform) {
+        let uniOsName;
+        let uniPlatform = testPlatform;
 
-        // 适用于uniapp-cli项目
-        if (is_uniapp_cli) {
-            delete cmdOpts.env.NODE_PATH;
-            delete cmdOpts.env.UNI_CLI_PATH;
-            let cliJest = path.join(this.projectPath, 'node_modules/jest/bin/jest.js');
-            cmd = [
-                `${cliJest}`, "-i", "--forceExit", "--json",
-                `--outputFile="${outputFile}"`
-            ];
-        };
-
-        let tpl = this.testPlatDisplayName(testPlatform);
-        let consoleMsgPrefix = await this.getMsgPrefix(tpl, deviceId);
-        createOutputChannel(`${consoleMsgPrefix}开始在 ${tpl} 平台运行测试 ....`, 'info');
-        createOutputChannel(`${consoleMsgPrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
-
-        if (testPlatform == 'mp-weixin') {
-            createOutputChannel(`${consoleMsgPrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
-        };
-
-        let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
-        let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, isDebug);
-
-        if (testResult == 'run_end') {
-            // 不要改此处的文本
-            if (fs.existsSync(outputFile)) {
-                createOutputViewForHyperLinks(`${consoleMsgPrefix}测试报告:${outputFile}`, 'info');
-                await this.printTestReport(consoleMsgPrefix, outputFile);
-                createOutputChannel(`${consoleMsgPrefix}测试运行结束。\n`, "success");
-            } else {
-                createOutputChannel(`${consoleMsgPrefix}测试运行结束。详细日志请参考运行日志。\n`, "error");
-            };
+        // 移动应用平台
+        if (testPlatform === PLATFORM_TYPES.IOS || testPlatform === PLATFORM_TYPES.ANDROID) {
+            uniOsName = testPlatform;
+            uniPlatform = 'app-plus';
+        } 
+        // Harmony平台
+        else if (testPlatform === PLATFORM_TYPES.HARMONY) {
+            uniOsName = 'harmony';
+            uniPlatform = 'app-harmony';
+        } 
+        // H5/Web平台
+        else if (testPlatform.startsWith('h5-')) {
+            uniPlatform = 'h5';
+        }
+        
+        return { 
+            UNI_OS_NAME: uniOsName, 
+            UNI_PLATFORM: uniPlatform 
         };
     };
 
     /**
-     * @description 运行测试，适用于选择多个设备后执行
-     * @param {Object} testPlatform [iOS|android|all]
-     * @param {Object} testDevicesList
+     * @description 从env.js中加载自定义环境变量
+     * @param {Object} cmdOpts - 命令选项对象，包含环境变量
+     * @param {String} configPath - 配置文件路径（备用参数）
+     * @returns {Boolean} 加载成功返回true，失败返回false
      */
-    async run_more_test(testPlatform, testDevicesList) {
-        if (isStopAllTest) {return};
-        if (testPlatform == 'all') {
-            if (isStopAllTest) {return};
-        };
-        if (testDevicesList.length && testDevicesList != 'noSelected') {
-            for (let s of testDevicesList) {
-                if (isStopAllTest) {break};
-                let plat = s.split(':')[0];
-
-                // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
-                // let deviceId = s.split(':')[1];
-                let deviceId = s.split(':').slice(1).join(':');
-                if (['h5','mp'].includes(plat)) {
-                    plat= deviceId;
-                    await this.run_uni_test(plat);
-                } else {
-                    await this.run_uni_test(plat, deviceId);
-                };
-            };
-        };
-        if (isStopAllTest) {
-            createOutputChannel(`【全部平台】测试，后续测试已停止\n`, 'success');
-        };
+    loadCustomEnv(cmdOpts, configPath) {
+        const envJsPath = this.UNI_AUTOMATOR_CONFIG || configPath;
+        
+        try {
+            // 清除require缓存以获取最新配置
+            delete require.cache[require.resolve(envJsPath)];
+            const envConfig = require(envJsPath);
+            const customEnv = envConfig.UNI_TEST_CUSTOM_ENV;
+            
+            // 验证自定义环境变量是否为对象
+            if (this.isPlainObject(customEnv)) {
+                this.mergeCustomEnvironmentVariables(cmdOpts.env, customEnv);
+            }
+            
+            return true;
+        } catch (error) {
+            createOutputChannel(
+                `${envJsPath} 测试配置文件可能存在语法错误，请检查。错误详情: ${error.message}`, 
+                'error'
+            );
+            return false;
+        }
     };
 
-    async run_before(UNI_PLATFORM, param) {
-        // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
-        if (cmpVerionForH5 < 0 && ['h5-firefox','h5-safari'].includes(UNI_PLATFORM)) {
+    /**
+     * @description 检查是否为纯对象
+     * @param {*} obj - 要检查的对象
+     * @returns {Boolean}
+     */
+    isPlainObject(obj) {
+        return obj !== null && obj !== undefined && Object.prototype.toString.call(obj) === '[object Object]';
+    };
+
+    /**
+     * @description 合并自定义环境变量到命令选项
+     * @param {Object} targetEnv - 目标环境变量对象
+     * @param {Object} customEnv - 自定义环境变量对象
+     */
+    mergeCustomEnvironmentVariables(targetEnv, customEnv) {
+        Object.entries(customEnv).forEach(([key, value]) => {
+            if (isDebug) {
+                console.log(`[自动化测试] 设置自定义环境变量: ${key} = ${value}`);
+            }
+            targetEnv[key] = value;
+        });
+    };
+
+    /**
+     * @description 选择要运行测试的移动设备
+     * @param {String} testPlatform - 测试平台
+     * @returns {Promise<Array|undefined>} 设备列表或undefined（错误情况）
+     */
+    async selectTestDevices(testPlatform) {
+        const deviceList = await getTestDevices(testPlatform);
+        
+        if (isDebug) {
+            console.error("[自动化测试] 连接的设备:", deviceList);
+            console.error("[自动化测试] 全局设置:", global_uniSettings);
+        }
+
+        // 处理设备选择错误
+        if (deviceList === "-1") {
+            return undefined;
+        }
+
+        if (deviceList === 'error') {
+            await hxShowMessageBox('测试提醒', '选择设备时发生错误，请联系插件作者', ['关闭']);
+            return undefined;
+        }
+
+        // 验证设备选择
+        return this.validateDeviceSelection(deviceList, testPlatform);
+    };
+
+    /**
+     * @description 验证设备选择是否有效
+     * @param {Array|String} deviceList - 设备列表
+     * @param {String} testPlatform - 测试平台
+     * @returns {Array|undefined}
+     */
+    validateDeviceSelection(deviceList, testPlatform) {
+        const isNoDeviceSelected = deviceList === 'noSelected' || 
+                                   JSON.stringify(deviceList) === '[]';
+        
+        // 全部平台测试但未选择设备
+        if (isNoDeviceSelected && testPlatform === PLATFORM_TYPES.ALL) {
+            createOutputChannel(
+                `您选择了【${testPlatform}】测试，但是未选择任何设备，测试中止。`, 
+                'warning'
+            );
+            return undefined;
+        }
+
+        // 移动平台测试但未选择设备
+        const isMobilePlatform = [PLATFORM_TYPES.IOS, PLATFORM_TYPES.ANDROID].includes(testPlatform);
+        if (isMobilePlatform && (!deviceList || deviceList.length === 0)) {
+            createOutputChannel(
+                `您选择了【${testPlatform}】测试，但是未选择相关手机设备，测试中止。`, 
+                'warning'
+            );
+            return undefined;
+        }
+
+        return deviceList;
+    };
+
+    /**
+     * @description 运行uni-app测试
+     * @param {String} testPlatform - 测试平台 (ios|android|h5|mp-weixin等)
+     * @param {String} deviceId - 设备ID（可选，用于移动平台）
+     * @returns {Promise<void>}
+     */
+    async run_uni_test(testPlatform, deviceId) {
+        // 准备测试环境配置
+        if (!await this.prepareTestEnvironment(testPlatform, deviceId)) {
+            return;
+        }
+
+        // 准备测试报告路径
+        const outputFile = await this.prepareTestReportPath(testPlatform, deviceId);
+        if (!outputFile) {
+            return;
+        }
+
+        // 构建命令选项和环境变量
+        let cmdOpts;
+        try {
+            cmdOpts = await this.buildCommandOptions(testPlatform, deviceId);
+        } catch (error) {
+            createOutputChannel(error.message, 'error');
+            return;
+        }
+
+        // 确定Jest Node执行器
+        const jestNodeExecutor = isUseBuiltNodeRunJest ? config.HBuilderX_BuiltIn_Node_Path : "node";
+
+        // 构建Jest命令
+        const jestCommand = this.buildJestCommand(outputFile, cmdOpts);
+
+        // 打印测试开始信息
+        const platformDisplayName = this.normalizePlatformDisplayName(testPlatform);
+        const consoleMsgPrefix = await this.getConsoleMessagePrefix(platformDisplayName, deviceId);
+        this.printTestStartMessages(consoleMsgPrefix, platformDisplayName, testPlatform);
+
+        // 执行测试
+        const testInfo = { 
+            projectName: this.projectName, 
+            testPlatform, 
+            deviceId 
+        };
+        const testResult = await runCmd(jestNodeExecutor, jestCommand, cmdOpts, testInfo, isDebug);
+
+        // 处理测试结果
+        await this.handleTestResult(testResult, outputFile, consoleMsgPrefix);
+    };
+
+    /**
+     * @description 构建Jest测试命令
+     * @param {String} outputFile - 测试报告输出文件路径
+     * @param {Object} cmdOpts - 命令选项对象
+     * @returns {Array<String>} Jest命令参数数组
+     */
+    buildJestCommand(outputFile, cmdOpts) {
+        if (is_uniapp_cli) {
+            // CLI项目使用项目本地的Jest
+            delete cmdOpts.env.NODE_PATH;
+            delete cmdOpts.env.UNI_CLI_PATH;
+            
+            const cliJestPath = path.join(this.projectPath, 'node_modules/jest/bin/jest.js');
+            return [
+                cliJestPath, 
+                "-i", 
+                "--forceExit", 
+                "--json",
+                `--outputFile="${outputFile}"`
+            ];
+        }
+
+        // 普通uni-app项目使用全局Jest
+        return [
+            config.JEST_PATH, 
+            "-i", 
+            "--forceExit", 
+            "--json",
+            `--outputFile="${outputFile}"`,
+            `--env="${config.UNI_CLI_ENV}"`, 
+            `--globalTeardown="${config.UNI_CLI_teardown}"`
+        ];
+    };
+
+    /**
+     * @description 打印测试开始信息
+     * @param {String} prefix - 消息前缀
+     * @param {String} displayName - 平台显示名称
+     * @param {String} testPlatform - 测试平台
+     */
+    printTestStartMessages(prefix, displayName, testPlatform) {
+        createOutputChannel(
+            `${prefix}开始在 ${displayName} 平台运行测试 ....`, 
+            'info'
+        );
+        createOutputChannel(
+            `${prefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 
+            'info'
+        );
+
+        // 微信小程序特殊提示
+        if (testPlatform === PLATFORM_TYPES.MP_WEIXIN) {
+            createOutputChannel(
+                `${prefix}${config.i18n.weixin_tools_running_tips}`, 
+                'warning'
+            );
+        }
+    };
+
+    /**
+     * @description 处理测试结果
+     * @param {String} testResult - 测试执行结果
+     * @param {String} outputFile - 报告文件路径
+     * @param {String} msgPrefix - 消息前缀
+     * @returns {Promise<void>}
+     */
+    async handleTestResult(testResult, outputFile, msgPrefix) {
+        if (testResult !== 'run_end') {
+            return;
+        }
+
+        // 检查报告文件是否存在
+        if (fs.existsSync(outputFile)) {
+            createOutputViewForHyperLinks(`${msgPrefix}测试报告:${outputFile}`, 'info');
+            await this.printTestReportSummary(msgPrefix, outputFile);
+            createOutputChannel(`${msgPrefix}测试运行结束。\n`, "success");
+        } else {
+            createOutputChannel(
+                `${msgPrefix}测试运行结束。详细日志请参考运行日志。\n`, 
+                "error"
+            );
+        }
+    };
+
+    /**
+     * @description 在多个设备上运行测试
+     * @param {String} testPlatform - 测试平台 [iOS|android|all]
+     * @param {Array} testDevicesList - 测试设备列表
+     * @returns {Promise<void>}
+     */
+    async runTestOnMultipleDevices(testPlatform, testDevicesList) {
+        if (isStopAllTest) {
+            return;
+        }
+
+        if (!testDevicesList || testDevicesList === 'noSelected' || testDevicesList.length === 0) {
+            return;
+        }
+
+        for (const deviceInfo of testDevicesList) {
+            if (isStopAllTest) {
+                break;
+            }
+
+            const { platform, deviceId } = this.parseDeviceInfo(deviceInfo);
+            
+            // H5和小程序平台不需要设备ID
+            if (['h5', 'mp'].includes(platform)) {
+                await this.run_uni_test(deviceId);
+            } else {
+                await this.run_uni_test(platform, deviceId);
+            }
+        }
+
+        if (isStopAllTest) {
+            createOutputChannel(`【全部平台】测试，后续测试已停止\n`, 'success');
+        }
+    };
+
+    /**
+     * @description 解析设备信息字符串
+     * @param {String} deviceInfo - 格式: "platform:deviceId" 或 "platform:h5-chrome"
+     * @returns {{platform: String, deviceId: String}}
+     */
+    parseDeviceInfo(deviceInfo) {
+        // 输入验证
+        if (!deviceInfo || typeof deviceInfo !== 'string') {
+            if (isDebug) {
+                console.warn('[自动化测试] 无效的设备信息:', deviceInfo);
+            }
+            return { platform: '', deviceId: '' };
+        }
+
+        const parts = deviceInfo.split(':');
+        const platform = parts[0] || '';
+        // 处理设备ID可能包含冒号的情况（如iOS设备）
+        const deviceId = parts.slice(1).join(':');
+        
+        return { platform, deviceId };
+    };
+
+    /**
+     * @description 运行测试前的环境和参数验证
+     * @param {String} uniPlatform - 测试平台
+     * @param {Object} param - 项目参数
+     * @returns {Promise<Boolean>} 验证通过返回true，否则返回undefined
+     */
+    async validateTestEnvironment(uniPlatform, param) {
+        // 验证H5浏览器版本要求
+        if (!this.validateBrowserVersionRequirement(uniPlatform)) {
+            return undefined;
+        }
+
+        // 验证项目选择
+        if (!this.validateProjectSelection(param)) {
+            return undefined;
+        }
+
+        // 验证操作系统兼容性
+        if (!this.validateOSCompatibility(uniPlatform)) {
+            return undefined;
+        }
+
+        // 验证HBuilderX安装路径
+        if (!this.validateHBuilderXPath()) {
+            return undefined;
+        }
+
+        return true;
+    };
+
+    /**
+     * @description 验证浏览器版本要求
+     * @param {String} platform - 测试平台
+     * @returns {Boolean}
+     */
+    validateBrowserVersionRequirement(platform) {
+        const requiresNewVersion = [PLATFORM_TYPES.H5_FIREFOX, PLATFORM_TYPES.H5_SAFARI].includes(platform);
+        if (requiresNewVersion && cmpVerionForH5 < 0) {
             createOutputChannel(config.i18n.env_h5_test_version_prompt, 'warning');
-            return;
-        };
+            return false;
+        }
+        return true;
+    };
 
-        // 判断：项目信息。必须在项目管理器、或编辑器选中项目
-        if (param == null) {
+    /**
+     * @description 验证项目选择
+     * @param {Object} param - 项目参数
+     * @returns {Boolean}
+     */
+    validateProjectSelection(param) {
+        if (!param) {
             hx.window.showErrorMessage("请在项目管理器选中项目后再试。", ["我知道了"]);
-            return;
-        };
+            return false;
+        }
+        return true;
+    };
 
-        // 判断：操作系统, uni-app iOS测试，不支持windows
-        if (osName != 'darwin' && UNI_PLATFORM == 'ios') {
+    /**
+     * @description 验证操作系统兼容性
+     * @param {String} platform - 测试平台
+     * @returns {Boolean}
+     */
+    validateOSCompatibility(platform) {
+        if (osName !== 'darwin' && platform === PLATFORM_TYPES.IOS) {
             hxShowMessageBox('提醒', config.i18n.env_win32_not_support_ios_testing);
-            return;
-        };
+            return false;
+        }
+        return true;
+    };
 
-        // 判断：HBuilderX路径空格
-        if (config.HBuilderX_PATH.indexOf(" ") != -1) {
+    /**
+     * @description 验证HBuilderX安装路径
+     * @returns {Boolean}
+     */
+    validateHBuilderXPath() {
+        if (config.HBuilderX_PATH.indexOf(" ") !== -1) {
             createOutputChannel(config.i18n.hx_install_path_space_prompt, 'warning');
-            return;
-        };
+            return false;
+        }
         return true;
     };
 
@@ -748,14 +1309,13 @@ class RunTest extends Common {
 
         // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
         this.raw_argv_uni_platform = UNI_PLATFORM;
-        let argv_uniPlatform = {
-            "web-chrome": "h5-chrome",
-            "web-safari": "h5-safari",
-            "web-firefox": "h5-firefox"
-        }[UNI_PLATFORM] || UNI_PLATFORM;
-        console.error("[自动化测试] 运行平台参数 argv_uniPlatform =", argv_uniPlatform);
+        const argv_uniPlatform = WEB_PLATFORM_MAP[UNI_PLATFORM] || UNI_PLATFORM;
+        
+        if (isDebug) {
+            console.error("[自动化测试] 运行平台参数 argv_uniPlatform =", argv_uniPlatform);
+        }
 
-        let beforeResult = await this.run_before(argv_uniPlatform, param);
+        let beforeResult = await this.validateTestEnvironment(argv_uniPlatform, param);
         if (beforeResult != true) return;
 
         // 获取项目名称、项目路径、uni-app Vue版本
@@ -785,7 +1345,7 @@ class RunTest extends Common {
 
         let testPhoneList = [];
         if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
-            const sResult = await this.select_app_run_devices(argv_uniPlatform);
+            const sResult = await this.selectTestDevices(argv_uniPlatform);
             // console.error("=====>", sResult);
             if (sResult == undefined || sResult == "noSelected") return;
             testPhoneList = sResult;
@@ -807,35 +1367,47 @@ class RunTest extends Common {
         if (changeResult == false) return;
 
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
-        switch (argv_uniPlatform) {
-            case 'h5':
-            case 'h5-chrome':
-                // 兼容，不可删除
-                this.run_uni_test('h5-chrome');
-                break;
-            case 'h5-safari':
-                this.run_uni_test('h5-safari');
-                break;
-            case 'h5-firefox':
-                this.run_uni_test('h5-firefox');
-                break;
-            case 'mp-weixin':
-                this.run_uni_test('mp-weixin');
-                break;
-            case 'ios':
-                this.run_more_test('ios', testPhoneList);
-                break;
-            case 'android':
-                this.run_more_test('android', testPhoneList);
-                break;
-            case 'harmony':
-                this.run_more_test('harmony', testPhoneList);
-                break;
-            case 'all':
-                this.run_more_test('all', testPhoneList);
-                break;
-            default:
-                break;
+        // 根据平台类型执行相应的测试
+        await this.executePlatformTest(argv_uniPlatform, testPhoneList);
+    };
+
+    /**
+     * @description 根据平台类型执行测试
+     * @param {String} platform - 测试平台
+     * @param {Array} deviceList - 设备列表（用于移动平台）
+     * @returns {Promise<void>}
+     */
+    async executePlatformTest(platform, deviceList) {
+        // Web平台测试
+        const webPlatforms = ['h5', PLATFORM_TYPES.H5_CHROME, PLATFORM_TYPES.H5_SAFARI, PLATFORM_TYPES.H5_FIREFOX];
+        if (webPlatforms.includes(platform)) {
+            // h5兼容旧版本，默认使用chrome
+            const actualPlatform = platform === 'h5' ? PLATFORM_TYPES.H5_CHROME : platform;
+            await this.run_uni_test(actualPlatform);
+            return;
+        }
+
+        // 小程序平台测试
+        if (platform === PLATFORM_TYPES.MP_WEIXIN) {
+            await this.run_uni_test(platform);
+            return;
+        }
+
+        // 移动平台测试（需要设备列表）
+        const mobilePlatforms = [
+            PLATFORM_TYPES.IOS, 
+            PLATFORM_TYPES.ANDROID, 
+            PLATFORM_TYPES.HARMONY, 
+            PLATFORM_TYPES.ALL
+        ];
+        if (mobilePlatforms.includes(platform)) {
+            await this.runTestOnMultipleDevices(platform, deviceList);
+            return;
+        }
+
+        // 未知平台
+        if (isDebug) {
+            console.warn(`[自动化测试] 未知的测试平台: ${platform}`);
         }
     };
 }
