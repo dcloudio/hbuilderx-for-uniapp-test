@@ -73,9 +73,6 @@ var isUseBuiltNodeRunJest;
 // 临时变量，判断是否是uts项目
 var is_uts_project = false;
 
-// 是否正在调试，当勾选后，将会在控制台输出更多日志
-var isDebug = false;
-
 // unicloud服务信息
 let unicloud_spaces_info = [];
 
@@ -161,8 +158,6 @@ class Common {
         if (uni_plugin_check == false && is_uts_project) {
             createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
         };
-
-        isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
         return testEnv;
     };
 
@@ -570,7 +565,8 @@ class RunTest extends Common {
         };
 
         // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
-        if (isDebug) {
+        let is_Debug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        if (is_Debug) {
             cmdOpts.env.DEBUG = "automator:*";
         };
 
@@ -663,7 +659,7 @@ class RunTest extends Common {
         };
 
         let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
-        let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, isDebug);
+        let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, is_Debug);
 
         if (testResult == 'run_end') {
             // 不要改此处的文本
