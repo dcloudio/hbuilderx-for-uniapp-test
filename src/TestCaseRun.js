@@ -104,235 +104,410 @@ let is_print_report_tips = false;
 
 class Common {
     /**
-     * @description 检查电脑环境
-     *  - 检查电脑本机是否安装node
-     *  - 检查插件运行，相关依赖是否安装完整
-     *  - 检查是否安装uniapp-cli、launcher
-     * @param {String} platform - 测试平台，ios|android|h5|mp-weixin
-     * @param {String} projectPath - 项目路径，用于判断uniapp-cli环境
+     * @description 检查测试环境并设置必要的配置
+     *  - 检查本机是否安装node
+     *  - 检查插件依赖是否安装完整
+     *  - 检查必需插件（uniapp-cli、launcher等）
+     * @param {String} platform - 测试平台
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<Boolean>} 环境检查通过返回true
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
-        let testEnv = true;
-        if (nodeStatus == undefined || nodeStatus == 'N') {
-            nodeStatus = await checkNode().catch(error => {
-                createOutputChannel(config.i18n.msg_env_node_check, "error");
-                return error;
-            });
-        };
+        // 检查Node.js环境
+        await this.checkNodeEnvironment();
 
-        // 检查插件依赖
-        let init = new Initialize();
-        if (is_uniapp_cli) {
-            testEnv = await init.checkUniappCliProject(projectPath);
-        } else {
-            testEnv = await init.checkPluginDependencies();
-        };
+        // 检查项目依赖
+        const testEnv = await this.checkProjectDependencies(projectPath);
 
-        // 检查测试报告目录是否存在，如不存在则创建
-        await mkdirsSync(config.testReportOutPutDir);
+        // 创建必需的目录
+        await this.ensureRequiredDirectories();
 
-        // 检查uts cache目录，如不存在则自动创建
-        if (is_uts_project) {
-            await mkdirsSync(config.UTS_USER_DATA_PATH);
-        };
+        // 验证HBuilderX插件
+        const requiredPlugins = this.getRequiredPlugins(platform);
+        this.validateRequiredPlugins(requiredPlugins);
 
-        // 检查是否安装uniapp-cli、launcher
-        var plugin_list = {};
-
-        // check：运行自动化测试需要安装的插件
-        if (is_uniapp_3) {
-            plugin_list["uniapp-cli-vite"] = config.UNI_CLI_VITE_PATH;
-        } else {
-            plugin_list["uniapp-cli"] = config.UNI_CLI_PATH;
-        };
-
-        if (["android", "ios", "all"].includes(platform)) {
-            plugin_list["launcher"] = config.LAUNCHER_ANDROID;
-        };
-
-        if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
-        };
-
-        if (is_uts_project || is_uniapp_x) {
-            plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
-        };
-
-        if (["android", "all"].includes(platform)) {
-            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
-            plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
-        };
-
-        // 判断是否安装测试环境必须的插件
-        let uni_plugin_check = true;
-        for (let e of Object.keys(plugin_list)) {
-            // console.error("=============", plugin_list[e], fs.existsSync(plugin_list[e]));
-            if (fs.existsSync(plugin_list[e]) == false) {
-                uni_plugin_check = false;
-                const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
-                createOutputChannel(log_for_plugin, 'info');
-            };
-        };
-
-        if (uni_plugin_check == false && is_uniapp_x) {
-            createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
-        };
-        if (uni_plugin_check == false && is_uts_project) {
-            createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
-        };
-
+        // 加载调试配置
         isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        
         return testEnv;
     };
 
     /**
-     * @description 检查并设置UTS运行环境（ios和android）
+     * @description 检查Node.js环境
+     * @returns {Promise<void>}
      */
-    async checkAndSetUTSTestEnv() {
-        let path_gradleHome = await getPluginConfig('uts-development-android.gradleHome');
-        if (path_gradleHome != undefined && path_gradleHome.trim() != "" && fs.existsSync(path_gradleHome)) {
-            config.UTS_GRADLE_HOME = path_gradleHome;
-        };
-
-        let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
-        if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
-            config.UTS_JDK_PATH = path_Android_sdkDir;
-        };
+    async checkNodeEnvironment() {
+        if (nodeStatus === undefined || nodeStatus === 'N') {
+            nodeStatus = await checkNode().catch(error => {
+                createOutputChannel(config.i18n.msg_env_node_check, "error");
+                return error;
+            });
+        }
     };
 
     /**
-     * @description 获取unicloud服务信息
+     * @description 检查项目依赖
      * @param {String} projectPath - 项目路径
-     * @param {Object} param - 参数
+     * @returns {Promise<Boolean>}
+     */
+    async checkProjectDependencies(projectPath) {
+        const init = new Initialize();
+        
+        if (is_uniapp_cli) {
+            return await init.checkUniappCliProject(projectPath);
+        } else {
+            return await init.checkPluginDependencies();
+        }
+    };
+
+    /**
+     * @description 确保必需的目录存在
+     * @returns {Promise<void>}
+     */
+    async ensureRequiredDirectories() {
+        // 创建测试报告目录
+        await mkdirsSync(config.testReportOutPutDir);
+
+        // 创建UTS缓存目录（如需要）
+        if (is_uts_project) {
+            await mkdirsSync(config.UTS_USER_DATA_PATH);
+        }
+    };
+
+    /**
+     * @description 获取平台所需的插件列表
+     * @param {String} platform - 测试平台
+     * @returns {Object} 插件名称和路径的映射
+     */
+    getRequiredPlugins(platform) {
+        const plugins = {};
+
+        // uni-app CLI插件
+        if (is_uniapp_3) {
+            plugins["uniapp-cli-vite"] = config.UNI_CLI_VITE_PATH;
+        } else {
+            plugins["uniapp-cli"] = config.UNI_CLI_PATH;
+        }
+
+        // Launcher插件（移动平台）
+        const mobilePlatforms = [PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.IOS, PLATFORM_TYPES.ALL];
+        if (mobilePlatforms.includes(platform)) {
+            plugins["launcher"] = config.LAUNCHER_ANDROID;
+        }
+
+        // uni-app X 专用插件
+        if (is_uniapp_x) {
+            plugins["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        }
+
+        // UTS项目插件
+        if (is_uts_project || is_uniapp_x) {
+            plugins["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
+        }
+
+        // Android平台额外插件
+        if ([PLATFORM_TYPES.ANDROID, PLATFORM_TYPES.ALL].includes(platform)) {
+            plugins["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            plugins["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
+        }
+
+        return plugins;
+    };
+
+    /**
+     * @description 验证必需插件是否已安装
+     * @param {Object} pluginList - 插件列表
+     * @returns {Boolean} 所有插件都已安装返回true
+     */
+    validateRequiredPlugins(pluginList) {
+        let allPluginsInstalled = true;
+
+        for (const [pluginName, pluginPath] of Object.entries(pluginList)) {
+            if (!fs.existsSync(pluginPath)) {
+                allPluginsInstalled = false;
+                const displayName = config.HX_PLUGINS_DISPLAYNAME_LIST[pluginName] || pluginName;
+                const message = `[提示]：测试环境检查，未安装 ${pluginName}。点击菜单【工具 - 插件安装】，安装【${displayName}】插件。`;
+                createOutputChannel(message, 'info');
+            }
+        }
+
+        // 显示特定项目类型的警告
+        if (!allPluginsInstalled) {
+            if (is_uniapp_x) {
+                createOutputChannel(config.i18n.msg_warning_uniappx_env, 'info');
+            }
+            if (is_uts_project) {
+                createOutputChannel(config.i18n.msg_warning_uts_env, 'info');
+            }
+        }
+
+        return allPluginsInstalled;
+    };
+
+    /**
+     * @description 检查并设置UTS测试环境（适用于iOS和Android平台）
+     * @returns {Promise<void>}
+     */
+    async checkAndSetUTSTestEnv() {
+        // 设置Gradle路径
+        const gradleHome = await this.getValidConfigPath('uts-development-android.gradleHome');
+        if (gradleHome) {
+            config.UTS_GRADLE_HOME = gradleHome;
+        }
+
+        // 设置Android SDK路径
+        const androidSdkDir = await this.getValidConfigPath('uts-development-android.sdkDir');
+        if (androidSdkDir) {
+            config.UTS_JDK_PATH = androidSdkDir;
+        }
+    };
+
+    /**
+     * @description 获取有效的配置路径（存在且非空）
+     * @param {String} configKey - 配置键名
+     * @returns {Promise<String|null>} 有效路径或null
+     */
+    async getValidConfigPath(configKey) {
+        const configPath = await getPluginConfig(configKey);
+        
+        if (configPath && configPath.trim() !== "" && fs.existsSync(configPath)) {
+            return configPath;
+        }
+        
+        return null;
+    };
+
+    /**
+     * @description 获取uniCloud服务空间信息
+     * @param {String} projectPath - 项目路径
+     * @param {Object} param - 项目参数对象
+     * @returns {Promise<void>}
      */
     async getProjectUniCloudInfo(projectPath, param) {
         unicloud_spaces_info = [];
 
-        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay", "uniCloud-dcloud"];
-        const uniCloudExists = uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
-        if (!uniCloudExists) {
+        // 检查是否存在uniCloud目录
+        if (!this.hasUniCloudDirectory(projectPath)) {
             return;
-        };
+        }
 
-        let workspaceFolder = param.workspaceFolder;
+        // 获取工作区文件夹
+        const workspaceFolder = this.extractWorkspaceFolder(param);
         if (!workspaceFolder) {
-            workspaceFolder = param.document.workspaceFolder
-        };
-        if (!workspaceFolder) { return };
+            return;
+        }
 
+        // 获取uniCloud数据
         try {
             unicloud_spaces_info = await getProjectUnicloudData(workspaceFolder);
         } catch (error) {
-            console.error("[自动化测试] 执行getProjectUnicloudData异常", error);
+            console.error("[自动化测试] 获取uniCloud数据异常:", error);
+        }
+    };
+
+    /**
+     * @description 检查项目是否包含uniCloud目录
+     * @param {String} projectPath - 项目路径
+     * @returns {Boolean}
+     */
+    hasUniCloudDirectory(projectPath) {
+        const uniCloudDirs = ["uniCloud-tcb", "uniCloud-aliyun", "uniCloud-alipay", "uniCloud-dcloud"];
+        return uniCloudDirs.some(dir => fs.existsSync(path.join(projectPath, dir)));
+    };
+
+    /**
+     * @description 从参数对象中提取工作区文件夹
+     * @param {Object} param - 参数对象
+     * @returns {Object|null} 工作区文件夹对象或null
+     */
+    extractWorkspaceFolder(param) {
+        return param.workspaceFolder || param.document?.workspaceFolder || null;
+    };
+
+    /**
+     * @description 获取项目信息并检测项目类型
+     * @param {Object} param - 项目管理器或编辑器提供的参数
+     * @returns {Promise<Object>} 项目信息对象
+     */
+    async getProjectInfo(param) {
+        // 提取基本项目信息
+        const basicInfo = this.extractBasicProjectInfo(param);
+        
+        // 获取uniCloud配置
+        await this.getProjectUniCloudInfo(basicInfo.projectPath, param);
+
+        // 检测项目类型
+        await this.detectProjectTypes(basicInfo.projectPath);
+
+        if (isDebug) {
+            console.error("[自动化测试] 项目类型检测 - uni-app-x:", is_uniapp_x);
+        }
+
+        return {
+            projectName: basicInfo.projectName,
+            projectPath: basicInfo.projectPath,
+            projectType: basicInfo.projectType,
+            selectedFile: basicInfo.selectedFile,
+            projectVueVersion: basicInfo.projectVueVersion
         };
     };
 
     /**
-     * 获取项目管理器选中的信息，并推测项目类型（比如是否是uniapp-cli、是否是uniapp-x）
-     * @param {Object} param
-     * @returns {Object}
+     * @description 提取基本项目信息
+     * @param {Object} param - 参数对象
+     * @returns {Object} 基本项目信息
      */
-    async getProjectInfo(param) {
-        let projectType, projectName, projectPath, selectedFile;
-        let projectVueVersion = "2";
-        try {
-            projectName = param.workspaceFolder.name;
-            projectType = param.workspaceFolder.nature;
-            projectPath = param.workspaceFolder.uri.fsPath;
-            selectedFile = param.fsPath;
-        } catch (e) {
-            projectName = param.document.workspaceFolder.name;
-            projectPath = param.document.workspaceFolder.uri.fsPath;
-            selectedFile = param.document.uri.fsPath;
-            projectType = param.document.workspaceFolder.nature;
+    extractBasicProjectInfo(param) {
+        let projectInfo = {
+            projectType: '',
+            projectName: '',
+            projectPath: '',
+            selectedFile: '',
+            projectVueVersion: "2"
         };
 
-        await this.getProjectUniCloudInfo(projectPath, param);
+        try {
+            // 优先从workspaceFolder获取
+            projectInfo.projectName = param.workspaceFolder.name;
+            projectInfo.projectType = param.workspaceFolder.nature;
+            projectInfo.projectPath = param.workspaceFolder.uri.fsPath;
+            projectInfo.selectedFile = param.fsPath;
+        } catch (e) {
+            // 回退到document.workspaceFolder
+            projectInfo.projectName = param.document.workspaceFolder.name;
+            projectInfo.projectPath = param.document.workspaceFolder.uri.fsPath;
+            projectInfo.selectedFile = param.document.uri.fsPath;
+            projectInfo.projectType = param.document.workspaceFolder.nature;
+        }
 
-        // 判断项目类型：uni-app普通项目、uniapp-cli项目
+        return projectInfo;
+    };
+
+    /**
+     * @description 检测项目类型（CLI、uni-app X、Vue版本等）
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<void>}
+     */
+    async detectProjectTypes(projectPath) {
+        // 检测是否为CLI项目
         is_uniapp_cli = await isUniAppCli(projectPath);
 
-        // 判断项目类型 uni-app普通项目、uni-appx项目
+        // 检测是否为uni-app X项目
         is_uniapp_x = await isUniAppX(projectPath);
-        console.error("是否是uniapp-x", is_uniapp_x);
 
-        // 非uni-app-x项目，才需要判断这些。uni-app-x默认就是vue3
-        if (!is_uniapp_x) {
-            // 从manifest.json获取 vueVersion
-            let file_data = await readUniappManifestJson(projectPath, is_uniapp_cli, "vueVersion");
-            let { data } = file_data;
-
-            // 判断项目是vue2 还是vue3
-            is_uniapp_3 = data == "3" ? true : false;
-
-            // 判断项目是否是uts项目
-            is_uts_project = await checkUtsProject(projectPath, is_uniapp_cli);
-        };
-
+        // uni-app X项目默认使用Vue3和UTS
         if (is_uniapp_x) {
             is_uniapp_3 = true;
             is_uts_project = true;
-        };
+            return;
+        }
 
-        return {
-            "projectName": projectName,
-            "projectPath": projectPath,
-            "projectType": projectType,
-            "selectedFile": selectedFile,
-            "projectVueVersion": projectVueVersion
-        };
+        // 非uni-app X项目需要检测Vue版本和UTS
+        await this.detectVueVersionAndUTS(projectPath);
     };
 
-   // 获取测试报告目录
-   async getReportOutputDir(projectName, testPlatform) {
-       // 使用用户自定义的目录
-       const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
-       if (userSet) {
-           if (!fs.existsSync(userSet)) {
-               createOutputChannel(config.i18n.invalid_custom_test_report_path);
-               return false;
-           };
+    /**
+     * @description 检测Vue版本和UTS支持
+     * @param {String} projectPath - 项目路径
+     * @returns {Promise<void>}
+     */
+    async detectVueVersionAndUTS(projectPath) {
+        // 读取Vue版本
+        const manifestData = await readUniappManifestJson(projectPath, is_uniapp_cli, "vueVersion");
+        const vueVersion = manifestData?.data;
+        is_uniapp_3 = vueVersion === "3";
 
-           let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
-           mkdirsSync(UserProjectReportDir);
-           return UserProjectReportDir;
-       };
+        // 检测UTS项目
+        is_uts_project = await checkUtsProject(projectPath, is_uniapp_cli);
+    };
 
-       // 创建默认的测试报告目录
-       if (is_print_report_tips == false) {
+    /**
+     * @description 获取测试报告输出目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {Promise<String|Boolean>} 报告目录路径，失败返回false
+     */
+    async getReportOutputDir(projectName, testPlatform) {
+        // 尝试使用用户自定义目录
+        const customDir = await this.getCustomReportDirectory(projectName, testPlatform);
+        if (customDir !== null) {
+            return customDir;
+        }
+
+        // 使用默认目录
+        return this.getDefaultReportDirectory(projectName, testPlatform);
+    };
+
+    /**
+     * @description 获取用户自定义的测试报告目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {Promise<String|null|Boolean>} 目录路径、null（未配置）或false（配置无效）
+     */
+    async getCustomReportDirectory(projectName, testPlatform) {
+        const customPath = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        
+        if (!customPath) {
+            return null;
+        }
+
+        // 验证自定义路径是否存在
+        if (!fs.existsSync(customPath)) {
+            createOutputChannel(config.i18n.invalid_custom_test_report_path);
+            return false;
+        }
+
+        // 创建项目特定的报告目录
+        const reportDir = path.join(customPath, projectName, testPlatform);
+        mkdirsSync(reportDir);
+        return reportDir;
+    };
+
+    /**
+     * @description 获取默认测试报告目录
+     * @param {String} projectName - 项目名称
+     * @param {String} testPlatform - 测试平台
+     * @returns {String} 报告目录路径
+     */
+    getDefaultReportDirectory(projectName, testPlatform) {
+        // 首次使用默认目录时显示提示
+        if (!is_print_report_tips) {
             is_print_report_tips = true;
             createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
-       };
+        }
 
-       let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
-       mkdirsSync(DefaultReportDir);
-       return DefaultReportDir;
-   };
+        const reportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
+        mkdirsSync(reportDir);
+        return reportDir;
+    };
 
-    // 用于【全部平台】测试停止运行
+    /**
+     * @description 显示【全部平台】测试停止控制界面
+     * @param {String} MessagePrefix - 消息前缀（未使用但保留兼容性）
+     * @returns {Promise<void>}
+     */
     async stopAllTestRun(MessagePrefix) {
-        let outputView = hx.window.createOutputView({
+        const outputView = hx.window.createOutputView({
             id: "hbuilderx.uniapp.test",
             title: "uni-app自动化测试"
         });
         outputView.show();
 
-        let msg = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
+        const message = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
+        const stopText = "全部停止";
+        
         outputView.appendLine({
-            line: msg + "全部停止\n",
+            line: `${message}${stopText}\n`,
             level: "info",
-            hyperlinks:[
-                {
-                    linkPosition: {
-                        start: msg.length,
-                        end: (msg + '全部停止').length
-                    },
-                    onOpen: function() {
-                        isStopAllTest = true;
-                    }
+            hyperlinks: [{
+                linkPosition: {
+                    start: message.length,
+                    end: message.length + stopText.length
+                },
+                onOpen: () => {
+                    isStopAllTest = true;
                 }
-            ]
+            }]
         });
     };
 
@@ -385,15 +560,20 @@ class Common {
     };
 
     /**
-     * @description 获取项目是否是dom2
+     * @description 检测uni-app X项目是否使用DOM2模式
+     * @param {String} projectPath - 项目路径
+     * @param {Boolean} isUniappCli - 是否为CLI项目
+     * @returns {Promise<Boolean>} 使用DOM2返回true
      */
-    async uniapp_x_is_dom2(projectPath, is_uniapp_cli) {
+    async uniapp_x_is_dom2(projectPath, isUniappCli) {
         try {
-            let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
-            let { data } = fdata;
-            return data["vapor"];
+            const manifestData = await readUniappManifestJson(projectPath, isUniappCli, "uni-app-x");
+            return manifestData?.data?.vapor || false;
         } catch (error) {
-            return false
+            if (isDebug) {
+                console.error("[自动化测试] 检测DOM2模式失败:", error);
+            }
+            return false;
         }
     }
 };
