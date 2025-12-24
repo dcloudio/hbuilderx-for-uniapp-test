@@ -1,5 +1,10 @@
 # 更新日志
 
+## 4.5.0
+* Fix src/lib/main.js uniTestPlatformInfo引出的问题
+* 新增 菜单 查看更多配置 unitest.moreSettings
+* 新增 android | ios | harmony 测试设备选择窗口，增加测试配置项
+
 ## 4.3.2
 * 优化 ui_vue.vue 当运行测试到android、ios、鸿蒙时，如果设备窗口只有一个设备，则默认选中
 

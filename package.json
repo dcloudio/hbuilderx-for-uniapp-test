@@ -3,7 +3,7 @@
     "name": "hbuilderx-for-uniapp-test",
     "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信小程序、Harmony应用",
     "displayName": "HBuilderX uni-app自动化测试",
-    "version": "4.3.2",
+    "version": "4.5.0",
     "publisher": "hbuilderx",
     "engines": {
         "HBuilderX": "^3.7.3"
