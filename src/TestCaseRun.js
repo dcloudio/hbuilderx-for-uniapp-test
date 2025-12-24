@@ -706,10 +706,11 @@ class RunTest extends Common {
 
     async run_before(UNI_PLATFORM, param) {
         // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
-        if (cmpVerionForH5 < 0 && ['h5-firefox','h5-safari'].includes(UNI_PLATFORM)) {
-            createOutputChannel(config.i18n.env_h5_test_version_prompt, 'warning');
-            return;
-        };
+        // 【TODO】上次AI调整导致这里判断异常。但是目前hx已经到5.0版本了。这里的判断可以去掉了。
+        // if (cmpVerionForH5 < 0 && ['h5-firefox','h5-safari'].includes(UNI_PLATFORM)) {
+        //     createOutputChannel(config.i18n.env_h5_test_version_prompt, 'warning');
+        //     return;
+        // };
 
         // 判断：项目信息。必须在项目管理器、或编辑器选中项目
         if (param == null) {
