@@ -22,8 +22,10 @@ global.global_uniSettings = {};
  * @description 内部使用。返回具体的测试设备信息
  */
 async function get_uniTestPlatformInfo(platform, deviceID) {
+    console.error("[get_uniTestPlatformInfo] uniTestPlatformInfo = ", platform);
     let uniTestPlatformInfo = "";
     if (platform == "h5") return 'web chrome';
+    if (platform == "h5-chrome") return 'web chrome';
     if (platform == "h5-safari") return 'web safari';
     if (platform == "h5-firefox") return 'web firefox';
 
