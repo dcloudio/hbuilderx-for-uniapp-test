@@ -13,6 +13,43 @@
 - 提供 HBuilderX CLI 接口，支持命令行和 CI/CD 集成
 - 本插件，主要是调用 uniapp-cli-vite 插件提供的自动化测试能力。此自动化测试能力，基于 Jest 测试框架，配合 Puppeteer、ADBKit 等工具
 
+## 目录结构
+---------------------------
+
+```shell
+.
+├── AGENTS.md
+├── README.md
+├── extension.js    // 插件注册入口
+├── package.json    // 插件配置文件
+├── public
+│   └── about.js 
+├── snippets
+└── src
+    ├── HBuilderXCli.js   // 用于在cmd终端便于HBuilderX CLI 命令调用
+    ├── Initialize.js     // 初始化测试环境
+    ├── TestCaseRun.js    // 在HBuilderX可视化界面，运行设备
+    ├── core
+    │   ├── edit_env_js_file.js                // 编辑env.js
+    │   ├── edit_jest_config_js_file.js        // 编辑jest.config.js
+    │   ├── get_project_unicloud_data.js
+    │   └── ...
+    ├── environment
+    │   └── package.json
+    ├── lib
+    │   ├── ui_vue.vue    // HBuilderX 右键菜单触发，显示设备选择窗口
+    │   ├── ...
+    ├── static
+    │   ├── bootstrap.min.css
+    │   ├── ...
+    ├── template
+    │   ├── AI-prompt.md
+    │   ├── env.js
+    │   ├── jest.config.js
+    │   └── testcase
+    └── utils
+```
+
 ## AI 开发辅助建议
 ---------------------------
 
@@ -132,6 +169,19 @@ git commit -m "docs: 更新 CLI 使用文档"
 git commit -m "refactor: 优化命令处理逻辑"
 ```
 
+## Code Modification Rules
+---------------------------
+
+* 修改必须遵循最小 diff 原则（minimal diff）。
+* 严禁修改任何既有代码的格式，包括但不限于空格、缩进、换行。
+* 已有代码必须保持逐字节一致（byte-for-byte identical）。
+* 禁止任何形式的自动格式化或风格调整。
+* 仅在明确标注的新增区域内添加代码。
+* 若功能修改无法避免触碰旧代码，必须先说明原因。
+* 以下修改一律禁止（即使语义等价）：
+  - `function()` → `function ()`
+  - `if(a)` → `if (a)`
+  - 任何自动对齐、自动换行、自动缩进
 
 ## 结语
 ---------------------------
