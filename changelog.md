@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.5.1
+* feat: Add network and proxy status checks for mobile devices and development machines.
+
 ## 4.5.0
 * Fix src/lib/main.js uniTestPlatformInfo引出的问题
 * 新增 菜单 查看更多配置 unitest.moreSettings
