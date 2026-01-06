@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
+const checkNetworkStatus = require('./utils/check_network.js');
 const get_test_port = require("./utils/get_test_port.js");
 const hxVersion = hx.env.appVersion;
 
@@ -260,13 +261,13 @@ class Common {
         outputView.appendLine({
             line: msg + "全部停止\n",
             level: "info",
-            hyperlinks:[
+            hyperlinks: [
                 {
                     linkPosition: {
                         start: msg.length,
                         end: (msg + '全部停止').length
                     },
-                    onOpen: function() {
+                    onOpen: function () {
                         isStopAllTest = true;
                     }
                 }
@@ -367,10 +368,10 @@ class RunTestForHBuilderXCli extends Common {
             var envjs = require(env_js_path);
             let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
             if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
-            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
-            	    console.log(key, value);
+                Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
+                    console.log(key, value);
                     cmdOpts["env"][key] = value;
-            	});
+                });
             };
         } catch (e) {
             createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
@@ -414,6 +415,9 @@ class RunTestForHBuilderXCli extends Common {
         let filePrefix = deviceId ? `${deviceId}-` : '';
         let outputFile = path.join(outputDir, `${filePrefix}${filename}.json`);
         await this.print_cli_log(`开始在 ${this.raw_argv_uni_platform} 平台运行测试 ....`);
+
+        // 检查网络状态
+        await checkNetworkStatus(testPlatform, deviceId, "[uniapp.test] ", this.terminal_id);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
@@ -581,7 +585,7 @@ class RunTestForHBuilderXCli extends Common {
             await this.print_cli_log(`${config.i18n.weixin_tools_running_tips}`);
         };
 
-        let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
+        let testInfo = { "projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId };
         let testResult = await runCmdForHBuilderXCli(jest_for_node, cmd, cmdOpts, testInfo, '[uniapp.test] ', this.terminal_id);
 
         if (testResult == 'run_end') {
@@ -602,20 +606,20 @@ class RunTestForHBuilderXCli extends Common {
      * @param {Object} testDevicesList
      */
     async run_more_test(testPlatform, testDevicesList) {
-        if (isStopAllTest) {return};
+        if (isStopAllTest) { return };
         if (testPlatform == 'all') {
-            if (isStopAllTest) {return};
+            if (isStopAllTest) { return };
         };
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
-                if (isStopAllTest) {break};
+                if (isStopAllTest) { break };
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
                 // let deviceId = s.split(':')[1];
                 let deviceId = s.split(':').slice(1).join(':');
-                if (['h5','mp'].includes(plat)) {
-                    plat= deviceId;
+                if (['h5', 'mp'].includes(plat)) {
+                    plat = deviceId;
                     await this.run_uni_test(plat);
                 } else {
                     await this.run_uni_test(plat, deviceId);
@@ -700,7 +704,7 @@ class RunTestForHBuilderXCli extends Common {
         if (!env) return;
 
         // 运行：到iOS和android
-        if (['all', 'android'].includes(argv_uni_platform) && is_uts_project){
+        if (['all', 'android'].includes(argv_uni_platform) && is_uts_project) {
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) {
                 await this.print_cli_log(config.i18n.msg_warning_uts_env);
@@ -721,7 +725,7 @@ class RunTestForHBuilderXCli extends Common {
             await this.print_cli_log(`可用的测试设备列表: ${testPhoneList}`);
             console.error("[自动化测试连接的设备]--->", testPhoneList);
         };
-        if (argv_device_id != '' && ['ios', 'android', 'harmony'].includes(argv_uni_platform) ) {
+        if (argv_device_id != '' && ['ios', 'android', 'harmony'].includes(argv_uni_platform)) {
             testPhoneList = [`${argv_uni_platform}:${argv_device_id}`];
             await this.print_cli_log(`指定的测试设备列表: ${testPhoneList}`);
         };
@@ -831,7 +835,7 @@ async function readPluginsPackageJson() {
 
 async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     // 解析命令行参数与输入
-    let {args} = params;
+    let { args } = params;
     let client_id = params.cliconsole.clientId;
 
     console.error("[cli参数] args:", args);

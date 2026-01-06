@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
+const checkNetworkStatus = require('./utils/check_network.js');
+
 const get_test_port = require("./utils/get_test_port.js");
 const compareHBuilderXVersions = require('./utils/compare_hx_versions.js');
 const hxVersion = hx.env.appVersion;
@@ -259,31 +261,31 @@ class Common {
         };
     };
 
-   // 获取测试报告目录
-   async getReportOutputDir(projectName, testPlatform) {
-       // 使用用户自定义的目录
-       const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
-       if (userSet) {
-           if (!fs.existsSync(userSet)) {
-               createOutputChannel(config.i18n.invalid_custom_test_report_path);
-               return false;
-           };
+    // 获取测试报告目录
+    async getReportOutputDir(projectName, testPlatform) {
+        // 使用用户自定义的目录
+        const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        if (userSet) {
+            if (!fs.existsSync(userSet)) {
+                createOutputChannel(config.i18n.invalid_custom_test_report_path);
+                return false;
+            };
 
-           let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
-           mkdirsSync(UserProjectReportDir);
-           return UserProjectReportDir;
-       };
+            let UserProjectReportDir = path.join(userSet, projectName, testPlatform);
+            mkdirsSync(UserProjectReportDir);
+            return UserProjectReportDir;
+        };
 
-       // 创建默认的测试报告目录
-       if (is_print_report_tips == false) {
+        // 创建默认的测试报告目录
+        if (is_print_report_tips == false) {
             is_print_report_tips = true;
             createOutputChannel(config.i18n.msg_warning_test_report_path_tips);
-       };
+        };
 
-       let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
-       mkdirsSync(DefaultReportDir);
-       return DefaultReportDir;
-   };
+        let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
+        mkdirsSync(DefaultReportDir);
+        return DefaultReportDir;
+    };
 
     // 用于【全部平台】测试停止运行
     async stopAllTestRun(MessagePrefix) {
@@ -297,13 +299,13 @@ class Common {
         outputView.appendLine({
             line: msg + "全部停止\n",
             level: "info",
-            hyperlinks:[
+            hyperlinks: [
                 {
                     linkPosition: {
                         start: msg.length,
                         end: (msg + '全部停止').length
                     },
-                    onOpen: function() {
+                    onOpen: function () {
                         isStopAllTest = true;
                     }
                 }
@@ -419,10 +421,10 @@ class RunTest extends Common {
             var envjs = require(env_js_path);
             let UNI_TEST_CUSTOM_ENV = envjs.UNI_TEST_CUSTOM_ENV;
             if (UNI_TEST_CUSTOM_ENV != undefined && Object.prototype.toString.call(UNI_TEST_CUSTOM_ENV) === '[object Object]') {
-            	Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
-            	    console.log(key, value);
+                Object.entries(UNI_TEST_CUSTOM_ENV).forEach(([key, value]) => {
+                    console.log(key, value);
                     cmdOpts["env"][key] = value;
-            	});
+                });
             };
         } catch (e) {
             createOutputChannel(`${env_js_path} 测试配置文件, 可能存在语法错误，请检查。`, 'error')
@@ -444,7 +446,7 @@ class RunTest extends Common {
 
         // 异常判断
         if (phoneList == 'error') {
-            hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then( btn => {});
+            hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then(btn => { });
             return;
         };
 
@@ -654,11 +656,14 @@ class RunTest extends Common {
         createOutputChannel(`${consoleMsgPrefix}开始在 ${tpl} 平台运行测试 ....`, 'info');
         createOutputChannel(`${consoleMsgPrefix}测试运行日志，请在【uni-app自动化测试 - 运行日志】控制台查看。`, 'info');
 
+        // 检查网络状态
+        await checkNetworkStatus(testPlatform, deviceId, consoleMsgPrefix);
+
         if (testPlatform == 'mp-weixin') {
             createOutputChannel(`${consoleMsgPrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
         };
 
-        let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
+        let testInfo = { "projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId };
         let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, is_Debug);
 
         if (testResult == 'run_end') {
@@ -679,20 +684,20 @@ class RunTest extends Common {
      * @param {Object} testDevicesList
      */
     async run_more_test(testPlatform, testDevicesList) {
-        if (isStopAllTest) {return};
+        if (isStopAllTest) { return };
         if (testPlatform == 'all') {
-            if (isStopAllTest) {return};
+            if (isStopAllTest) { return };
         };
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
-                if (isStopAllTest) {break};
+                if (isStopAllTest) { break };
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
                 // let deviceId = s.split(':')[1];
                 let deviceId = s.split(':').slice(1).join(':');
-                if (['h5','mp'].includes(plat)) {
-                    plat= deviceId;
+                if (['h5', 'mp'].includes(plat)) {
+                    plat = deviceId;
                     await this.run_uni_test(plat);
                 } else {
                     await this.run_uni_test(plat, deviceId);
@@ -775,7 +780,7 @@ class RunTest extends Common {
         if (!env) return;
 
         // 运行：到iOS和android
-        if (['all', 'android'].includes(argv_uniPlatform) && is_uts_project){
+        if (['all', 'android'].includes(argv_uniPlatform) && is_uts_project) {
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) return;
         };
