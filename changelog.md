@@ -1,5 +1,9 @@
 # 更新日志
 
+## 4.6.0
+* 新增 支持运行自动化测试到支付宝小程序 (mp-alipay)
+* 新增 HBuilderX cli: `cli uniapp.test mp-alipay --project <项目路径>`
+
 ## 4.5.0
 * Fix src/lib/main.js uniTestPlatformInfo引出的问题
 * 新增 菜单 查看更多配置 unitest.moreSettings

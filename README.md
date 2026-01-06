@@ -42,6 +42,7 @@ cli uniapp.test <platform> --project <ProjectPath>
 
 - **小程序**
   - `mp-weixin`：在微信小程序中运行测试
+  - `mp-alipay`：在支付宝小程序中运行测试
 
 - **移动应用**
   - `app-android`：在 Android 设备上运行测试

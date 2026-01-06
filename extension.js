@@ -81,6 +81,7 @@ function activate(context) {
         ['unitest.runTestH5Firefox', 'web-firefox'],
         ['unitest.runTestH5Safari', 'web-safari'],
         ['unitest.runTestWeiXin', 'mp-weixin'],
+        ['unitest.runTestAliPay', 'mp-alipay'],
         ['unitest.runTestIOS', 'ios'],
         ['unitest.runTestAndroid', 'android'],
         ['unitest.runTestHarmony', 'harmony'],
@@ -92,6 +93,7 @@ function activate(context) {
         ['unitest.runCurrentTestH5Firefox', 'web-firefox'],
         ['unitest.runCurrentTestH5Safari', 'web-safari'],
         ['unitest.runCurrentTestWeiXin', 'mp-weixin'],
+        ['unitest.runCurrentTestAliPay', 'mp-alipay'],
         ['unitest.runCurrentTestIOS', 'ios'],
         ['unitest.runCurrentTestAndroid', 'android'],
         ['unitest.runCurrentTestHarmony', 'harmony'],
@@ -163,10 +165,12 @@ function activate(context) {
         ['uniapp.test web-safari', 'web-safari'],
         ['uniapp.test web-firefox', 'web-firefox'],
         ['uniapp.test mp-weixin', 'mp-weixin'],
+        ['uniapp.test mp-alipay', 'mp-alipay'],
         ['uniapp.test app-android', 'android'],
         ['uniapp.test app-ios-simulator', 'ios'],
         ['uniapp.test app-harmony', 'harmony'],
-    ].forEach(([cmd, platform]) => registerCli(cmd, platform));};
+    ].forEach(([cmd, platform]) => registerCli(cmd, platform));
+};
 
 //该方法将在插件禁用的时候调用（目前是在插件卸载的时候触发）
 function deactivate() {

@@ -581,7 +581,10 @@ class RunTestForHBuilderXCli extends Common {
             await this.print_cli_log(`${config.i18n.weixin_tools_running_tips}`);
         };
 
-        let testInfo = {"projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId};
+        if (testPlatform == 'mp-alipay') {
+            await this.print_cli_log(`${config.i18n.alipay_tools_running_tips}`);
+        };
+
         let testResult = await runCmdForHBuilderXCli(jest_for_node, cmd, cmdOpts, testInfo, '[uniapp.test] ', this.terminal_id);
 
         if (testResult == 'run_end') {
@@ -602,20 +605,20 @@ class RunTestForHBuilderXCli extends Common {
      * @param {Object} testDevicesList
      */
     async run_more_test(testPlatform, testDevicesList) {
-        if (isStopAllTest) {return};
+        if (isStopAllTest) { return };
         if (testPlatform == 'all') {
-            if (isStopAllTest) {return};
+            if (isStopAllTest) { return };
         };
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
-                if (isStopAllTest) {break};
+                if (isStopAllTest) { break };
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
                 // let deviceId = s.split(':')[1];
                 let deviceId = s.split(':').slice(1).join(':');
-                if (['h5','mp'].includes(plat)) {
-                    plat= deviceId;
+                if (['h5', 'mp'].includes(plat)) {
+                    plat = deviceId;
                     await this.run_uni_test(plat);
                 } else {
                     await this.run_uni_test(plat, deviceId);
@@ -780,6 +783,10 @@ class RunTestForHBuilderXCli extends Common {
             case "weixin":
                 await this.run_uni_test('mp-weixin');
                 break;
+            case 'mp-alipay':
+            case "alipay":
+                await this.run_uni_test('mp-alipay');
+                break;
             case 'ios':
                 await this.run_more_test('ios', testPhoneList);
                 break;
@@ -831,7 +838,7 @@ async function readPluginsPackageJson() {
 
 async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     // 解析命令行参数与输入
-    let {args} = params;
+    let { args } = params;
     let client_id = params.cliconsole.clientId;
 
     console.error("[cli参数] args:", args);

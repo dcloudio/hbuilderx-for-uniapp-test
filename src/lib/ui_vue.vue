@@ -5,6 +5,7 @@
         <q-view layout='hbox' v-if="access == 'all'">
             <q-label text="小程序: " id="labelView"></q-label>
             <q-checkbox id="elCheckBox" text=" 微信小程序" :checked='mp_weixin' accessibleName="mp_weixin" @clicked="el_set" />
+            <q-checkbox id="elCheckBox" text=" 支付宝小程序" :checked='mp_alipay' accessibleName="mp_alipay" @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 
@@ -119,6 +120,7 @@
                 osName: "",
                 access: 'all',
                 mp_weixin: false,
+                mp_alipay: false,
                 h5_chrome: false,
                 h5_firefox: false,
                 h5_safari: false,
@@ -204,7 +206,7 @@
                     this.update_test_settings(accessibleName, e.target.checked);
                 };
 
-                const checkbox = ["mp_weixin", "h5_chrome", "h5_firefox", "h5_safari"];
+                const checkbox = ["mp_weixin", "mp_alipay", "h5_chrome", "h5_firefox", "h5_safari"];
                 if (checkbox.includes(accessibleName)) {
                     this[accessibleName] = e.target.checked;
                 };

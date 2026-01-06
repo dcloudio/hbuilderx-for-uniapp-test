@@ -123,6 +123,9 @@ async function ui_vue(testPlatform) {
     if (result["mp_weixin"]) {
         selectedList.push(`mp:mp-weixin`);
     };
+    if (result["mp_alipay"]) {
+        selectedList.push(`mp:mp-alipay`);
+    };
     if (result["h5_chrome"]) {
         selectedList.push(`h5:h5-chrome`);
     };
@@ -151,13 +154,13 @@ async function ui_vue(testPlatform) {
  * @param {Object} that
  */
 function validate_value(data, that) {
-   let { access, mp_weixin, h5_chrome, h5_firefox, h5_safari, selected_list } = data;
+    let { access, mp_weixin, mp_alipay, h5_chrome, h5_firefox, h5_safari, selected_list } = data;
    let harmony_list = selected_list["harmony"].length;
    let ios_list = selected_list["ios"].length;
    let android_list = selected_list["android"].length;
    // console.log("===========", access, mp_weixin, h5_chrome, h5_firefox, h5_safari, selected_list);
 
-   if (access == 'all' && !mp_weixin && !h5_chrome && !h5_firefox && !h5_safari && harmony_list == 0 && ios_list == 0 && android_list == 0) {
+    if (access == 'all' && !mp_weixin && !mp_alipay && !h5_chrome && !h5_firefox && !h5_safari && harmony_list == 0 && ios_list == 0 && android_list == 0) {
        that.showError("请至少选择一个测试设备");
        return;
    };

@@ -74,6 +74,10 @@
                 "title": "运行测试到微信小程序"
             },
             {
+                "command": "unitest.runTestAliPay",
+                "title": "运行测试到支付宝小程序"
+            },
+            {
                 "command": "unitest.runTestIOS",
                 "title": "运行测试到ios模拟器"
             },
@@ -104,6 +108,10 @@
             {
                 "command": "unitest.runCurrentTestWeiXin",
                 "title": "运行当前测试到微信小程序"
+            },
+            {
+                "command": "unitest.runCurrentTestAliPay",
+                "title": "运行当前测试到支付宝小程序"
             },
             {
                 "command": "unitest.runCurrentTestIOS",
@@ -160,6 +168,10 @@
             {
                 "command": "uniapp.test mp-weixin",
                 "title": "uniapp.test mp-weixin for hbuilderx cli"
+            },
+            {
+                "command": "uniapp.test mp-alipay",
+                "title": "uniapp.test mp-alipay for hbuilderx cli"
             },
             {
                 "command": "uniapp.test app-android",
@@ -311,6 +323,31 @@
                 "name": "uniapp.test mp-weixin",
                 "descption": "CLI 自动化测试到uni-app (x)",
                 "doc": "用法: ./cli uniapp.test mp-weixin --project <ProjectPath>",
+                "args": [
+                    {
+                        "name": "help",
+                        "descption": "uni-app (x) 自动化测试cli命令帮助"
+                    },
+                    {
+                        "name": "project",
+                        "descption": "uni-app (x) project path",
+                        "usage": "require",
+                        "type": "string",
+                        "default": ""
+                    },
+                    {
+                        "name": "testcaseFile",
+                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+                        "usage": "",
+                        "type": "string",
+                        "default": ""
+                    }
+                ]
+            },
+            {
+                "name": "uniapp.test mp-alipay",
+                "descption": "CLI 自动化测试到支付宝小程序",
+                "doc": "用法: ./cli uniapp.test mp-alipay --project <ProjectPath>",
                 "args": [
                     {
                         "name": "help",
@@ -518,6 +555,11 @@
                     "group": "unitest@3"
                 },
                 {
+                    "command": "unitest.runTestAliPay",
+                    "title": "支付宝小程序(&P)",
+                    "group": "unitest@3"
+                },
+                {
                     "group": "unitest@3"
                 },
                 {
@@ -575,6 +617,11 @@
                 {
                     "command": "unitest.runCurrentTestWeiXin",
                     "title": "微信小程序(&M)",
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "command": "unitest.runCurrentTestAliPay",
+                    "title": "支付宝小程序(&P)",
                     "group": "unitestForCurrent@3"
                 },
                 {
@@ -640,6 +687,11 @@
                 {
                     "command": "unitest.runCurrentTestWeiXin",
                     "title": "微信小程序(&M)",
+                    "group": "unitestForCurrent@3"
+                },
+                {
+                    "command": "unitest.runCurrentTestAliPay",
+                    "title": "支付宝小程序(&P)",
                     "group": "unitestForCurrent@3"
                 },
                 {
