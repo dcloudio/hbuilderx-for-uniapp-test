@@ -44,7 +44,7 @@ async function fsWriteFile(fpath, filecontent) {
     return new Promise(function(resolve, reject) {
         fs.writeFile(fpath, filecontent, function (err) {
             if (err) {
-                console.eror(err);
+                console.error(err);
                 reject(err);
             };
             resolve('success');

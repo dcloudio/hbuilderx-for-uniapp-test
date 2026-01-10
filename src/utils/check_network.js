@@ -35,7 +35,7 @@ async function checkPhoneDeviceNetworkStatus(platform, deviceId) {
             deviceWlanData = await execCommand(`hdc -t ${deviceId} shell ifconfig wlan0`);
         };
 
-        if (deviceWlanData != "") {
+        if (deviceWlanData !== "") {
             const isCheckInetAddr = deviceWlanData.includes("inet addr:");
             if (!isCheckInetAddr) {
                 isConnected = false;

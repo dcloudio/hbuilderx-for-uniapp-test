@@ -69,7 +69,7 @@ class Initialize extends Common {
         let isPrintLog = is_hbuidlerx_cli ? false : true;
 
         // 检查jest.config.js是否存在，如不存在，则创建
-        if (file_type == 'all' || file_type == 'jest.config.js') {
+        if (file_type === 'all' || file_type === 'jest.config.js') {
             if (!fs.existsSync(jestConfigFile)){
                 let jest_template_path = path.join(path.resolve(__dirname), 'template', 'jest.config.js');
                 await this.createFile("jest.config.js", jest_template_path, jestConfigFile, isPrintLog);
@@ -80,7 +80,7 @@ class Initialize extends Common {
 
 
         // 检查env.js是否存在，如不存在，则创建
-        if (file_type == 'all' || file_type == 'env.js') {
+        if (file_type === 'all' || file_type === 'env.js') {
             if (!fs.existsSync(jestEnvFile)){
                 let env_template_path = path.join(path.resolve(__dirname), 'template', 'env.js');
                 await this.createFile('env.js', env_template_path, jestEnvFile, isPrintLog);
@@ -97,20 +97,20 @@ class Initialize extends Common {
      * @param {String} cmd
      */
     async installTestLibs(runDir, actions, cmd) {
-        if (cmd == undefined) {
+        if (cmd === undefined) {
             cmd = `"${HBuilderX_NPM_PATH}" install --save --registry=https://registry.npmmirror.com`
         };
         let { action, source_file, target_file} = actions;
         let Notes = `\n\n安装方式：\n1. 命令行进入 ${runDir}目录 \n2. 输入 ${cmd}`
 
-        let prompt = action == 'upgrade'
+        let prompt = action === 'upgrade'
             ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
             : `自动化测试环境，需要安装jest、adbkit、puppeteer等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
-        let title = action == 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
+        let title = action === 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
         let btn = await hxShowMessageBox(title, prompt, ['去升级', '忽略升级']).then( btn => {
             return btn;
         });
-        if (['好的', '去升级'].includes(btn) && action == 'upgrade') {
+        if (['好的', '去升级'].includes(btn) && action === 'upgrade') {
             await this.createFile("package.json", source_file, target_file);
 
 			const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
@@ -191,7 +191,7 @@ class Initialize extends Common {
             'target_file': lib_package_path,
         };
 
-        if (lib_version != template_version && terminal_id == "") {
+        if (lib_version !== template_version && terminal_id === "") {
             if (current_ignore_upgrade) return true;
             actions['action'] = 'upgrade';
             const _i_result = await this.installTestLibs(test_lib_dir, actions);
@@ -201,7 +201,7 @@ class Initialize extends Common {
             };
             return false;
         };
-        if (lib_version != template_version && terminal_id != "") {
+        if (lib_version !== template_version && terminal_id !== "") {
             await logger(`[uniapp.test] 建议：uni-app自动化测试插件，检测到依赖库有更新，请在菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】中，重新安装依赖。`, 'warning');
         };
 
@@ -265,7 +265,7 @@ class Initialize extends Common {
         if (msg) {
             await logger(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
             await logger(`如果自动安装失败，打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
-            if (terminal_id == "") {
+            if (terminal_id === "") {
                 this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
             };
             return false;

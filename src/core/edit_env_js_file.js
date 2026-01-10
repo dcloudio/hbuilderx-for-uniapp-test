@@ -69,7 +69,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
                 launcherExecutablePath = envjs['app-plus'][testPlatform]['executablePath'];
             };
         } catch (error) {};
-        if (launcherExecutablePath == undefined || launcherExecutablePath == "") {
+        if (launcherExecutablePath == undefined || launcherExecutablePath === "") {
             launcherExecutablePath = await getPluginConfig("harmony.devTools.path");
         };
     };
@@ -80,13 +80,13 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
 
     if (is_uniapp_x) {
         let oldLauncherVersion = envjs["app-plus"]?.["uni-app-x"]?.version;
-        if (oldLauncherVersion == undefined || oldLauncherVersion.trim() == '' || oldLauncherVersion != config.UNIAPP_X_LAUNCHER_VERSION_TXT) {
+        if (!oldLauncherVersion || oldLauncherVersion.trim() === '' || oldLauncherVersion !== config.UNIAPP_X_LAUNCHER_VERSION_TXT) {
             envjs['app-plus']['uni-app-x'] = {};
             envjs['app-plus']['uni-app-x']['version'] = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
         };
     } else {
         let oldLauncherVersion = envjs['app-plus']['version'];
-        if (oldLauncherVersion.trim() == '' || oldLauncherVersion == undefined || oldLauncherVersion != config.LAUNCHER_VERSION_TXT) {
+        if (!oldLauncherVersion || oldLauncherVersion.trim() === '' || oldLauncherVersion !== config.LAUNCHER_VERSION_TXT) {
             envjs['app-plus']['version'] = config.LAUNCHER_VERSION_TXT;
         };
     };
@@ -95,28 +95,28 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
         envjs['app-plus']['uni-app-x']?.[testPlatform] :
         envjs['app-plus'][testPlatform];
 
-    if (oldPhoneData == undefined || typeof oldPhoneData != 'object') {
+    if (oldPhoneData == undefined || typeof oldPhoneData !== 'object') {
         oldPhoneData = {};
     };
 
     let {id,executablePath} = oldPhoneData;
     // console.log("=======", oldPhoneData, launcherExecutablePath);
 
-    if (id != deviceId || executablePath != launcherExecutablePath) {
+    if (id !== deviceId || executablePath !== launcherExecutablePath) {
         if (is_uniapp_x) {
-            if (envjs['app-plus']['uni-app-x'][testPlatform] == undefined) {
+            if (envjs['app-plus']['uni-app-x'][testPlatform] === undefined) {
                 envjs['app-plus']['uni-app-x'][testPlatform] = {};
             };
             envjs['app-plus']['uni-app-x'][testPlatform]["id"] = deviceId;
-            if (isCustomRuntime == false || isCustomRuntime == undefined) {
+            if (isCustomRuntime === false || isCustomRuntime === undefined) {
                 envjs['app-plus']['uni-app-x'][testPlatform]["executablePath"] = launcherExecutablePath;
             };
         } else {
-            if (envjs['app-plus'][testPlatform] == undefined) {
+            if (envjs['app-plus'][testPlatform] === undefined) {
                 envjs['app-plus'][testPlatform] = {};
             };
             envjs['app-plus'][testPlatform]['id'] = deviceId;
-            if (isCustomRuntime == false || isCustomRuntime == undefined) {
+            if (isCustomRuntime === false || isCustomRuntime === undefined) {
                 envjs['app-plus'][testPlatform]['executablePath'] = launcherExecutablePath;
             };
         };
@@ -125,7 +125,7 @@ async function editEnvjsFile(env_js_path="", testPlatform="", deviceId="", uniPr
         let lastContent = `module.exports = ${tmp_data}`;
         let writeResult = await fsWriteFile(env_js_path, lastContent);
 
-        if (writeResult != 'success') {
+        if (writeResult !== 'success') {
             await logger(`将测试设备（ $deviceInfo ）信息写入 ${envjs} 文件时失败，终止后续操作。`, 'warning');
             return false;
         };
