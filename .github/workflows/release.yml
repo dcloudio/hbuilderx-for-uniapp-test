@@ -1,0 +1,64 @@
+name: Release on Version Change
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for version change
+        id: check_version
+        run: |
+          # Extract version from current package.json
+          NEW_VERSION=$(jq -r .version package.json)
+          
+          # Extract version from previous commit's package.json
+          # We use || true to handle cases where package.json might be new or checking out HEAD^ fails (e.g. first commit)
+          OLD_VERSION=$(git show HEAD^:package.json 2>/dev/null | jq -r .version || echo "none")
+
+          echo "Old Version: $OLD_VERSION"
+          echo "New Version: $NEW_VERSION"
+
+          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+            echo "Version changed from $OLD_VERSION to $NEW_VERSION. Proceeding with release."
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Version did not change. Skipping release."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Zip Archive
+        if: steps.check_version.outputs.changed == 'true'
+        id: create_zip
+        run: |
+          VERSION="${{ steps.check_version.outputs.version }}"
+          ZIP_NAME="hbuilderx-for-uniapp-test-v${VERSION}.zip"
+          echo "Creating archive $ZIP_NAME..."
+          # Zip everything, excluding .git, .github, .DS_Store, and the zip file itself
+          zip -r "$ZIP_NAME" . -x "*.git*" ".github/*" ".DS_Store" "$ZIP_NAME"
+          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        if: steps.check_version.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.check_version.outputs.version }}
+          name: v${{ steps.check_version.outputs.version }}
+          files: ${{ steps.create_zip.outputs.zip_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
