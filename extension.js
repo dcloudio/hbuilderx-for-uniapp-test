@@ -129,6 +129,17 @@ function activate(context) {
     });
     context.subscriptions.push(debugLog);
 
+    // 记录单条用例到文件
+    let recordTestCaseList = hx.commands.registerCommand('unitest.recordTestCaseList', () => {
+        let config = hx.workspace.getConfiguration();
+        let result = config.get('hbuilderx-for-uniapp-test.recordTestCaseList');
+        config.update('hbuilderx-for-uniapp-test.recordTestCaseList', !result).then( () => {
+            let text = result ? '取消' : '启用';
+            hx.window.setStatusBarMessage(`已 ${text} 运行单条test.js时记录到文件。`, 'info', 10000);
+        });
+    });
+    context.subscriptions.push(recordTestCaseList);
+
     // 更多设置
     let moreSet = hx.commands.registerCommand('unitest.moreSettings', () => {
         hx.workspace.gotoConfiguration('hbuilderx-for-uniapp-test.uniappCompileNodeType')

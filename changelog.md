@@ -1,5 +1,8 @@
 # 更新日志
 
+## 4.5.2
+* 新增 运行菜单中增加“运行单条test.js时记录到文件”功能
+
 ## 4.5.1
 * feat: Add network and proxy status checks for mobile devices and development machines.
 

@@ -64,6 +64,15 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
         if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
             projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
         };
+
+        // 记录单条用例路径
+        let isRecord = await getPluginConfig('hbuilderx-for-uniapp-test.recordTestCaseList');
+        if (isRecord) {
+            let recordPath = path.join(projectPath, '.hbuilderx', 'testCaseList.json');
+            if (fs.existsSync(path.dirname(recordPath))) {
+                await fsWriteFile(recordPath, JSON.stringify([projectTestMatch], null, 4));
+            };
+        };
     };
 
     let oldTestMatch = jestConfigContent["testMatch"];
