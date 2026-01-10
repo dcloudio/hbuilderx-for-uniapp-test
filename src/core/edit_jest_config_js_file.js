@@ -42,7 +42,7 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
     // 插件配置项：是否自动修改jest.config.js文件中的testMatch
     let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
     // console.error("=========>", userConfig);
-    if (userConfig == false) {
+    if (userConfig === false) {
         await logger(`[uniapp.test] 您已关闭自动修改 jest.config.js 配置文件中的 testMatch 字段，跳过此操作。`);
         return true;
     };
@@ -55,13 +55,13 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
         : "<rootDir>/pages/**/*test.[jt]s?(x)";
 
     // one：代指仅测试单条用例
-    if (scope == 'one') {
+    if (scope === 'one') {
         let testcase_file_relative_path = selectedFile.slice(projectPath.length + 1);
         projectTestMatch = `<rootDir>/${testcase_file_relative_path}`;
 
         // 用于特定测试项目：dcloud-uts和uni-api
         let test_js_path = path.basename(selectedFile) + ".test.js";
-        if (testcase_file_relative_path.substr(0,19) == "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
+        if (testcase_file_relative_path.substr(0,19) === "pages/autotest/uni-" && fs.existsSync(path.join(selectedFile, test_js_path))) {
             projectTestMatch = `<rootDir>/${testcase_file_relative_path}/${test_js_path}`;
         };
 
@@ -82,7 +82,7 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
     };
 
     try {
-        if (oldTestMatch[0] == projectTestMatch) {
+        if (oldTestMatch[0] === projectTestMatch) {
             return true;
         };
         let jestFileContent = fs.readFileSync(jest_config_js_path, 'utf-8');
@@ -92,7 +92,7 @@ async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
         let lastContent = jestFileContent.replace(/testMatch\s*:{1}\s*\[\S*\]/gi, replaceText);
 
         let writeResult = await fsWriteFile(jest_config_js_path, lastContent);
-        if (writeResult != 'success') {
+        if (writeResult !== 'success') {
             await logger(`${jest_config_js_path} 修改测试配置文件失败，终止后续操作，请检查此文件。`, 'warning');
             return false;
         };

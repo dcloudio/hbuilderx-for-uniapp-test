@@ -21,7 +21,7 @@ async function isUniAppCli(projectPath) {
     let t2 = fs.existsSync(path.join(projectPath, "src/pages"));
     let t3 = fs.existsSync(path.join(projectPath, "src/manifest.json"));
     let t4 = fs.existsSync(path.join(projectPath, "package.json"));
-    return t1 && t2 && t3 && t4 ? true : false;
+    return t1 && t2 && t3 && t4;
 };
 
 /**
@@ -39,7 +39,7 @@ async function isUniAppX(projectPath) {
         let result = await hx.util.readJSONValue(manifestPath, "uni-app-x").then((data) => {
             return data;
         });
-        return result["data"] != null && is_main_ts ? true : false;
+        return result["data"] != null && is_main_ts;
     } catch (error) {
         return false;
     };
@@ -58,7 +58,7 @@ async function isUniAppX(projectPath) {
 function hxShowMessageBox(title, text, buttons = ['关闭']) {
     return new Promise((resolve, reject) => {
         if ( buttons.length > 1 && (buttons.includes('关闭') || buttons.includes('取消')) ) {
-            if (osName == 'darwin') {
+            if (osName === 'darwin') {
                 buttons = buttons.reverse();
             };
         };
@@ -82,7 +82,7 @@ function hxShowMessageBox(title, text, buttons = ['关闭']) {
  * @param {version} String 插件版本
  */
 function installPlugin() {
-    let terminalName = osName == "win32" ? "builtincef3terminal" : "builtinterminal";
+    let terminalName = osName === "win32" ? "builtincef3terminal" : "builtinterminal";
     return new Promise((resolve, reject) => {
         let info = {
             "id": terminalName,
@@ -129,8 +129,8 @@ async function getPluginConfig(options) {
  */
 const uniMap = new Map();
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
-    let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
-    let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
+    let oID = viewID == undefined || viewID === '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
+    let title = viewID !== 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
     let output = uniMap.get(oID);
     // console.error("..........output", output?.timer?._destroyed);
     // if(output?.timer?._destroyed === undefined || output?.timer?._destroyed === false) {
@@ -235,10 +235,10 @@ function printTestRunLog(MessagePrefix, msg) {
     if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
         lastMsg = lastMsg + "\n";
         msgLevel = "error";
-    } else if (theFour == "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
+    } else if (theFour === "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
         lastMsg = lastMsg + "\n";
         msgLevel = "error";
-    } else if (theFour == "PASS") {
+    } else if (theFour === "PASS") {
         lastMsg = lastMsg + "\n";
         msgLevel = "success";
     } else if (msg.includes('Ran all test suites.') && msg.includes("Tests") && msg.includes("total")) {
@@ -256,10 +256,10 @@ async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
     if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
         lastMsg = lastMsg + "\n";
         msgLevel = "error";
-    } else if (theFour == "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
+    } else if (theFour === "FAIL" || msg.includes('TypeError') || (msg.includes('Expected') && msg.includes('Received')) || msg.includes('Test suite failed to run')) {
         lastMsg = lastMsg + "\n";
         msgLevel = "error";
-    } else if (theFour == "PASS") {
+    } else if (theFour === "PASS") {
         lastMsg = lastMsg + "\n";
         msgLevel = "success";
     } else if (msg.includes('Ran all test suites.') && msg.includes("Tests") && msg.includes("total")) {

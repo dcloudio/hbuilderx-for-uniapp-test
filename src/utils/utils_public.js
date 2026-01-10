@@ -17,9 +17,10 @@ function checkNode() {
         }, function(error, stdout, stderr) {
             if (error) {
                 reject("N");
+                return;
             };
             try {
-                let version = stdout.match(/(\d{1,3}.\d{1,3}.\d{1,3})/g)[0];
+                let version = stdout.match(/(\d{1,3}\.\d{1,3}\.\d{1,3})/g)[0];
                 resolve('Y');
             } catch (e) {
                 reject('N');

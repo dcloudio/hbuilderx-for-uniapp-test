@@ -90,7 +90,7 @@ class Common {
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
         let testEnv = true;
-        if (nodeStatus == undefined || nodeStatus == 'N') {
+        if (nodeStatus == undefined || nodeStatus === 'N') {
             try {
                 nodeStatus = await checkNode();
             } catch (error) {
@@ -145,7 +145,7 @@ class Common {
         // 判断是否安装测试环境必须的插件
         let uni_plugin_check = true;
         for (let e of Object.keys(plugin_list)) {
-            if (fs.existsSync(plugin_list[e]) == false) {
+            if (fs.existsSync(plugin_list[e]) === false) {
                 uni_plugin_check = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
                 const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
@@ -169,12 +169,12 @@ class Common {
      */
     async checkAndSetUTSTestEnv() {
         let path_gradleHome = await getPluginConfig('uts-development-android.gradleHome');
-        if (path_gradleHome != undefined && path_gradleHome.trim() != "" && fs.existsSync(path_gradleHome)) {
+        if (path_gradleHome != undefined && path_gradleHome.trim() !== "" && fs.existsSync(path_gradleHome)) {
             config.UTS_GRADLE_HOME = path_gradleHome;
         };
 
         let path_Android_sdkDir = await getPluginConfig('uts-development-android.sdkDir');
-        if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() != "" && fs.existsSync(path_Android_sdkDir)) {
+        if (path_Android_sdkDir != undefined && path_Android_sdkDir.trim() !== "" && fs.existsSync(path_Android_sdkDir)) {
             config.UTS_JDK_PATH = path_Android_sdkDir;
         };
     };
