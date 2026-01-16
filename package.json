@@ -139,6 +139,10 @@
                 "title": "运行单条test.js时记录到文件"
             },
             {
+                "command": "unitest.addFilePathToJestConfig",
+                "title": "追加文件路径到jest.config.js"
+            },
+            {
                 "command": "unitest.reloadEnv",
                 "title": "重装测试环境依赖"
             },
@@ -558,6 +562,11 @@
                     "group": "openInExplorer"
                 },
                 {
+                    "command": "unitest.addFilePathToJestConfig",
+                    "group": "openInExplorer",
+                    "when": "explorerResourceCount == 1 && expression.isShowRunCurrentTestCaseMenu"
+                },
+                {
                     "title": "uni-app 运行当前测试用例",
                     "group": "openInExplorer",
                     "when": "explorerResourceCount == 1 && expression.isCheckTestEnv && expression.isShowRunCurrentTestCaseMenu",
@@ -619,6 +628,11 @@
                 }
             ],
             "editor/context": [
+                {
+                    "command": "unitest.addFilePathToJestConfig",
+                    "group": "copy",
+                    "when": "expression.isShowRunCurrentTestCaseMenu"
+                },
                 {
                     "title": "uni-app 运行当前测试用例",
                     "group": "copy",

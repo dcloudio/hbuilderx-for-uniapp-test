@@ -2,6 +2,7 @@ const hx = require("hbuilderx");
 
 const { about, checkUpgrade } = require('./public/about.js');
 const { stopRunTest } = require('./src/core/core.js');
+const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file.js');
 
 const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
@@ -139,6 +140,12 @@ function activate(context) {
         });
     });
     context.subscriptions.push(recordTestCaseList);
+
+    // 添加文件路径到jest.config.js
+    let addFilePath = hx.commands.registerCommand('unitest.addFilePathToJestConfig', (param) => {
+        addFilePathToJestConfig(param);
+    });
+    context.subscriptions.push(addFilePath);
 
     // 更多设置
     let moreSet = hx.commands.registerCommand('unitest.moreSettings', () => {
