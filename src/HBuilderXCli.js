@@ -499,6 +499,7 @@ class RunTestForHBuilderXCli extends Common {
 
         // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
         if (this.isDebug) {
+            await this.print_cli_log(`\x1b[31m 自动化测试运行，读取到已设置 DEBUG="automator:*"，会输出更多Debug调试日志，如果您是再AI中调用，建议在HBuilderX中关闭。\x1b[0m`);
             cmdOpts.env.DEBUG = "automator:*";
         };
 
