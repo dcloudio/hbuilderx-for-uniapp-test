@@ -1,748 +1,785 @@
 {
-    "id": "hbuilderx-for-uniapp-test",
-    "name": "hbuilderx-for-uniapp-test",
-    "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信小程序、Harmony应用",
-    "displayName": "HBuilderX uni-app自动化测试",
-    "version": "4.5.2",
-    "publisher": "hbuilderx",
-    "engines": {
-        "HBuilderX": "^3.7.3"
+  "id": "hbuilderx-for-uniapp-test",
+  "name": "hbuilderx-for-uniapp-test",
+  "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信小程序、Harmony应用",
+  "displayName": "HBuilderX uni-app自动化测试",
+  "version": "4.5.3",
+  "publisher": "hbuilderx",
+  "engines": {
+    "HBuilderX": "^3.7.3"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension",
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "expressions": {
+      "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
+      "isDebugLog": "config.hbuilderx-for-uniapp-test.isDebug",
+      "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
+      "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
+      "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
+      "isCheckTestEnv": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig",
+      "isUniPageDir": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/[^\\/]*$/",
+      "isUniPageFile": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.[vue|nvue]$/",
+      "isTestConfigFile": "workspaceFolderRelativePath == 'env.js' || workspaceFolderRelativePath == 'jest.config.js'",
+      "isRecordTestCaseList": "config.hbuilderx-for-uniapp-test.recordTestCaseList",
+      "isShowCreateTestCase": "expression.isCheckTestEnv && (expression.isUniPageDir || expression.isUniPageFile)",
+      "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && (workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/ || workspaceFolderRelativePath =~ /^\\pages\\/autotest\\/uni.*/)",
+      "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)"
     },
-    "categories": [
-        "Other"
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/jest.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/jest.json"
+      }
     ],
-    "main": "./extension",
-    "activationEvents": [
-        "*"
+    "commands": [
+      {
+        "command": "unitest.initialization",
+        "title": "初始uni-app自动化测试环境(&I)"
+      },
+      {
+        "command": "unitest.createTestCase",
+        "title": "新建自动化测试用例(&N)"
+      },
+      {
+        "command": "unitest.stopRunTest",
+        "title": "停止运行测试"
+      },
+      {
+        "command": "unitest.runTestAll",
+        "title": "运行测试到全部平台"
+      },
+      {
+        "command": "unitest.runTestH5",
+        "title": "运行测试到Web-Chrome"
+      },
+      {
+        "command": "unitest.runTestH5Safari",
+        "title": "运行测试到Web-Safari"
+      },
+      {
+        "command": "unitest.runTestH5Firefox",
+        "title": "运行测试到Web-Firefox"
+      },
+      {
+        "command": "unitest.runTestWeiXin",
+        "title": "运行测试到微信小程序"
+      },
+      {
+        "command": "unitest.runTestIOS",
+        "title": "运行测试到ios模拟器"
+      },
+      {
+        "command": "unitest.runTestAndroid",
+        "title": "运行测试到android"
+      },
+      {
+        "command": "unitest.runTestHarmony",
+        "title": "运行测试到android"
+      },
+      {
+        "command": "unitest.runCurrentTestAll",
+        "title": "运行当前测试到全部平台"
+      },
+      {
+        "command": "unitest.runCurrentTestH5",
+        "title": "运行当前测试到H5-Chrome"
+      },
+      {
+        "command": "unitest.runCurrentTestH5Safari",
+        "title": "运行当前测试到H5-Safari"
+      },
+      {
+        "command": "unitest.runCurrentTestH5Firefox",
+        "title": "运行当前测试到H5-Firefox"
+      },
+      {
+        "command": "unitest.runCurrentTestWeiXin",
+        "title": "运行当前测试到微信小程序"
+      },
+      {
+        "command": "unitest.runCurrentTestIOS",
+        "title": "运行当前测试到ios"
+      },
+      {
+        "command": "unitest.runCurrentTestAndroid",
+        "title": "运行当前测试到android"
+      },
+      {
+        "command": "unitest.runCurrentTestHarmony",
+        "title": "运行当前测试到Harmony"
+      },
+      {
+        "command": "unitest.reportHistory",
+        "title": "查看历史测试报告"
+      },
+      {
+        "command": "unitest.isAutotestMatch",
+        "title": "是否自动修改jest.config.js中的testMatch"
+      },
+      {
+        "command": "unitest.enableDebugLog",
+        "title": "是否输出Debug调试日志"
+      },
+      {
+        "command": "unitest.moreSettings",
+        "title": "更多插件配置"
+      },
+      {
+        "command": "unitest.recordTestCaseList",
+        "title": "运行单条test.js时记录到文件"
+      },
+      {
+        "command": "unitest.addFilePathToJestConfig",
+        "title": "追加文件路径到jest.config.js"
+      },
+      {
+        "command": "unitest.reloadEnv",
+        "title": "重装测试环境依赖"
+      },
+      {
+        "command": "unitest.about",
+        "title": "关于"
+      },
+      {
+        "command": "unitest.createAgentsMd",
+        "title": "创建用于uni测试的AGENTS.md(&G)"
+      },
+      {
+        "command": "uniapp.test web",
+        "title": "uniapp.test web for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test web-chrome",
+        "title": "uniapp.test web-chrome for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test web-safari",
+        "title": "uniapp.test web-safari for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test web-firefox",
+        "title": "uniapp.test web-firefox for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test mp-weixin",
+        "title": "uniapp.test mp-weixin for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test app-android",
+        "title": "uniapp.test app-android for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test app-ios-simulator",
+        "title": "uniapp.test app-ios-simulator for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test app-harmony",
+        "title": "uniapp.test app-harmony for hbuilderx cli"
+      },
+      {
+        "command": "uniapp.test",
+        "title": "uniapp.test app-harmony for hbuilderx cli"
+      }
     ],
-    "contributes": {
-        "expressions": {
-            "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
-            "isDebugLog": "config.hbuilderx-for-uniapp-test.isDebug",
-            "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
-            "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
-            "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
-            "isCheckTestEnv": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig",
-            "isUniPageDir": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/[^\\/]*$/",
-            "isUniPageFile": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.[vue|nvue]$/",
-            "isTestConfigFile": "workspaceFolderRelativePath == 'env.js' || workspaceFolderRelativePath == 'jest.config.js'",
-            "isRecordTestCaseList": "config.hbuilderx-for-uniapp-test.recordTestCaseList",
-            "isShowCreateTestCase": "expression.isCheckTestEnv && (expression.isUniPageDir || expression.isUniPageFile)",
-            "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && (workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/ || workspaceFolderRelativePath =~ /^\\pages\\/autotest\\/uni.*/)",
-            "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)"
+    "clicommands": [
+      {
+        "name": "uniapp.test",
+        "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
+        "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "version",
+            "descption": "查看插件版本号",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test web",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test web --project <ProjectPath>",
+        "usage": "cli uniapp.test web --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "browser",
+            "descption": "指定浏览器类型，支持chrome、safari、firefox",
+            "usage": "require",
+            "type": "enum",
+            "default": "",
+            "enum": "chrome|safari|firefox"
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test web-chrome",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test web-chrome --project <ProjectPath>",
+        "usage": "cli uniapp.test web-chrome --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test web-safari",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test web-safari --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test web-firefox",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test web-firefox --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test mp-weixin",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test mp-weixin --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test app-android",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test app-android --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "device_id",
+            "descption": "(可选) Android设备ID，当存在可用设备时，默认使用第一个设备",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test app-ios-simulator",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test app-ios-simulator --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "device_id",
+            "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test app-harmony",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test app-harmony --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "device_id",
+            "descption": "(可选) Harmony设备ID，当存在可用设备时，默认使用第一个设备",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
+      "properties": {
+        "hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir": {
+          "type": "string",
+          "default": "",
+          "description": "uni-app自动化测试依赖：自定义依赖目录。<span style='font-size: 13px;'><br/>1. 配置方法：HBuilderX安装目录/hbuilderx-for-uniapp-test/src/environment目录下<br/>2. 拷贝package.json到你要自定义的目录，执行npm install。<br/>3. <span style='color: #4E9ADE;'>注意：请谨慎操作。路径必须要以node_modules结尾。如非专业人员，建议使用默认，不要修改此项。</span></span>"
         },
-        "snippets": [
-            {
-                "language": "javascript",
-                "path": "./snippets/jest.json"
-            },
-            {
-                "language": "typescript",
-                "path": "./snippets/jest.json"
-            }
-        ],
-        "commands": [
-            {
-                "command": "unitest.initialization",
-                "title": "初始uni-app自动化测试环境(&I)"
-            },
-            {
-                "command": "unitest.createTestCase",
-                "title": "新建自动化测试用例(&N)"
-            },
-            {
-                "command": "unitest.stopRunTest",
-                "title": "停止运行测试"
-            },
-            {
-                "command": "unitest.runTestAll",
-                "title": "运行测试到全部平台"
-            },
-            {
-                "command": "unitest.runTestH5",
-                "title": "运行测试到Web-Chrome"
-            },
-            {
-                "command": "unitest.runTestH5Safari",
-                "title": "运行测试到Web-Safari"
-            },
-            {
-                "command": "unitest.runTestH5Firefox",
-                "title": "运行测试到Web-Firefox"
-            },
-            {
-                "command": "unitest.runTestWeiXin",
-                "title": "运行测试到微信小程序"
-            },
-            {
-                "command": "unitest.runTestIOS",
-                "title": "运行测试到ios模拟器"
-            },
-            {
-                "command": "unitest.runTestAndroid",
-                "title": "运行测试到android"
-            },
-            {
-                "command": "unitest.runTestHarmony",
-                "title": "运行测试到android"
-            },
-            {
-                "command": "unitest.runCurrentTestAll",
-                "title": "运行当前测试到全部平台"
-            },
-            {
-                "command": "unitest.runCurrentTestH5",
-                "title": "运行当前测试到H5-Chrome"
-            },
-            {
-                "command": "unitest.runCurrentTestH5Safari",
-                "title": "运行当前测试到H5-Safari"
-            },
-            {
-                "command": "unitest.runCurrentTestH5Firefox",
-                "title": "运行当前测试到H5-Firefox"
-            },
-            {
-                "command": "unitest.runCurrentTestWeiXin",
-                "title": "运行当前测试到微信小程序"
-            },
-            {
-                "command": "unitest.runCurrentTestIOS",
-                "title": "运行当前测试到ios"
-            },
-            {
-                "command": "unitest.runCurrentTestAndroid",
-                "title": "运行当前测试到android"
-            },
-            {
-                "command": "unitest.runCurrentTestHarmony",
-                "title": "运行当前测试到Harmony"
-            },
-            {
-                "command": "unitest.reportHistory",
-                "title": "查看历史测试报告"
-            },
-            {
-                "command": "unitest.isAutotestMatch",
-                "title": "是否自动修改jest.config.js中的testMatch"
-            },
-            {
-                "command": "unitest.enableDebugLog",
-                "title": "是否输出Debug调试日志"
-            },
-            {
-                "command": "unitest.moreSettings",
-                "title": "更多插件配置"
-            },
-            {
-                "command": "unitest.recordTestCaseList",
-                "title": "运行单条test.js时记录到文件"
-            },
-            {
-                "command": "unitest.addFilePathToJestConfig",
-                "title": "追加文件路径到jest.config.js"
-            },
-            {
-                "command": "unitest.reloadEnv",
-                "title": "重装测试环境依赖"
-            },
-            {
-                "command": "unitest.about",
-                "title": "关于"
-            },
-            {
-                "command": "uniapp.test web",
-                "title": "uniapp.test web for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test web-chrome",
-                "title": "uniapp.test web-chrome for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test web-safari",
-                "title": "uniapp.test web-safari for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test web-firefox",
-                "title": "uniapp.test web-firefox for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test mp-weixin",
-                "title": "uniapp.test mp-weixin for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test app-android",
-                "title": "uniapp.test app-android for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test app-ios-simulator",
-                "title": "uniapp.test app-ios-simulator for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test app-harmony",
-                "title": "uniapp.test app-harmony for hbuilderx cli"
-            },
-            {
-                "command": "uniapp.test",
-                "title": "uniapp.test app-harmony for hbuilderx cli"
-            }
-        ],
-        "clicommands": [
-            {
-                "name": "uniapp.test",
-                "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
-                "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "version",
-                        "descption": "查看插件版本号",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test web",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test web --project <ProjectPath>",
-                "usage": "cli uniapp.test web --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "browser",
-                        "descption": "指定浏览器类型，支持chrome、safari、firefox",
-                        "usage": "require",
-                        "type": "enum",
-                        "default": "",
-                        "enum": "chrome|safari|firefox"
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test web-chrome",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test web-chrome --project <ProjectPath>",
-                "usage": "cli uniapp.test web-chrome --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test web-safari",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test web-safari --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test web-firefox",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test web-firefox --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test mp-weixin",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test mp-weixin --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test app-android",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test app-android --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "device_id",
-                        "descption": "(可选) Android设备ID，当存在可用设备时，默认使用第一个设备",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test app-ios-simulator",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test app-ios-simulator --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "device_id",
-                        "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            },
-            {
-                "name": "uniapp.test app-harmony",
-                "descption": "CLI 自动化测试到uni-app (x)",
-                "doc": "用法: ./cli uniapp.test app-harmony --project <ProjectPath>",
-                "args": [
-                    {
-                        "name": "help",
-                        "descption": "uni-app (x) 自动化测试cli命令帮助"
-                    },
-                    {
-                        "name": "project",
-                        "descption": "uni-app (x) project path",
-                        "usage": "require",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "testcaseFile",
-                        "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    },
-                    {
-                        "name": "device_id",
-                        "descption": "(可选) Harmony设备ID，当存在可用设备时，默认使用第一个设备",
-                        "usage": "",
-                        "type": "string",
-                        "default": ""
-                    }
-                ]
-            }
-        ],
-        "configuration": {
-            "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
-            "properties": {
-                "hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir": {
-                    "type": "string",
-                    "default": "",
-                    "description": "uni-app自动化测试依赖：自定义依赖目录。<span style='font-size: 13px;'><br/>1. 配置方法：HBuilderX安装目录/hbuilderx-for-uniapp-test/src/environment目录下<br/>2. 拷贝package.json到你要自定义的目录，执行npm install。<br/>3. <span style='color: #4E9ADE;'>注意：请谨慎操作。路径必须要以node_modules结尾。如非专业人员，建议使用默认，不要修改此项。</span></span>"
-                },
-                "hbuilderx-for-uniapp-test.testReportOutPutDir": {
-                    "type": "string",
-                    "default": "",
-                    "description": "uni-app自动化测试插件，测试报告输出路径。"
-                },
-                "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "自动修改jest.config.js文件中的testMatch。<br/><span style='font-size: 13px;color: #4E9ADE;'>默认规范：测试用例在pages页面目录下。如测试用例在其它目录，请不要勾选此项。</span>"
-                },
-                "hbuilderx-for-uniapp-test.jestNodeType": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
-                },
-                "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "自动化测试时，使用HBuilderX内置的Node程序编译uni-app项目。"
-                },
-                "hbuilderx-for-uniapp-test.recordTestCaseList": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "当运行单条test.js用例文件，记录测试用例文件路径到.hbuilderx目录下。"
-                },
-                "hbuilderx-for-uniapp-test.isDebug": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "是否正在调试，当勾选后，将会在控制台输出更多日志。"
-                }
-            }
+        "hbuilderx-for-uniapp-test.testReportOutPutDir": {
+          "type": "string",
+          "default": "",
+          "description": "uni-app自动化测试插件，测试报告输出路径。"
         },
-        "keybindings": [
-            {
-                "command": "unitest.createTestCase",
-                "key": "Ctrl + Shift + C",
-                "when": "expression.isShowCreateTestCase",
-                "macosx": "command+Shift+C"
-            }
-        ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "unitest.initialization",
-                    "group": "openInExplorer",
-                    "when": "explorerResourceCount == 1 && expression.isUniApp && !expression.isCheckTestEnv  && explorerResourceIsWorkspaceFolder"
-                },
-                {
-                    "command": "unitest.createTestCase",
-                    "group": "new",
-                    "when": "expression.isShowCreateTestCase"
-                },
-                {
-                    "group": "new"
-                },
-                {
-                    "title": "uni-app 运行自动化测试(&R)",
-                    "group": "openInExplorer",
-                    "when": "expression.isShowRunALLTestCaseMenu",
-                    "id": "unitest"
-                },
-                {
-                    "command": "unitest.runTestAndroid",
-                    "title": "Android(&A)",
-                    "group": "unitest@1"
-                },
-                {
-                    "command": "unitest.runTestIOS",
-                    "title": "iOS模拟器(&I)",
-                    "when": "isMac",
-                    "group": "unitest@2"
-                },
-                {
-                    "command": "unitest.runTestHarmony",
-                    "title": "Harmony(&A)",
-                    "group": "unitest@1"
-                },
-                {
-                    "group": "unitest@2"
-                },
-                {
-                    "command": "unitest.runTestWeiXin",
-                    "title": "微信小程序(&M)",
-                    "group": "unitest@3"
-                },
-                {
-                    "group": "unitest@3"
-                },
-                {
-                    "command": "unitest.runTestH5",
-                    "title": "Web-Chrome(&H)",
-                    "group": "unitest@4"
-                },
-                {
-                    "command": "unitest.runTestH5Firefox",
-                    "title": "Web-Firefox(&H)",
-                    "group": "unitest@5"
-                },
-                {
-                    "command": "unitest.runTestH5Safari",
-                    "title": "Web-Safari(&H)",
-                    "group": "unitest@6",
-                    "when": "isMac"
-                },
-                {
-                    "group": "unitest@7"
-                },
-                {
-                    "command": "unitest.runTestAll",
-                    "title": "全部平台(&A)",
-                    "group": "unitest@8"
-                },
-                {
-                    "group": "openInExplorer"
-                },
-                {
-                    "command": "unitest.addFilePathToJestConfig",
-                    "group": "openInExplorer",
-                    "when": "explorerResourceCount == 1 && expression.isShowRunCurrentTestCaseMenu"
-                },
-                {
-                    "title": "uni-app 运行当前测试用例",
-                    "group": "openInExplorer",
-                    "when": "explorerResourceCount == 1 && expression.isCheckTestEnv && expression.isShowRunCurrentTestCaseMenu",
-                    "id": "unitestForCurrent"
-                },
-                {
-                    "command": "unitest.runCurrentTestAndroid",
-                    "title": "Android(&A)",
-                    "group": "unitestForCurrent@1"
-                },
-                {
-                    "command": "unitest.runCurrentTestIOS",
-                    "title": "iOS模拟器(&I)",
-                    "when": "isMac",
-                    "group": "unitestForCurrent@2"
-                },
-                {
-                    "command": "unitest.runCurrentTestHarmony",
-                    "title": "Harmony(&A)",
-                    "group": "unitestForCurrent@3"
-                },
-                {
-                    "group": "unitestForCurrent@2"
-                },
-                {
-                    "command": "unitest.runCurrentTestWeiXin",
-                    "title": "微信小程序(&M)",
-                    "group": "unitestForCurrent@3"
-                },
-                {
-                    "group": "unitestForCurrent@3"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5",
-                    "title": "Web-Chrome(&H)",
-                    "group": "unitestForCurrent@4"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5Firefox",
-                    "title": "Web-Firefox(&H)",
-                    "group": "unitestForCurrent@4"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5Safari",
-                    "title": "Web-Safari(&H)",
-                    "group": "unitestForCurrent@4",
-                    "when": "isMac"
-                },
-                {
-                    "group": "unitestForCurrent@5"
-                },
-                {
-                    "command": "unitest.runCurrentTestAll",
-                    "title": "全部平台(&A)",
-                    "group": "unitestForCurrent@6"
-                },
-                {
-                    "group": "openInExplorer"
-                }
-            ],
-            "editor/context": [
-                {
-                    "command": "unitest.addFilePathToJestConfig",
-                    "group": "copy",
-                    "when": "expression.isShowRunCurrentTestCaseMenu"
-                },
-                {
-                    "title": "uni-app 运行当前测试用例",
-                    "group": "copy",
-                    "when": "expression.isShowRunCurrentTestCaseMenu",
-                    "id": "unitestForCurrent"
-                },
-                {
-                    "group": "copy"
-                },
-                {
-                    "command": "unitest.runCurrentTestAndroid",
-                    "title": "Android(&A)",
-                    "group": "unitestForCurrent@1"
-                },
-                {
-                    "command": "unitest.runCurrentTestIOS",
-                    "title": "iOS模拟器(&I)",
-                    "when": "isMac",
-                    "group": "unitestForCurrent@2"
-                },
-                {
-                    "command": "unitest.runCurrentTestHarmony",
-                    "title": "Harmony(&I)",
-                    "group": "unitestForCurrent@2"
-                },
-                {
-                    "group": "unitestForCurrent@2"
-                },
-                {
-                    "command": "unitest.runCurrentTestWeiXin",
-                    "title": "微信小程序(&M)",
-                    "group": "unitestForCurrent@3"
-                },
-                {
-                    "group": "unitestForCurrent@3"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5",
-                    "title": "Web-Chrome(&H)",
-                    "group": "unitestForCurrent@4"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5Firefox",
-                    "title": "Web-Firefox(&H)",
-                    "group": "unitestForCurrent@4"
-                },
-                {
-                    "command": "unitest.runCurrentTestH5Safari",
-                    "title": "Web-Safari(&H)",
-                    "group": "unitestForCurrent@4",
-                    "when": "isMac"
-                },
-                {
-                    "group": "unitestForCurrent@5"
-                },
-                {
-                    "command": "unitest.runCurrentTestAll",
-                    "title": "全部平台(&A)",
-                    "group": "unitestForCurrent@6"
-                }
-            ],
-            "menubar/run": [
-                {
-                    "title": "uni-app自动化测试辅助插件",
-                    "group": "0_foot",
-                    "id": "unitest"
-                },
-                {
-                    "command": "unitest.isAutotestMatch",
-                    "checked": "expression.isAutoTestMatch",
-                    "group": "unitest@1"
-                },
-                {
-                    "command": "unitest.enableDebugLog",
-                    "checked": "expression.isDebugLog",
-                    "group": "unitest@1"
-                },
-                {
-                    "command": "unitest.moreSettings",
-                    "group": "unitest@1"
-                },
-                {
-                    "command": "unitest.recordTestCaseList",
-                    "checked": "expression.isRecordTestCaseList",
-                    "group": "unitest@1"
-                },
-                {
-                    "group": "unitest@1"
-                },
-                {
-                    "command": "unitest.reportHistory",
-                    "group": "unitest@2"
-                },
-                {
-                    "command": "unitest.reloadEnv",
-                    "title": "重装测试环境依赖",
-                    "group": "unitest@3"
-                },
-                {
-                    "group": "unitest@4"
-                },
-                {
-                    "command": "unitest.about",
-                    "title": "关于",
-                    "group": "unitest@5"
-                }
-            ]
+        "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch": {
+          "type": "boolean",
+          "default": true,
+          "description": "自动修改jest.config.js文件中的testMatch。<br/><span style='font-size: 13px;color: #4E9ADE;'>默认规范：测试用例在pages页面目录下。如测试用例在其它目录，请不要勾选此项。</span>"
+        },
+        "hbuilderx-for-uniapp-test.jestNodeType": {
+          "type": "boolean",
+          "default": false,
+          "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
+        },
+        "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
+          "type": "boolean",
+          "default": true,
+          "description": "自动化测试时，使用HBuilderX内置的Node程序编译uni-app项目。"
+        },
+        "hbuilderx-for-uniapp-test.recordTestCaseList": {
+          "type": "boolean",
+          "default": false,
+          "description": "当运行单条test.js用例文件，记录测试用例文件路径到.hbuilderx目录下。"
+        },
+        "hbuilderx-for-uniapp-test.isDebug": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否正在调试，当勾选后，将会在控制台输出更多日志。"
         }
+      }
     },
-    "extensionDependencies": [
-        "plugin-manager"
-    ]
+    "keybindings": [
+      {
+        "command": "unitest.createTestCase",
+        "key": "Ctrl + Shift + C",
+        "when": "expression.isShowCreateTestCase",
+        "macosx": "command+Shift+C"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "unitest.initialization",
+          "group": "openInExplorer",
+          "when": "explorerResourceCount == 1 && expression.isUniApp && !expression.isCheckTestEnv  && explorerResourceIsWorkspaceFolder"
+        },
+        {
+          "command": "unitest.createTestCase",
+          "group": "new",
+          "when": "expression.isShowCreateTestCase"
+        },
+        {
+          "group": "new"
+        },
+        {
+          "title": "uni-app 运行自动化测试(&R)",
+          "group": "openInExplorer",
+          "when": "expression.isShowRunALLTestCaseMenu",
+          "id": "unitest"
+        },
+        {
+          "command": "unitest.runTestAndroid",
+          "title": "Android(&A)",
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.runTestIOS",
+          "title": "iOS模拟器(&I)",
+          "when": "isMac",
+          "group": "unitest@2"
+        },
+        {
+          "command": "unitest.runTestHarmony",
+          "title": "Harmony(&A)",
+          "group": "unitest@1"
+        },
+        {
+          "group": "unitest@2"
+        },
+        {
+          "command": "unitest.runTestWeiXin",
+          "title": "微信小程序(&M)",
+          "group": "unitest@3"
+        },
+        {
+          "group": "unitest@3"
+        },
+        {
+          "command": "unitest.runTestH5",
+          "title": "Web-Chrome(&H)",
+          "group": "unitest@4"
+        },
+        {
+          "command": "unitest.runTestH5Firefox",
+          "title": "Web-Firefox(&H)",
+          "group": "unitest@5"
+        },
+        {
+          "command": "unitest.runTestH5Safari",
+          "title": "Web-Safari(&H)",
+          "group": "unitest@6",
+          "when": "isMac"
+        },
+        {
+          "group": "unitest@7"
+        },
+        {
+          "command": "unitest.runTestAll",
+          "title": "全部平台(&A)",
+          "group": "unitest@8"
+        },
+        {
+          "group": "openInExplorer"
+        },
+        {
+          "command": "unitest.addFilePathToJestConfig",
+          "group": "openInExplorer",
+          "when": "explorerResourceCount == 1 && expression.isShowRunCurrentTestCaseMenu"
+        },
+        {
+          "title": "uni-app 运行当前测试用例",
+          "group": "openInExplorer",
+          "when": "explorerResourceCount == 1 && expression.isCheckTestEnv && expression.isShowRunCurrentTestCaseMenu",
+          "id": "unitestForCurrent"
+        },
+        {
+          "command": "unitest.runCurrentTestAndroid",
+          "title": "Android(&A)",
+          "group": "unitestForCurrent@1"
+        },
+        {
+          "command": "unitest.runCurrentTestIOS",
+          "title": "iOS模拟器(&I)",
+          "when": "isMac",
+          "group": "unitestForCurrent@2"
+        },
+        {
+          "command": "unitest.runCurrentTestHarmony",
+          "title": "Harmony(&A)",
+          "group": "unitestForCurrent@3"
+        },
+        {
+          "group": "unitestForCurrent@2"
+        },
+        {
+          "command": "unitest.runCurrentTestWeiXin",
+          "title": "微信小程序(&M)",
+          "group": "unitestForCurrent@3"
+        },
+        {
+          "group": "unitestForCurrent@3"
+        },
+        {
+          "command": "unitest.runCurrentTestH5",
+          "title": "Web-Chrome(&H)",
+          "group": "unitestForCurrent@4"
+        },
+        {
+          "command": "unitest.runCurrentTestH5Firefox",
+          "title": "Web-Firefox(&H)",
+          "group": "unitestForCurrent@4"
+        },
+        {
+          "command": "unitest.runCurrentTestH5Safari",
+          "title": "Web-Safari(&H)",
+          "group": "unitestForCurrent@4",
+          "when": "isMac"
+        },
+        {
+          "group": "unitestForCurrent@5"
+        },
+        {
+          "command": "unitest.runCurrentTestAll",
+          "title": "全部平台(&A)",
+          "group": "unitestForCurrent@6"
+        },
+        {
+          "group": "openInExplorer"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "unitest.addFilePathToJestConfig",
+          "group": "copy",
+          "when": "expression.isShowRunCurrentTestCaseMenu"
+        },
+        {
+          "title": "uni-app 运行当前测试用例",
+          "group": "copy",
+          "when": "expression.isShowRunCurrentTestCaseMenu",
+          "id": "unitestForCurrent"
+        },
+        {
+          "group": "copy"
+        },
+        {
+          "command": "unitest.runCurrentTestAndroid",
+          "title": "Android(&A)",
+          "group": "unitestForCurrent@1"
+        },
+        {
+          "command": "unitest.runCurrentTestIOS",
+          "title": "iOS模拟器(&I)",
+          "when": "isMac",
+          "group": "unitestForCurrent@2"
+        },
+        {
+          "command": "unitest.runCurrentTestHarmony",
+          "title": "Harmony(&I)",
+          "group": "unitestForCurrent@2"
+        },
+        {
+          "group": "unitestForCurrent@2"
+        },
+        {
+          "command": "unitest.runCurrentTestWeiXin",
+          "title": "微信小程序(&M)",
+          "group": "unitestForCurrent@3"
+        },
+        {
+          "group": "unitestForCurrent@3"
+        },
+        {
+          "command": "unitest.runCurrentTestH5",
+          "title": "Web-Chrome(&H)",
+          "group": "unitestForCurrent@4"
+        },
+        {
+          "command": "unitest.runCurrentTestH5Firefox",
+          "title": "Web-Firefox(&H)",
+          "group": "unitestForCurrent@4"
+        },
+        {
+          "command": "unitest.runCurrentTestH5Safari",
+          "title": "Web-Safari(&H)",
+          "group": "unitestForCurrent@4",
+          "when": "isMac"
+        },
+        {
+          "group": "unitestForCurrent@5"
+        },
+        {
+          "command": "unitest.runCurrentTestAll",
+          "title": "全部平台(&A)",
+          "group": "unitestForCurrent@6"
+        }
+      ],
+      "menubar/run": [
+        {
+          "title": "uni-app自动化测试辅助插件",
+          "group": "0_foot",
+          "id": "unitest"
+        },
+        {
+          "command": "unitest.isAutotestMatch",
+          "checked": "expression.isAutoTestMatch",
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.enableDebugLog",
+          "checked": "expression.isDebugLog",
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.moreSettings",
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.recordTestCaseList",
+          "checked": "expression.isRecordTestCaseList",
+          "group": "unitest@1"
+        },
+        {
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.createAgentsMd",
+          "group": "unitest@1"
+        },
+        {
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.reportHistory",
+          "group": "unitest@2"
+        },
+        {
+          "command": "unitest.reloadEnv",
+          "title": "重装测试环境依赖",
+          "group": "unitest@3"
+        },
+        {
+          "group": "unitest@4"
+        },
+        {
+          "command": "unitest.about",
+          "title": "关于",
+          "group": "unitest@5"
+        }
+      ]
+    }
+  },
+  "extensionDependencies": [
+    "plugin-manager"
+  ],
+  "dcloudext": {
+    "type": "hbuilderx",
+    "sale": {
+      "regular": {
+        "price": "0.00"
+      },
+      "sourcecode": {
+        "price": "0.00"
+      }
+    },
+    "contact": {
+      "qq": ""
+    },
+    "declaration": {
+      "ads": "无",
+      "data": "无",
+      "permissions": "无"
+    },
+    "npmurl": "",
+    "darkmode": "-",
+    "i18n": "-",
+    "widescreen": "-"
+  },
+  "keywords": [
+    "uni-app,test,自动化测试"
+]
 }

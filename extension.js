@@ -6,6 +6,7 @@ const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file
 
 const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
+const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilderXCli.js');
@@ -57,6 +58,12 @@ function activate(context) {
         TestCaseCreate(param);
     });
     context.subscriptions.push(createTestCase);
+
+    // 创建 AGENTS.test.md 文件 (uni-app项目根目录，右键菜单)
+    let createAgents = hx.commands.registerCommand('unitest.createAgentsMd', (param) => {
+        createAgentsMd(param);
+    });
+    context.subscriptions.push(createAgents);
 
     // 查看历史测试报告
     let reportHistory = hx.commands.registerCommand('unitest.reportHistory', (param) => {
