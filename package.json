@@ -5,6 +5,7 @@
   "displayName": "HBuilderX uni-app自动化测试",
   "version": "4.5.3",
   "publisher": "hbuilderx",
+  "__from": "ext-market",
   "engines": {
     "HBuilderX": "^3.7.3"
   },
