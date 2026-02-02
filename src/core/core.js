@@ -10,6 +10,14 @@ const osName = os.platform();
 var child;
 var child_pid;
 
+const colorS = "\x1b[31m";
+const colorE = "\x1b[0m";
+
+const PORT_9520_KILL_CMD = {
+    darwin: 'lsof -i:9520 | awk \'{print $2}\' | tail -n +2 | xargs kill -9',
+    win32: 'netstat -ano | findstr :9520 查找PID，然后执行 taskkill /F /PID <PID>'
+};
+
 
 /**
  * @description 判断是否是uniapp-cli项目
@@ -341,6 +349,9 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
             const stderr = readline.createInterface(child.stderr);
             stderr.on('line', (data) =>{
                 let stdoutMsg = (data.toString()).trim();
+                if (stdoutMsg.includes("Port 9520 is in use, please specify another port")) {
+                    is_port_9520_error = true;
+                };
                 if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
                     printTestRunLog(MessagePrefix, stdoutMsg);
                     stopRunTest();
@@ -360,7 +371,8 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
 
         child.on('close', code => {
             if (is_port_9520_error) {
-                createOutputChannel(`${MessagePrefix} 如果您遇到错误 Port 9520 is in use, please specify another port , 解决方法: 打开终端，输入命令 lsof -i:9520 | awk '{print $2}' | tail -n +2 | xargs kill -9`, "error", "log");
+                const killCmd = PORT_9520_KILL_CMD[osName] || PORT_9520_KILL_CMD.win32;
+                createOutputChannel(`${MessagePrefix} 端口被占用，解决方法: ${osName == 'darwin' ? '打开终端' : '打开命令'}，输入 ${killCmd}`, "error", "log");
             };
 
             child_pid = undefined;
@@ -436,6 +448,9 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
             const stderr = readline.createInterface(child.stderr);
             stderr.on('line', (data) =>{
                 let stdoutMsg = (data.toString()).trim();
+                if (stdoutMsg.includes("Port 9520 is in use")) {
+                    is_port_9520_error = true;
+                };
                 if ((stdoutMsg.includes("Module Error") && stdoutMsg.includes("Errors compiling")) || stdoutMsg.includes("语法错误")) {
                     printTestRunLogForHBuilderXCli(MsgPrefix, stdoutMsg, logger);
                     stopRunTest();
@@ -457,8 +472,8 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
         child.on('close', code => {
             (async () => {
                 if (is_port_9520_error) {
-                    let msg_1 = `解决方法: 打开终端，输入命令 lsof -i:9520 | awk '{print $2}' | tail -n +2 | xargs kill -9`;
-                    await logger(`${MsgPrefix} 如果您遇到错误 Port 9520 is in use, please specify another port , ${msg_1}`);
+                    const killCmd = PORT_9520_KILL_CMD[osName] || PORT_9520_KILL_CMD.win32;
+                    await logger(`${colorS}${MsgPrefix} 端口被占用，解决方法: ${osName == 'darwin' ? '打开终端' : '打开命令行'}，输入 ${killCmd}${colorE}`);
                 };
 
                 child_pid = undefined;
