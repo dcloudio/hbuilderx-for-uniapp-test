@@ -104,8 +104,8 @@ class Initialize extends Common {
         let Notes = `\n\n安装方式：\n1. 命令行进入 ${runDir}目录 \n2. 输入 ${cmd}`
 
         let prompt = action == 'upgrade'
-            ? `自动化测试环境，依赖的jest、adbkit、puppeteer等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
-            : `自动化测试环境，需要安装jest、adbkit、puppeteer等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
+            ? `自动化测试环境，依赖的jest、adbkit等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
+            : `自动化测试环境，需要安装jest、adbkit等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
         let title = action == 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
         let btn = await hxShowMessageBox(title, prompt, ['去升级', '忽略升级']).then( btn => {
             return btn;
@@ -135,6 +135,7 @@ class Initialize extends Common {
             };
         };
 
+        // 测试依赖单独放一个目录，是因为当初所需要的依赖，比如playwrite、puppeteer太大了，安装完后1个G。
         let test_lib_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib");
         mkdirsSync(test_lib_dir);
 
@@ -165,12 +166,12 @@ class Initialize extends Common {
         if (!fs.existsSync(test_lib_node_modules_dir)) {
 			await logger("", 'info');
 
-			const msg_0 = "uniapp自动化测试环境，需要安装jest、adbkit、puppeteer、playwright等库，安装相关依赖之后，才可以正常使用此插件."
+			const msg_0 = "uni-app (x) 自动化测试环境，依赖jest、adbkit、playwright等库，安装相关依赖之后，才可以正常使用此插件."
 			await logger(msg_0, 'error');
 
             const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
             let msg_f = `\n方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
-            msg_f = msg_f + `\n  - 运行到Web测试(如Chrome)，需要安装Playwright Test以及相关依赖），下载体积较大，约1G左右（含Chromium、WebKit 和 Firefox等浏览器二进制文件），请耐心等待。`;
+            msg_f = msg_f + `\n  - 运行测试到Web(如Chrome)，需安装浏览器二进制文件（Chromium、WebKit 和 Firefox），请在命令行执行npx playwright install。如不需要运行测试到Web，可忽略此步骤。`;
             msg_f = msg_f + `\n  - 如果playwright安装遇到问题，请参考: https://playwright.dev/docs/intro#updating-playwright \n`;
 
             const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
@@ -227,9 +228,12 @@ class Initialize extends Common {
         };
 
         if (msg) {
-            await logger(`uni-app自动化测试插件运行缺少必要的依赖 ${msg}，请安装相关依赖。`, 'warning');
+            await logger(`uni-app (x) 自动化测试插件运行缺少必要的依赖 ${msg}，请安装相关依赖。`, 'warning');
             await logger(`方法1: 打开终端，进入 ${test_lib_dir} 目录，运行命令： npm install --save`);
             await logger(`方法2: 点击HBuilderX 顶部菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】`);
+
+            let _pl_msg = `注意：如需运行测试到Web(如Chrome)，需安装浏览器二进制文件（Chromium、WebKit 和 Firefox），请在命令行执行npx playwright install。如不需要运行测试到Web，可忽略此步骤。`;
+            await logger(_pl_msg, 'info');
             return false;
         } else {
             if (isReload) {

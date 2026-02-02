@@ -7,10 +7,13 @@
         "@playwright/test": "^1.58.1",
         "playwright": "^1.58.1",
         "adbkit": "^2.11.1",
-        "cross-env": "^7.0.3",
+        "cross-env": "^10.1.0",
         "jest": "^27.0.4",
         "jest-environment-node": "^27.4.4",
         "jest-image-snapshot": "6.1.0",
         "node-simctl": "^6.4.1"
+    },
+    "scripts": {
+        "postinstall": "playwright install"
     }
 }

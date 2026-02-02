@@ -11,7 +11,7 @@ module.exports = {
     "compile": true,
     "h5": {
         "options": {
-            "headless": true
+            "headless": false
         },
         "executablePath": ""
     },
