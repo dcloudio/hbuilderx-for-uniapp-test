@@ -104,7 +104,7 @@ class Common {
         if (is_uniapp_cli) {
             testEnv = await init.checkUniappCliProject(projectPath, this.terminal_id);
         } else {
-            testEnv = await init.checkPluginDependencies(false, this.terminal_id);
+            testEnv = await init.checkPluginDependencies(platform, false, this.terminal_id);
         };
 
         // 检查测试报告目录是否存在，如不存在则创建

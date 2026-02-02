@@ -49,7 +49,7 @@ function activate(context) {
     // 重装测试环境
     let reloadEnv = hx.commands.registerCommand('unitest.reloadEnv', () => {
         let init = new Initialize();
-        init.checkPluginDependencies(true);
+        init.checkPluginDependencies('all', true);
     });
     context.subscriptions.push(reloadEnv);
 

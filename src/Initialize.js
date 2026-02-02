@@ -126,7 +126,8 @@ class Initialize extends Common {
      * @param {type} isReload 用于菜单【运行】【检查测试环境】
      * @return {Boolean}
      */
-    async checkPluginDependencies(isReload=false, terminal_id = "") {
+    async checkPluginDependencies(plat='all', isReload=false, terminal_id = "") {
+        console.log(`[checkPluginDependencies] =`, plat, isReload, terminal_id);
         let logger = createOutputChannel;
         if (terminal_id) {
             logger = async function (message) {
@@ -175,7 +176,7 @@ class Initialize extends Common {
             const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
             msg_f = msg_f + `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
             await logger(msg_f, 'info');
-            
+
             return false;
         };
 
@@ -211,6 +212,13 @@ class Initialize extends Common {
         let msg = '';
         for (let s of dependencies) {
             let dependencies_path = path.join(test_lib_dir, 'node_modules', s);
+
+            // 避免不必要的依赖检查
+            if (plat && ['ios', 'android', 'harmony', 'mp-weixin'].includes(plat)
+                && ['puppeteer', '@playwright/test', 'playwright'].includes(s)) {
+                continue;
+            };
+
             try{
                 require(dependencies_path);
             }catch(e){
