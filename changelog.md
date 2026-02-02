@@ -1,5 +1,12 @@
 # 更新日志
 
+## 4.6.0
+* 新增 针对测试端口9520占用，添加端口占用处理提示
+* 调整 uni-app (x)自动化测试环境依赖检查逻辑，减少不必要的依赖检查
+* 调整 测试环境依赖，playwright升级到1.58.1版本，删除puppeteer库
+* 调整 package.json 添加 ext-market 标识字段
+* 调整 env.js默认模板，h5 headless字段，默认值设置为false
+
 ## 4.5.3
 * 新增 顶部运行菜单 增加AGENTS.test.md (用于AI可用的自动化测试文件)
 
