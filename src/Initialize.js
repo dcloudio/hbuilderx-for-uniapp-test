@@ -191,7 +191,7 @@ class Initialize extends Common {
             'source_file': templage_package_path,
             'target_file': lib_package_path,
         };
-
+        console.error(`[uniapp.test] checkPluginDependencies, lib_version = ${lib_version}, template_version = ${template_version}`);
         if (lib_version != template_version && terminal_id == "") {
             if (current_ignore_upgrade) return true;
             actions['action'] = 'upgrade';
@@ -200,6 +200,9 @@ class Initialize extends Common {
                 current_ignore_upgrade = true;
                 return true;
             };
+            console.error("[uniapp.test] 升级弹窗选择 = ", _i_result)
+            // 复制template_package_json_content到lib_package_path
+            fs.copyFileSync(templage_package_path, lib_package_path);
             return false;
         };
         if (lib_version != template_version && terminal_id != "") {
@@ -211,6 +214,7 @@ class Initialize extends Common {
         let dependencies = Object.keys(template_dependencies);
         let msg = '';
         for (let s of dependencies) {
+            const pLib_version = template_dependencies[s];
             let dependencies_path = path.join(test_lib_dir, 'node_modules', s);
 
             // 避免不必要的依赖检查
@@ -219,16 +223,24 @@ class Initialize extends Common {
                 continue;
             };
 
+            // cross-env 是命令行工具，无法通过 require 加载，只检查目录是否存在
+            if (s == "cross-env") {
+                if (!fs.existsSync(dependencies_path)) {
+                    msg = msg + `${s}@${lib_version}` + ' ';
+                }
+                continue;
+            };
+
             try{
                 require(dependencies_path);
             }catch(e){
-                msg = msg + s + ' '
+                msg = msg + `${s}@${pLib_version}` + ' '
             };
         };
 
         if (msg) {
             await logger(`uni-app (x) 自动化测试插件运行缺少必要的依赖 ${msg}，请安装相关依赖。`, 'warning');
-            await logger(`方法1: 打开终端，进入 ${test_lib_dir} 目录，运行命令： npm install --save`);
+            await logger(`方法1: 打开终端，进入 ${test_lib_dir} 目录，运行命令： npm install --save ${msg}`);
             await logger(`方法2: 点击HBuilderX 顶部菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】`);
 
             let _pl_msg = `注意：如需运行测试到Web(如Chrome)，需安装浏览器二进制文件（Chromium、WebKit 和 Firefox），请在命令行执行npx playwright install。如不需要运行测试到Web，可忽略此步骤。`;
