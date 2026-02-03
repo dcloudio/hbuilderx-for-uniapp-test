@@ -48,8 +48,7 @@ class Common {
             });
         });
     };
-}
-
+};
 
 /**
  * @description 创建测试配置文件、以及检查测试环境
@@ -266,20 +265,31 @@ class Initialize extends Common {
 
         let msg = '';
         for (let s of dependencies) {
+            const lib_version = template_dependencies[s];
             let dependencies_path = path.join(projectPath, 'node_modules', s);
-            try{
-                require(dependencies_path);
-            }catch(e){
-                msg = msg + s + ' '
+
+            // cross-env 是命令行工具，无法通过 require 加载，只检查目录是否存在
+            if (s == "cross-env") {
+                if (!fs.existsSync(dependencies_path)) {
+                    msg = msg + `${s}@${lib_version}` + ' ';
+                }
+                continue;
             };
+
+            try {
+                delete require.cache[dependencies_path];
+                require(dependencies_path);
+            } catch(e) {
+                msg = msg + `${s}@${lib_version}` + ' ';
+            }
         };
 
         if (msg) {
             await logger(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
-            await logger(`如果自动安装失败，打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
-            if (terminal_id == "") {
-                this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
-            };
+            await logger(`打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
+            // if (terminal_id == "") {
+            //     this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
+            // };
             return false;
         };
         return true;
