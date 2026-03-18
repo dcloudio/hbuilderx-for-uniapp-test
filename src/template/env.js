@@ -34,6 +34,19 @@ module.exports = {
         "ios": {
             "id": "",
             "executablePath": ""
+        },
+        "uni-app-x": {
+            "version": "",
+            "android": {
+                "id": "",
+                "executablePath": "",
+                "package": ""
+            },
+            "ios": {
+                "id": "",
+                "executablePath": "",
+                "package": ""
+            }
         }
     }
 }
