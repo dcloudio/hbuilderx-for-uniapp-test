@@ -133,7 +133,9 @@ function updateVersionInfo(envjs, isUniappX) {
         const oldVersion = envjs['app-plus']?.['uni-app-x']?.version;
         const targetVersion = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
         if (!oldVersion || oldVersion.trim() === '' || oldVersion !== targetVersion) {
-            envjs['app-plus']['uni-app-x'] = {};
+            if (!envjs['app-plus']['uni-app-x']) {
+                envjs['app-plus']['uni-app-x'] = {};
+            }
             envjs['app-plus']['uni-app-x']['version'] = targetVersion;
         }
     } else {
@@ -237,7 +239,7 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
         await logger(`[uniapp.test] 修改测试配置文件: ${envJsPath}`);
     }
 
-    const envjs = loadEnvConfig(envJsPath);
+    let envjs = loadEnvConfig(envJsPath);
     if (!envjs) {
         await logger(`${envJsPath} 测试配置文件, 可能存在语法错误，请检查。`);
         return false;
