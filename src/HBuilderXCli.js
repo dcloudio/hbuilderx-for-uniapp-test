@@ -315,6 +315,7 @@ class RunTestForHBuilderXCli extends Common {
         this.isDebug = false;
         this.consoleMsgPrefix = "[uniapp.test] ";
         this.raw_argv_uni_platform = "";
+        this.raw_argv_vapor = false;
 
         this.terminal_id = "";
         this.projectName = '';
@@ -454,8 +455,14 @@ class RunTestForHBuilderXCli extends Common {
             maxBuffer: 2000 * 1024
         };
 
-        let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
-        if (typeof is_dom2 === 'boolean' && is_dom2) {
+        // 蒸汽模式：依据项目mainfest.json
+        // let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
+        // if (typeof is_dom2 === 'boolean' && is_dom2) {
+        //     cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
+        // };
+
+        // 蒸汽模式：命令行传递
+        if (this.raw_argv_vapor === true) {
             cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
         };
 
@@ -668,6 +675,7 @@ class RunTestForHBuilderXCli extends Common {
 
         let argv_uni_platform = uni_platformName;
         this.raw_argv_uni_platform = uni_platformName;
+        this.raw_argv_vapor = params.vapor;
 
         // console.error("=========>", params);
         let argv_device_id = params.device_id || '';
@@ -804,7 +812,7 @@ class RunTestForHBuilderXCli extends Common {
 };
 
 async function check_cli_args(args, client_id) {
-    let { project, device_id, testcaseFile } = args;
+    let { project, device_id, testcaseFile, vapor } = args;
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
     };

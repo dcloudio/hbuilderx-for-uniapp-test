@@ -397,7 +397,7 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
     let logger = async function (message) {
         await hx.cliconsole.log({ clientId: client_id, msg: message, status: 'Info' });
     };
-    
+
     // 解决控制台[]内内容长度太长的问题
     if (deviceId && deviceId.length >= 8) {
         deviceId = deviceId.replace(deviceId.substring(6), '..');
@@ -585,6 +585,19 @@ async function readUniappManifestJson(project_path, is_uniapp_cli, field) {
     return result;
 };
 
+ /**
+ * @description 获取项目是否是vapor
+ */
+async function uniapp_x_is_vapor(projectPath, is_uniapp_cli=false) {
+    try {
+        let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
+        let { data } = fdata;
+        return data["vapor"];
+    } catch (error) {
+        return false
+    }
+};
+
 module.exports = {
     getPluginConfig,
     createOutputChannel,
@@ -599,5 +612,6 @@ module.exports = {
     installTerminal,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
-    readUniappManifestJson
+    readUniappManifestJson,
+    uniapp_x_is_vapor
 };

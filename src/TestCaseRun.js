@@ -27,7 +27,8 @@ const {
     hxShowMessageBox,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
-    readUniappManifestJson
+    readUniappManifestJson,
+    uniapp_x_is_vapor
 } = require('./core/core.js');
 
 const {
@@ -331,19 +332,6 @@ class Common {
             createOutputChannel(msg);
         } catch (e) { };
     };
-
-    /**
-     * @description 获取项目是否是dom2
-     */
-    async uniapp_x_is_dom2(projectPath, is_uniapp_cli) {
-        try {
-            let fdata = await readUniappManifestJson(projectPath, is_uniapp_cli, "uni-app-x");
-            let { data } = fdata;
-            return data["vapor"];
-        } catch (error) {
-            return false
-        }
-    }
 };
 
 
@@ -435,7 +423,7 @@ class RunTest extends Common {
 
     async select_app_run_devices(testPlatform) {
         // 选择要运行的设备
-        let phoneList = await getTestDevices(testPlatform);
+        let phoneList = await getTestDevices(testPlatform, this.projectPath);
         console.error("[自动化测试连接的设备]--->", phoneList);
         console.error("[global_uniSettings]--->", global_uniSettings);
 
@@ -523,8 +511,14 @@ class RunTest extends Common {
             maxBuffer: 2000 * 1024
         };
 
-        let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
-        if (typeof is_dom2 === 'boolean' && is_dom2) {
+        // 蒸汽模式：依据项目mainfest.json
+        // let isVapor = await uniapp_x_is_vapor(this.projectPath, is_uniapp_cli);
+        // if (typeof isVapor === 'boolean' && isVapor) {
+        //     cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
+        // };
+
+        // 蒸汽模式：设备选择窗口的配置设置
+        if (global_uniSettings?.cfg_uniapp_test_vapor_mode === true) {
             cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
         };
 

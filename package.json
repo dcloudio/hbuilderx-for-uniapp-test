@@ -3,7 +3,7 @@
   "name": "hbuilderx-for-uniapp-test",
   "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信小程序、Harmony应用",
   "displayName": "HBuilderX uni-app自动化测试",
-  "version": "4.6.1",
+  "version": "4.7.0",
   "publisher": "hbuilderx",
   "__from": "ext-market",
   "engines": {
@@ -236,6 +236,13 @@
             "default": ""
           },
           {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "browser",
             "descption": "指定浏览器类型，支持chrome、safari、firefox",
             "usage": "require",
@@ -268,6 +275,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           }
         ]
       },
@@ -293,6 +307,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           }
         ]
       },
@@ -318,6 +339,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           }
         ]
       },
@@ -343,6 +371,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           }
         ]
       },
@@ -368,6 +403,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           },
           {
             "name": "device_id",
@@ -402,6 +444,13 @@
             "default": ""
           },
           {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "device_id",
             "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
             "usage": "",
@@ -432,6 +481,13 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
           },
           {
             "name": "device_id",

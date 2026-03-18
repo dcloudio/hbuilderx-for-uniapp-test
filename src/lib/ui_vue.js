@@ -4,9 +4,9 @@ const os = require('os');
 
 const osName = os.platform();
 
-const { getPluginConfig } = require('../core/core.js');
+const { getPluginConfig, uniapp_x_is_vapor } = require('../core/core.js');
 
-async function ui_vue(testPlatform) {
+async function ui_vue(testPlatform, projectPath="") {
     // hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"), false);
     hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"));
 
@@ -41,6 +41,12 @@ async function ui_vue(testPlatform) {
         cfg_AutomaticModificationTestMatch = is_modify_testMath;
     };
 
+    // 项目是否是蒸汽模式
+    let isVapor = false;
+    if (projectPath) {
+        isVapor = await uniapp_x_is_vapor(projectPath);
+    };
+
     let result = await hx.window.showFormDialog({
         title: "uni-app 自动化测试设备选择",
         subtitle: subtitle,
@@ -66,6 +72,7 @@ async function ui_vue(testPlatform) {
             "value": {
                 "osName": osName,
                 "access": testPlatform,
+                "is_show_vapor_mode_element": isVapor,
                 cfg_isDebug,
                 cfg_AutomaticModificationTestMatch
             },
@@ -133,7 +140,7 @@ async function ui_vue(testPlatform) {
         selectedList.push(`h5:h5-safari`);
     };
 
-    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch'];
+    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch', 'cfg_uniapp_test_vapor_mode'];
     _cfg_keys.forEach(key => {
       if (Object.hasOwn(result, key)) {
         uiSettings[key] = result[key];

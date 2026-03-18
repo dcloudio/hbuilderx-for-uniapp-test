@@ -61,7 +61,7 @@ async function get_uniTestPlatformInfo(platform, deviceID) {
  * @description {Sting} testPlatform [ios|android|all]
  * @return {Array} 手机设备列表，必须是数组，数组元素格式：['android:udid', 'ios:udid']
  */
-async function getTestDevices(testPlatform) {
+async function getTestDevices(testPlatform, projectPath="") {
     // 从测试设备选择窗口获取测试设备
     // 数据格式：[
     //     "ios:A8790C48-4986-4303-B235-D8AFA95402D4",
@@ -74,7 +74,7 @@ async function getTestDevices(testPlatform) {
     // selected = await ui_formDialog(testPlatform);
 
     if (cmpVerionForVue < 0) {
-        let _result = await ui_vue(testPlatform);
+        let _result = await ui_vue(testPlatform, projectPath);
         if (Array.isArray(_result) && _result.length == 2) {
             [selected, uiSettings] = _result;
             if (uiSettings && Object.keys(uiSettings).length > 0) {

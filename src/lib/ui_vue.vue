@@ -83,25 +83,54 @@
             </q-list-view>
         </q-view>
 
-        <!-- 配置项 -->
-        <q-view layout='hbox' style="padding-top: 5px;">
-            <q-checkbox id="elCheckBox2"
-                text=" 是否输出 Debug 调试日志"
-                :checked='cfg_isDebug'
-                accessibleName="cfg_isDebug"
-                @clicked="el_set" />
+        <q-view layout='hbox' v-if="access == 'all'">
+            <q-label text="小程序: " id="labelView"></q-label>
+            <q-checkbox id="elCheckBox" text=" 微信小程序" :checked='mp_weixin' accessibleName="mp_weixin" @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 
         <!-- 配置项 -->
+        <q-view layout='hbox' v-if="is_show_vapor_mode_element">
+            <q-checkbox id="elCheckBox2"
+                text=" 以蒸汽模式运行测试"
+                :checked='cfg_uniapp_test_vapor_mode'
+                accessibleName="cfg_uniapp_test_vapor_mode"
+                @clicked="el_set" />
+            <q-view horizontal-size-policy="Expanding"></q-view>
+        </q-view>
+
         <q-view layout='hbox'>
             <q-checkbox id="elCheckBox2"
-                text=" 自动修改 jest.config.js 文件中的 testMatch"
+                text=" 是否输出 Debug 日志"
+                :checked='cfg_isDebug'
+                accessibleName="cfg_isDebug"
+                @clicked="el_set" />
+            <q-checkbox id="elCheckBox2"
+                text=" 自动修改 jest.config.js 文件 testMatch"
+                :checked='cfg_AutomaticModificationTestMatch'
+                accessibleName="cfg_AutomaticModificationTestMatch"
+                @clicked="el_set" />
+        </q-view>
+
+        <!-- 配置项 -->
+      <!--  <q-view layout='vbox' style="padding-top: 5px;">
+            <q-checkbox id="elCheckBox2"
+                text=" 是否输出 Debug 日志"
+                :checked='cfg_isDebug'
+                accessibleName="cfg_isDebug"
+                @clicked="el_set" />
+            <q-view horizontal-size-policy="Expanding"></q-view>
+        </q-view> -->
+
+        <!-- 配置项 -->
+        <!-- <q-view layout='vbox'>
+            <q-checkbox id="elCheckBox2"
+                text=" 自动修改 jest.config.js 文件 testMatch"
                 :checked='cfg_AutomaticModificationTestMatch'
                 accessibleName="cfg_AutomaticModificationTestMatch"
                 @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
-        </q-view>
+        </q-view> -->
 
         <!-- vertical-size-policy 垂直填充 -->
         <q-view vertical-size-policy="Expanding"></q-view>
@@ -112,7 +141,7 @@
 <script>
     let api_getMobileList = require("./api_getMobileList.js");
     let hx = require("hbuilderx");
-    
+
     export default {
         data() {
             return {
@@ -134,7 +163,11 @@
                 },
                 // 配置项
                 cfg_isDebug: true,
-                cfg_AutomaticModificationTestMatch: true
+                cfg_AutomaticModificationTestMatch: true,
+
+                // 设置项。是否开启蒸汽模式
+                cfg_uniapp_test_vapor_mode: '',
+                is_show_vapor_mode_element: false
             }
         },
 
@@ -198,7 +231,7 @@
                 const checked = e.target.checked;
 
                 // 测试配置型选项
-                const cfg_checkbox = ["cfg_isDebug", "cfg_AutomaticModificationTestMatch"];
+                const cfg_checkbox = ["cfg_isDebug", "cfg_AutomaticModificationTestMatch", "cfg_uniapp_test_vapor_mode"];
                 if (cfg_checkbox.includes(accessibleName)) {
                     this[accessibleName] = e.target.checked;
                     this.update_test_settings(accessibleName, e.target.checked);
