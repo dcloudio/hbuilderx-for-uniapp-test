@@ -387,14 +387,19 @@ class RunTestForHBuilderXCli extends Common {
      * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
      */
     async run_uni_test(testPlatform, deviceId) {
-
-        let envJSArgs = {
-            "is_uniapp_x": is_uniapp_x
+        let UNI_APP_X_DOM2 = false;
+        if (this.raw_argv_vapor === true && is_uniapp_x) {
+            UNI_APP_X_DOM2 = true;
         };
+        let uniProjectAttributeData = {
+            "is_uniapp_x": is_uniapp_x,
+            "is_uniapp_x_vapor": UNI_APP_X_DOM2
+        };
+        console.error("uniProjectAttributeData = ", uniProjectAttributeData);
 
         let result;
         try {
-            result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, envJSArgs, this.terminal_id);
+            result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, uniProjectAttributeData, this.terminal_id);
         } catch (error) {
             console.error("[error]....", error);
             result = false;
@@ -455,15 +460,9 @@ class RunTestForHBuilderXCli extends Common {
             maxBuffer: 2000 * 1024
         };
 
-        // 蒸汽模式：依据项目mainfest.json
-        // let is_dom2 = await this.uniapp_x_is_dom2(this.projectPath, is_uniapp_cli);
-        // if (typeof is_dom2 === 'boolean' && is_dom2) {
-        //     cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
-        // };
-
         // 蒸汽模式：命令行传递
-        if (this.raw_argv_vapor === true) {
-            cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
+        if (UNI_APP_X_DOM2 === true) {
+            cmdOpts["env"]["UNI_APP_X_DOM2"] = UNI_APP_X_DOM2;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {

@@ -64,6 +64,9 @@ var is_uniapp_3 = false;
 // 判断是否是uniapp-x项目
 var is_uniapp_x = false;
 
+// 项目manifest.json是否蒸汽模式
+var project_manifestJson_vapor = false;
+
 // 是否全部停止测试运行
 var isStopAllTest = false;
 
@@ -132,6 +135,10 @@ class Common {
 
         if (is_uniapp_x) {
             plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        };
+
+        if (project_manifestJson_vapor) {
+            plugin_list["uniappx-vapor-launcher"] = config.UNIAPP_X_VAPOR_LAUNCHER_PATH;
         };
 
         if (is_uts_project || is_uniapp_x) {
@@ -234,6 +241,9 @@ class Common {
         // 判断项目类型 uni-app普通项目、uni-appx项目
         is_uniapp_x = await isUniAppX(projectPath);
         console.error("是否是uniapp-x", is_uniapp_x);
+
+        // 判断项目是否蒸汽模式
+        project_manifestJson_vapor = await uniapp_x_is_vapor(projectPath, is_uniapp_cli);
 
         // 非uni-app-x项目，才需要判断这些。uni-app-x默认就是vue3
         if (!is_uniapp_x) {
@@ -458,11 +468,17 @@ class RunTest extends Common {
      * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
      */
     async run_uni_test(testPlatform, deviceId) {
-
-        let envJSArgs = {
-            "is_uniapp_x": is_uniapp_x
+        let UNI_APP_X_DOM2 = false;
+        if (global_uniSettings?.cfg_uniapp_test_vapor_mode === true) {
+            UNI_APP_X_DOM2 = true;
         };
-        let result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, envJSArgs).catch(error => {
+        let uniProjectAttributeData = {
+            "is_uniapp_x": is_uniapp_x,
+            "is_uniapp_x_vapor": UNI_APP_X_DOM2
+        };
+        console.error("uniProjectAttributeData = ", uniProjectAttributeData);
+
+        let result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, uniProjectAttributeData).catch(error => {
             console.error("[error]....", error);
             createOutputChannel(`${testPlatform}，修改项目下测试配置文件 env.js出错，请检查！`, 'error');
             return false;
@@ -518,8 +534,8 @@ class RunTest extends Common {
         // };
 
         // 蒸汽模式：设备选择窗口的配置设置
-        if (global_uniSettings?.cfg_uniapp_test_vapor_mode === true) {
-            cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
+        if (UNI_APP_X_DOM2 === true) {
+            cmdOpts["env"]["UNI_APP_X_DOM2"] = UNI_APP_X_DOM2;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
@@ -791,6 +807,10 @@ class RunTest extends Common {
             // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
             createOutputChannel(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`, 'success');
             this.stopAllTestRun();
+        };
+        // 蒸汽模式：设备选择窗口的配置设置
+        if (global_uniSettings?.cfg_uniapp_test_vapor_mode !== true) {
+            project_manifestJson_vapor = false;
         };
 
         // 修改测试范围: 即全部测试、仅测试某个页面

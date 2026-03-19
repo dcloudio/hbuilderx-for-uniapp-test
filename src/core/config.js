@@ -27,6 +27,11 @@ const UNIAPP_X_LAUNCHER_IOS = path.join(UNIAPP_X_LAUNCHER_PATH, "base/Pandora_si
 const UNIAPP_X_LAUNCHER_ANDROID = path.join(UNIAPP_X_LAUNCHER_PATH, "base/android_base.apk");
 const UNIAPP_X_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_LAUNCHER_PATH, "base", "version.txt");
 
+const UNIAPP_X_VAPOR_LAUNCHER_PATH = path.join(hx.env.appRoot, "plugins", "uniappx-vapor-launcher");
+const UNIAPP_X_VAPOR_LAUNCHER_IOS = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/Pandora_simulator.app");
+const UNIAPP_X_VAPOR_LAUNCHER_ANDROID = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/android_base.apk");
+const UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base", "version.txt");
+
 // HBuilderX uniapp-cli路径
 let UNI_CLI_PATH = path.join(hx.env.appRoot, "plugins", "uniapp-cli");
 let UNI_CLI_VITE_PATH = path.join(hx.env.appRoot, "plugins", "uniapp-cli-vite");
@@ -69,7 +74,7 @@ const HX_PLUGINS_DISPLAYNAME_LIST = {
 
 module.exports = {
     i18n,
-    
+
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
     HBuilderX_BuiltIn_Node_Path,
@@ -86,6 +91,11 @@ module.exports = {
     UNIAPP_X_LAUNCHER_ANDROID,
     UNIAPP_X_LAUNCHER_IOS,
     UNIAPP_X_LAUNCHER_VERSION_TXT,
+
+    UNIAPP_X_VAPOR_LAUNCHER_PATH,
+    UNIAPP_X_VAPOR_LAUNCHER_ANDROID,
+    UNIAPP_X_VAPOR_LAUNCHER_IOS,
+    UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT,
 
     UNI_CLI_PATH,
     UNI_CLI_VITE_PATH,

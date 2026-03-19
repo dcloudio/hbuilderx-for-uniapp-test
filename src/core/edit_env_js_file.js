@@ -53,15 +53,15 @@ function loadEnvConfig(envJsPath) {
  * @param {Object} envjs - env.js配置对象
  * @returns {Promise<String>} 启动器路径
  */
-async function getLauncherPath(testPlatform, isUniappX, envjs) {
+async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs) {
     const launcherConfig = {
         [PLATFORM.ANDROID]: {
-            uniappX: config.UNIAPP_X_LAUNCHER_ANDROID,
+            uniappX: isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_ANDROID : config.UNIAPP_X_LAUNCHER_ANDROID,
             normal: config.LAUNCHER_ANDROID
         },
         // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
         [PLATFORM.IOS]: {
-            uniappX: config.UNIAPP_X_LAUNCHER_IOS,
+            uniappX: isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS : config.UNIAPP_X_LAUNCHER_IOS,
             normal: config.LAUNCHER_IOS
         }
     };
@@ -69,7 +69,7 @@ async function getLauncherPath(testPlatform, isUniappX, envjs) {
     if (launcherConfig[testPlatform]) {
         const platformConfig = launcherConfig[testPlatform];
         return isUniappX ? platformConfig.uniappX : platformConfig.normal;
-    }
+    };
 
     // harmony自动化测试，需要获取devEco的路径。需求来源: 马权、王振法
     if (testPlatform === PLATFORM.HARMONY) {
@@ -78,10 +78,9 @@ async function getLauncherPath(testPlatform, isUniappX, envjs) {
             return harmonyPath;
         }
         return await getPluginConfig("harmony.devTools.path");
-    }
-
+    };
     return "";
-}
+};
 
 /**
  * @description 获取鸿蒙平台的executablePath
@@ -125,24 +124,29 @@ function getPlatformConfigNode(envjs, isUniappX) {
  * @param {Object} envjs - env.js配置对象
  * @param {Boolean} isUniappX - 是否为uni-app x项目
  */
-function updateVersionInfo(envjs, isUniappX) {
+function updateVersionInfo(envjs, isUniappX, isVapor) {
     if (!envjs['app-plus']) {
         envjs['app-plus'] = {};
-    }
+    };
+    let versionTxtFile = config.LAUNCHER_VERSION_TXT;
     if (isUniappX) {
-        const oldVersion = envjs['app-plus']?.['uni-app-x']?.version;
-        const targetVersion = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
-        if (!oldVersion || oldVersion.trim() === '' || oldVersion !== targetVersion) {
+        versionTxtFile = config.UNIAPP_X_LAUNCHER_VERSION_TXT;
+    };
+    if (isVapor) {
+        versionTxtFile = config.UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT;
+    };
+    if (isUniappX) {
+        const oldVersionTxtFile = envjs['app-plus']?.['uni-app-x']?.version;
+        if (!oldVersionTxtFile || oldVersionTxtFile.trim() === '' || oldVersionTxtFile !== versionTxtFile) {
             if (!envjs['app-plus']['uni-app-x']) {
                 envjs['app-plus']['uni-app-x'] = {};
             }
-            envjs['app-plus']['uni-app-x']['version'] = targetVersion;
+            envjs['app-plus']['uni-app-x']['version'] = versionTxtFile;
         }
     } else {
-        const oldVersion = envjs['app-plus']['version'];
-        const targetVersion = config.LAUNCHER_VERSION_TXT;
-        if (!oldVersion || oldVersion.trim() === '' || oldVersion !== targetVersion) {
-            envjs['app-plus']['version'] = targetVersion;
+        const oldVersionTxtFile = envjs['app-plus']['version'];
+        if (!oldVersionTxtFile || oldVersionTxtFile.trim() === '' || oldVersionTxtFile !== versionTxtFile) {
+            envjs['app-plus']['version'] = versionTxtFile;
         }
     }
 }
@@ -179,8 +183,7 @@ function updateDeviceConfig(envjs, isUniappX, testPlatform, deviceId, launcherPa
 
     if (!configNode[testPlatform]) {
         configNode[testPlatform] = {};
-    }
-
+    };
     configNode[testPlatform]['id'] = deviceId;
 
     // 设置自动化测试基座类型：自定义基座、标准基座。自定义基座需要用户手动设置基座路径。不再修改executablePath路径。
@@ -188,7 +191,7 @@ function updateDeviceConfig(envjs, isUniappX, testPlatform, deviceId, launcherPa
     if (!isCustomRuntime) {
         configNode[testPlatform]['executablePath'] = launcherPath;
     }
-}
+};
 
 /**
  * @description 将配置写入文件
@@ -231,16 +234,21 @@ async function handleWeixinPlatform(envjs, envJsPath, logger) {
  *
  * @returns {Promise<Boolean>} - 修改成功返回true，失败返回false
  */
-async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectInfo = {}, terminalId) {
-    const { is_uniapp_x: isUniappX } = uniProjectInfo;
+async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectAttributeData = {}, terminalId) {
+    const {
+        is_uniapp_x: isUniappX,
+        is_uniapp_x_vapor: isVapor
+    } = uniProjectAttributeData;
+    console.error("isVapor = ", isVapor);
+
     const logger = createLogger(terminalId);
 
     if (terminalId) {
         await logger(`[uniapp.test] 修改测试配置文件: ${envJsPath}`);
     }
 
-    let envjs = loadEnvConfig(envJsPath);
-    if (!envjs) {
+    let envJsFileData = loadEnvConfig(envJsPath);
+    if (!envJsFileData) {
         await logger(`${envJsPath} 测试配置文件, 可能存在语法错误，请检查。`);
         return false;
     }
@@ -252,32 +260,32 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
 
     // 微信小程序平台特殊处理
     if (testPlatform === PLATFORM.MP_WEIXIN) {
-        return await handleWeixinPlatform(envjs, envJsPath, logger);
-    }
+        return await handleWeixinPlatform(envJsFileData, envJsPath, logger);
+    };
 
-    const launcherPath = await getLauncherPath(testPlatform, isUniappX, envjs);
-    const isCustomRuntime = envjs["is-custom-runtime"];
+    const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData);
+    console.log("[env.js]launcherPath = ", launcherPath)
+    const isCustomRuntime = envJsFileData["is-custom-runtime"];
 
-    updateVersionInfo(envjs, isUniappX);
+    updateVersionInfo(envJsFileData, isUniappX, isVapor);
 
-    const oldPhoneData = getOldPhoneData(envjs, isUniappX, testPlatform);
+    const oldPhoneData = getOldPhoneData(envJsFileData, isUniappX, testPlatform);
     const { id: oldId, executablePath: oldPath } = oldPhoneData;
 
     // 检查是否需要更新配置
     const needsUpdate = oldId !== deviceId || oldPath !== launcherPath;
     if (!needsUpdate) {
         return true;
-    }
+    };
 
-    updateDeviceConfig(envjs, isUniappX, testPlatform, deviceId, launcherPath, isCustomRuntime);
+    updateDeviceConfig(envJsFileData, isUniappX, testPlatform, deviceId, launcherPath, isCustomRuntime);
 
-    const writeSuccess = await writeEnvConfig(envJsPath, envjs);
+    const writeSuccess = await writeEnvConfig(envJsPath, envJsFileData);
     if (!writeSuccess) {
         await logger(`将测试设备（ ${deviceId} ）信息写入 ${envJsPath} 文件时失败，终止后续操作。`, 'warning');
         return false;
-    }
-
+    };
     return true;
-}
+};
 
 module.exports = editEnvjsFile;
