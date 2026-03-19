@@ -5,6 +5,7 @@ const os = require('os');
 const osName = os.platform();
 
 const { getPluginConfig, uniapp_x_is_vapor } = require('../core/core.js');
+const projectPath_vapor_mode_cache = {};
 
 async function ui_vue(testPlatform, projectPath="") {
     // hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"), false);
@@ -46,6 +47,10 @@ async function ui_vue(testPlatform, projectPath="") {
     if (projectPath) {
         isVapor = await uniapp_x_is_vapor(projectPath);
     };
+    let cfg_uniapp_test_vapor_mode = false;
+    if (projectPath && Object.hasOwn(projectPath_vapor_mode_cache, projectPath)) {
+        cfg_uniapp_test_vapor_mode = projectPath_vapor_mode_cache[projectPath];
+    };
 
     let result = await hx.window.showFormDialog({
         title: "uni-app 自动化测试设备选择",
@@ -73,6 +78,7 @@ async function ui_vue(testPlatform, projectPath="") {
                 "osName": osName,
                 "access": testPlatform,
                 "is_show_vapor_mode_element": isVapor,
+                cfg_uniapp_test_vapor_mode,
                 cfg_isDebug,
                 cfg_AutomaticModificationTestMatch
             },
@@ -103,6 +109,9 @@ async function ui_vue(testPlatform, projectPath="") {
     };
     if (result == "error") {
         return "error";
+    };
+    if (projectPath && Object.hasOwn(result, "cfg_uniapp_test_vapor_mode") && typeof result["cfg_uniapp_test_vapor_mode"] === "boolean") {
+        projectPath_vapor_mode_cache[projectPath] = result["cfg_uniapp_test_vapor_mode"];
     };
     // console.log("-->", result, result["selected_list"]);
 
