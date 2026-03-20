@@ -1,5 +1,9 @@
 # 更新日志
 
+## 4.8.0
+* fix: 蒸汽模式，env.js文件，基座路径没有被修改的Bug
+* add: 设备选择窗口，记忆蒸汽模式UI选择，在HBuilderX生命周期内，自动填充。
+
 ## 4.7.0
 * fix:  某些情况下，运行到自定义基座，env.js文件，executablePath值被清空的Bug
 * feat: 设备选择窗口，添加蒸汽模式UI.
