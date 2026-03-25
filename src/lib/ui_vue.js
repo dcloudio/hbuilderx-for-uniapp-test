@@ -4,7 +4,7 @@ const os = require('os');
 
 const osName = os.platform();
 
-const { getPluginConfig, uniapp_x_is_vapor } = require('../core/core.js');
+const { getPluginConfig, uniapp_x_is_vapor, isUniAppX } = require('../core/core.js');
 const projectPath_vapor_mode_cache = {};
 
 async function ui_vue(testPlatform, projectPath="") {
@@ -42,14 +42,20 @@ async function ui_vue(testPlatform, projectPath="") {
         cfg_AutomaticModificationTestMatch = is_modify_testMath;
     };
 
+    const is_uniapp_x_project = await isUniAppX(projectPath);
+    console.error("[is_uniapp_x_project]-->", is_uniapp_x_project);
+
     // 项目是否是蒸汽模式
-    let isVapor = false;
-    if (projectPath) {
-        isVapor = await uniapp_x_is_vapor(projectPath);
-    };
+    let is_show_vapor_ui = false;
     let cfg_uniapp_test_vapor_mode = false;
-    if (projectPath && Object.hasOwn(projectPath_vapor_mode_cache, projectPath)) {
-        cfg_uniapp_test_vapor_mode = projectPath_vapor_mode_cache[projectPath];
+
+    if (is_uniapp_x_project && projectPath) {
+        const is_vapor_project = await uniapp_x_is_vapor(projectPath);
+        console.error("[is_vapor_project]-->", is_uniapp_x_project);
+        is_show_vapor_ui = is_uniapp_x_project;
+        if (Object.hasOwn(projectPath_vapor_mode_cache, projectPath)) {
+            cfg_uniapp_test_vapor_mode = projectPath_vapor_mode_cache[projectPath];
+        };
     };
 
     let result = await hx.window.showFormDialog({
@@ -77,7 +83,7 @@ async function ui_vue(testPlatform, projectPath="") {
             "value": {
                 "osName": osName,
                 "access": testPlatform,
-                "is_show_vapor_mode_element": isVapor,
+                "is_show_vapor_mode_element": is_show_vapor_ui,
                 cfg_uniapp_test_vapor_mode,
                 cfg_isDebug,
                 cfg_AutomaticModificationTestMatch
