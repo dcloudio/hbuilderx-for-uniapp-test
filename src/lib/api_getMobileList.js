@@ -98,8 +98,19 @@ async function getDevicesFormLauncher(testPlatform, isRefresh) {
     };
     if (testPlatform == "all" || testPlatform == 'ios') {
         let ios_simulator_list = await extension_launcher.getDevices({ platform:'IOS_SIMULATOR'});
+        let ios_phone_list = await extension_launcher.getDevices({ platform:'iOS-iPhone'});
+        // console.error("[IOS]", ios_simulator_list, ios_phone_list);
         if (ios_simulator_list && ios_simulator_list.length > 0){
-            global_devicesList["ios_simulator"] = ios_simulator_list;
+            let tmp_ios_simulator_list = ios_simulator_list.map(function(v) {
+                return Object.assign(v, {"device_type": "模拟器"})
+            });
+            global_devicesList["ios_simulator"] = tmp_ios_simulator_list;
+        };
+        if (ios_phone_list && ios_phone_list.length > 0){
+            let tmp_ios_phone_list = ios_phone_list.map(function(v) {
+                return Object.assign(v, {"device_type": "真机"})
+            });
+            global_devicesList["ios_phone"] = tmp_ios_phone_list;
         };
     };
     if (testPlatform == "all" || testPlatform == 'android') {

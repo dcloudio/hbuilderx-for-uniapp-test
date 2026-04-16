@@ -35,7 +35,9 @@ const {
     getFileNameForDate
 } = require('./utils/utils_files.js');
 
-const editEnvjsFile = require('./core/edit_env_js_file.js');
+const {
+    editEnvjsFile, loadEnvConfig
+} = require('./core/edit_env_js_file.js');
 const { modifyJestConfigJSFile } = require('./core/edit_jest_config_js_file.js');
 
 const Initialize = require('./Initialize.js');

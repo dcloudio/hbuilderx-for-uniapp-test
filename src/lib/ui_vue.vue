@@ -33,8 +33,8 @@
                 <q-button id="refreshBtn" text="刷新设备" @clicked="refresh_device('ios')"></q-button>
             </q-view>
             <q-list-view id="QListView" :minimumHeight = "140">
-                <q-list-item layout='hbox' v-for="item in filter_ios_simulator_list">
-                    <q-checkbox id='elCBoxItem' :text="'  ' + item.name + '    ' + item.udid"
+                <q-list-item layout='hbox' v-for="item in filter_ios_list">
+                    <q-checkbox id='elCBoxItem' :text="'  ' + item.device_type + ' ' +  item.name + '    ' + item.udid"
                         :checked='selected_list["ios"].includes(item.udid)'
                         accessibleName="ios"
                         :data-value="item.udid"
@@ -153,7 +153,7 @@
                 h5_safari: false,
                 filter_ios_name: "",
                 android_list: [],
-                ios_simulator_list: [],
+                ios_list: [],
                 // harmony_list: [{"udid": "FMRGK24826000345", "name": "huawei"}],
                 harmony_list: [],
                 selected_list: {
@@ -172,10 +172,10 @@
         },
 
         computed: {
-            filter_ios_simulator_list() {
+            filter_ios_list() {
                 const word = this.filter_ios_name;
-                if (word.trim() == "") return this.ios_simulator_list;
-                let tmp = this.ios_simulator_list.filter(item=> item.name.includes(word) || item.udid.includes(word));
+                if (word.trim() == "") return this.ios_list;
+                let tmp = this.ios_list.filter(item=> item.name.includes(word) || item.udid.includes(word));
                 return tmp;
             }
         },
@@ -188,7 +188,9 @@
             async get_current_pc_device_list(platform='all') {
                 let result = await api_getMobileList(platform);
                 try {
-                    this.ios_simulator_list = result.ios_simulator ? result?.ios_simulator : [];
+                    let ios_sim_list = result.ios_simulator ? result?.ios_simulator : [];
+                    let ios_phone_list = result.ios_phone ? result?.ios_phone : [];
+                    this.ios_list = [...ios_sim_list, ...ios_phone_list];
                     this.android_list = result.android ? result.android : [];
                     if (result.harmony) {
                         this.harmony_list = result.harmony;
@@ -205,8 +207,8 @@
                         this.selected_list['android'] = [this.android_list[0].udid];
                         this.updateUi();
                     };
-                    if (this.access == "ios" && this.ios_simulator_list.length == 1) {
-                        this.selected_list['ios'] = [this.ios_simulator_list[0].udid];
+                    if (this.access == "ios" && this.ios_list.length == 1) {
+                        this.selected_list['ios'] = [this.ios_list[0].udid];
                         this.updateUi();
                     };
                     if (this.access == "harmony" && this.harmony_list.length == 1) {
@@ -264,7 +266,7 @@
                 // console.log(`${platform} ====`, result);
                 try {
                     if (platform == "all" || platform == "ios") {
-                        this.ios_simulator_list = result.ios_simulator ? result?.ios_simulator : [];
+                        this.ios_list = result.ios_simulator ? result?.ios_simulator : [];
                     };
                     if (platform == "all" || platform == "android") {
                         this.android_list = result.android ? result.android : [];

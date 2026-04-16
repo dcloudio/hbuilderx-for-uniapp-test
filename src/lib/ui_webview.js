@@ -85,7 +85,8 @@ async function ui_webview(testPlatform) {
  */
 function showSetView(testPlatform, phoneList) {
     let description = "选择要测试的手机设备或模拟器";
-    description = osName == 'darwin' ? description + '，ios自动化测试仅支持iOS模拟器。' : description + '，Windows不支持ios自动化测试。';
+    // description = osName == 'darwin' ? description + '，ios自动化测试仅支持iOS模拟器。' : description + '，Windows不支持ios自动化测试。';
+    description = osName == 'darwin' ? description + '。' : description + '，Windows不支持ios自动化测试。';
     description = description + '<a href="https://hx.dcloud.net.cn/Tutorial/App/installSimulator">如何安装?</a>'
     return new Promise(function(resolve, reject) {
         // 创建webviewDialog, 并设置对话框基本属性，包括标题、按钮等

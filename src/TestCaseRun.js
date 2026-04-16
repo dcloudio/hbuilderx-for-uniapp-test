@@ -17,6 +17,7 @@ const cmpVerionForH5 = compareHBuilderXVersions(hxVersionForDiff, '3.2.10');
 let config = require('./core/config.js');
 
 const getProjectUnicloudData = require("./core/get_project_unicloud_data.js");
+const IOSDeviceHelper = require('./core/ios_device_helper.js');
 const {
     isUniAppCli,
     isUniAppX,
@@ -28,7 +29,8 @@ const {
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson,
-    uniapp_x_is_vapor
+    uniapp_x_is_vapor,
+    get_ios_device_type
 } = require('./core/core.js');
 
 const {
@@ -40,7 +42,9 @@ const {
     getFileNameForDate
 } = require('./utils/utils_files.js');
 
-const editEnvjsFile = require('./core/edit_env_js_file.js');
+const {
+    editEnvjsFile
+} = require('./core/edit_env_js_file.js');
 const { modifyJestConfigJSFile } = require('./core/edit_jest_config_js_file.js');
 
 const Initialize = require('./Initialize.js');
@@ -527,11 +531,23 @@ class RunTest extends Common {
             maxBuffer: 2000 * 1024
         };
 
-        // 蒸汽模式：依据项目mainfest.json
-        // let isVapor = await uniapp_x_is_vapor(this.projectPath, is_uniapp_cli);
-        // if (typeof isVapor === 'boolean' && isVapor) {
-        //     cmdOpts["env"]["UNI_APP_X_DOM2"] = true;
-        // };
+        // 2026-04 需求：ios需要支持真机 gml要求传递参数 HX_USE_BASE_TYPE
+        if (testPlatform == "ios") {
+            let test_device_type = await get_ios_device_type(deviceId);
+            console.log("test_device_type =>", test_device_type);
+            if (test_device_type == "真机") {
+                const iosHelper = new IOSDeviceHelper();
+                let ipa_path = await iosHelper.get_ios_ipa_path(is_uniapp_x, UNI_APP_X_DOM2, this.UNI_AUTOMATOR_CONFIG);
+                cmdOpts.env.HX_USE_BASE_TYPE = await iosHelper.get_hx_use_base_type(this.UNI_AUTOMATOR_CONFIG);
+                cmdOpts.env.IOS_RUNTIME_NASE_PATH = ipa_path;
+
+                const _utsBaseInfo = await iosHelper.get_uts_base_info(is_uniapp_x, ipa_path);
+                cmdOpts.env.UTS_BASE_INFO = _utsBaseInfo ? JSON.stringify(_utsBaseInfo) : '';
+                if (_utsBaseInfo == null) {
+                    createOutputChannel(`[iOS真机测试] 未能从IPA包中读取到UTS基础信息，可能会导致测试运行异常，请检查！`, 'warning');
+                };
+            };
+        };
 
         // 蒸汽模式：设备选择窗口的配置设置
         if (UNI_APP_X_DOM2 === true) {
@@ -820,7 +836,10 @@ class RunTest extends Common {
             "is_uniapp_cli": is_uniapp_cli
         };
         let changeResult = await modifyJestConfigJSFile(scope, proj);
-        if (changeResult == false) return;
+        if (changeResult == false) {
+            logger("修改测试范围失败，测试中止。");
+            return;
+        };
 
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uniPlatform) {

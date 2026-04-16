@@ -3,7 +3,8 @@ const hx = require('hbuilderx');
 let config = require('./config.js');
 const {
     createOutputChannel,
-    getPluginConfig
+    getPluginConfig,
+    get_ios_device_type
 } = require('./core.js');
 
 const {
@@ -53,16 +54,20 @@ function loadEnvConfig(envJsPath) {
  * @param {Object} envjs - env.js配置对象
  * @returns {Promise<String>} 启动器路径
  */
-async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs) {
+async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs, test_device_type="") {
+    // console.error("[test_device_type] = ", test_device_type);
+    const isIOSRealDevice = testPlatform === PLATFORM.IOS && test_device_type === "真机";
+    
     const launcherConfig = {
         [PLATFORM.ANDROID]: {
             uniappX: isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_ANDROID : config.UNIAPP_X_LAUNCHER_ANDROID,
             normal: config.LAUNCHER_ANDROID
         },
-        // ios真机、模拟器，所需的文件不一样。由于uni-app测试框架不支持ios真机。这里暂不区分。
         [PLATFORM.IOS]: {
-            uniappX: isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS : config.UNIAPP_X_LAUNCHER_IOS,
-            normal: config.LAUNCHER_IOS
+            uniappX: isIOSRealDevice 
+                ? (isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA : config.UNIAPP_X_LAUNCHER_IOS_IPA)
+                : (isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS : config.UNIAPP_X_LAUNCHER_IOS),
+            normal: isIOSRealDevice ? config.LAUNCHER_IOS_IPA : config.LAUNCHER_IOS
         }
     };
 
@@ -221,7 +226,8 @@ async function handleWeixinPlatform(envjs, envJsPath, logger) {
         return false;
     }
     return true;
-}
+};
+
 
 /**
  * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
@@ -242,10 +248,15 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
     console.error("isVapor = ", isVapor);
 
     const logger = createLogger(terminalId);
-
     if (terminalId) {
         await logger(`[uniapp.test] 修改测试配置文件: ${envJsPath}`);
-    }
+    };
+
+    // 设备类型 模拟器、真机。目前只有ios平台需要
+    let test_device_type = "";
+    if (testPlatform == "ios") {
+        test_device_type = await get_ios_device_type(deviceId);
+    };
 
     let envJsFileData = loadEnvConfig(envJsPath);
     if (!envJsFileData) {
@@ -263,7 +274,7 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
         return await handleWeixinPlatform(envJsFileData, envJsPath, logger);
     };
 
-    const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData);
+    const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData, test_device_type);
     console.log("[env.js]launcherPath = ", launcherPath)
     const isCustomRuntime = envJsFileData["is-custom-runtime"];
 
@@ -288,4 +299,7 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
     return true;
 };
 
-module.exports = editEnvjsFile;
+module.exports = {
+    editEnvjsFile,
+    loadEnvConfig
+};

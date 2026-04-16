@@ -88,7 +88,8 @@ async function getUIData(testPlatform, isManualRefresh = false) {
     };
 
     let subtitle = "选择要测试的手机设备或模拟器";
-    subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
+    // subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
+    subtitle = osName == 'darwin' ? subtitle + '。' : subtitle + '，Windows不支持ios自动化测试。';
     subtitle = subtitle + '<a href="https://hx.dcloud.net.cn/Tutorial/App/installSimulator">如何安装?</a>'
 
     // 构造：h5数据

@@ -20,15 +20,18 @@ const HBuilderX_NPM_PATH = path.join(hx.env.appRoot, "plugins", "npm", "npm");
 const LAUNCHER_PATH = path.join(hx.env.appRoot, "plugins", "launcher");
 const LAUNCHER_ANDROID = path.join(LAUNCHER_PATH, "base/android_base.apk");
 const LAUNCHER_IOS = path.join(LAUNCHER_PATH, "base/Pandora_simulator.app");
+const LAUNCHER_IOS_IPA = path.join(LAUNCHER_PATH, "base/iPhone_base.ipa");
 const LAUNCHER_VERSION_TXT = path.join(LAUNCHER_PATH, "base", "version.txt");
 
 const UNIAPP_X_LAUNCHER_PATH = path.join(hx.env.appRoot, "plugins", "uniappx-launcher");
 const UNIAPP_X_LAUNCHER_IOS = path.join(UNIAPP_X_LAUNCHER_PATH, "base/Pandora_simulator.app");
+const UNIAPP_X_LAUNCHER_IOS_IPA = path.join(UNIAPP_X_LAUNCHER_PATH, "base/iPhone_base.ipa");
 const UNIAPP_X_LAUNCHER_ANDROID = path.join(UNIAPP_X_LAUNCHER_PATH, "base/android_base.apk");
 const UNIAPP_X_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_LAUNCHER_PATH, "base", "version.txt");
 
 const UNIAPP_X_VAPOR_LAUNCHER_PATH = path.join(hx.env.appRoot, "plugins", "uniappx-vapor-launcher");
 const UNIAPP_X_VAPOR_LAUNCHER_IOS = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/Pandora_simulator.app");
+const UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/iPhone_base.ipa");
 const UNIAPP_X_VAPOR_LAUNCHER_ANDROID = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/android_base.apk");
 const UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base", "version.txt");
 
@@ -85,16 +88,19 @@ module.exports = {
     LAUNCHER_PATH,
     LAUNCHER_ANDROID,
     LAUNCHER_IOS,
+    LAUNCHER_IOS_IPA,
     LAUNCHER_VERSION_TXT,
 
     UNIAPP_X_LAUNCHER_PATH,
     UNIAPP_X_LAUNCHER_ANDROID,
     UNIAPP_X_LAUNCHER_IOS,
+    UNIAPP_X_LAUNCHER_IOS_IPA,
     UNIAPP_X_LAUNCHER_VERSION_TXT,
 
     UNIAPP_X_VAPOR_LAUNCHER_PATH,
     UNIAPP_X_VAPOR_LAUNCHER_ANDROID,
     UNIAPP_X_VAPOR_LAUNCHER_IOS,
+    UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA,
     UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT,
 
     UNI_CLI_PATH,

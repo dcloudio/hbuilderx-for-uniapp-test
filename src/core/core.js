@@ -598,6 +598,29 @@ async function uniapp_x_is_vapor(projectPath, is_uniapp_cli=false) {
     }
 };
 
+
+/**
+ * @description 获取ios设备类型： 真机 | 模拟器
+ * @param {Object} deviceId
+ */
+async function get_ios_device_type(deviceId) {
+    let test_device_type = "";
+    try {
+        let device_result = global.global_devicesList;
+        let ios_sim_list = device_result.ios_simulator ? device_result?.ios_simulator : [];
+        let ios_phone_list = device_result.ios_phone ? device_result?.ios_phone : [];
+        let ios_list = [...ios_phone_list, ...ios_sim_list];
+        for (let s of ios_list) {
+            if (s.udid == deviceId) {
+                test_device_type = s.device_type;
+                break;
+            };
+        };
+    } catch (error) {};
+    return test_device_type;
+};
+
+
 module.exports = {
     getPluginConfig,
     createOutputChannel,
@@ -613,5 +636,6 @@ module.exports = {
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson,
-    uniapp_x_is_vapor
+    uniapp_x_is_vapor,
+    get_ios_device_type
 };
