@@ -1,5 +1,10 @@
 # 更新日志
 
+## 4.9.0
+* feat: uni-app (x) 运行测试到iOS，增加环境变量UNI_DEVICE_TYPE
+* feat: uni-app (x) 运行测试到iOS，支持iOS真机
+* feat: HBuilderX cli 运行测试到iOS，支持iOS真机
+
 ## 4.8.1
 * fix: 4.8.0版本引出的 某些情况下，蒸汽模式环境变量传递错误的Bug
 
