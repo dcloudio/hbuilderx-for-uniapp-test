@@ -196,7 +196,7 @@
       {
         "name": "uniapp.test",
         "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
-        "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n",
+        "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-ios --project <ProjectPath> \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n",
         "args": [
           {
             "name": "help",
@@ -453,6 +453,45 @@
           {
             "name": "device_id",
             "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          }
+        ]
+      },
+      {
+        "name": "uniapp.test app-ios",
+        "descption": "CLI 自动化测试到uni-app (x)",
+        "doc": "用法: ./cli uniapp.test app-ios --project <ProjectPath>",
+        "args": [
+          {
+            "name": "help",
+            "descption": "uni-app (x) 自动化测试cli命令帮助"
+          },
+          {
+            "name": "project",
+            "descption": "uni-app (x) project path",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "testcaseFile",
+            "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
+            "usage": "",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "vapor",
+            "descption": "(可选) 是否启用vapor模式",
+            "usage": "",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "device_id",
+            "descption": "(可选) iOS真机设备ID，当存在可用设备时，默认使用第一个设备",
             "usage": "",
             "type": "string",
             "default": ""

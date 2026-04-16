@@ -10,6 +10,7 @@ const hxVersion = hx.env.appVersion;
 
 let config = require('./core/config.js');
 
+const IOSDeviceHelper = require('./core/ios_device_helper.js');
 const api_getMobileList = require("./lib/api_getMobileList.js");
 const getProjectUnicloudData = require("./core/get_project_unicloud_data.js");
 const {
@@ -387,8 +388,9 @@ class RunTestForHBuilderXCli extends Common {
      * @description 测试运行执行方法
      * @param {String} testPlatform - 测试平台, ios|android|h5|mp-weixin
      * @param {String} deviceId - 手机设备iD （主要用户控制台日志打印）
+     * @param {String} deviceType - 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机
      */
-    async run_uni_test(testPlatform, deviceId) {
+    async run_uni_test(testPlatform, deviceId, deviceType = "") {
         let UNI_APP_X_DOM2 = false;
         if (this.raw_argv_vapor === true && is_uniapp_x) {
             UNI_APP_X_DOM2 = true;
@@ -401,7 +403,14 @@ class RunTestForHBuilderXCli extends Common {
 
         let result;
         try {
-            result = await editEnvjsFile(this.UNI_AUTOMATOR_CONFIG, testPlatform, deviceId, uniProjectAttributeData, this.terminal_id);
+            result = await editEnvjsFile(
+                this.UNI_AUTOMATOR_CONFIG, 
+                testPlatform, 
+                deviceId, 
+                uniProjectAttributeData, 
+                this.terminal_id,
+                deviceType
+            );
         } catch (error) {
             console.error("[error]....", error);
             result = false;
@@ -460,6 +469,23 @@ class RunTestForHBuilderXCli extends Common {
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        if (testPlatform == "ios") {
+            cmdOpts.env.UNI_DEVICE_TYPE = "模拟器";
+        }
+        if (testPlatform == "ios" &&deviceType == "真机") {
+            const iosHelper = new IOSDeviceHelper();
+            let ipa_path = await iosHelper.get_ios_ipa_path(is_uniapp_x, UNI_APP_X_DOM2, this.UNI_AUTOMATOR_CONFIG);
+            cmdOpts.env.HX_USE_BASE_TYPE = await iosHelper.get_hx_use_base_type(this.UNI_AUTOMATOR_CONFIG);
+            cmdOpts.env.IOS_RUNTIME_NASE_PATH = ipa_path;
+
+            const _utsBaseInfo = await iosHelper.get_uts_base_info(is_uniapp_x, ipa_path);
+            cmdOpts.env.UTS_BASE_INFO = _utsBaseInfo ? JSON.stringify(_utsBaseInfo) : '';
+            if (_utsBaseInfo == null) {
+                createOutputChannel(`[iOS真机测试] 未能从IPA包中读取到UTS基础信息，可能会导致测试运行异常，请检查！`, 'warning');
+            };
+            cmdOpts.env.UNI_DEVICE_TYPE = "真机";
         };
 
         // 蒸汽模式：命令行传递
@@ -613,8 +639,9 @@ class RunTestForHBuilderXCli extends Common {
      * @description 运行测试，适用于选择多个设备后执行
      * @param {Object} testPlatform [iOS|android|all]
      * @param {Object} testDevicesList
+     * @param {Object} deviceType 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机
      */
-    async run_more_test(testPlatform, testDevicesList) {
+    async run_more_test(testPlatform, testDevicesList, deviceType = "") {
         if (isStopAllTest) { return };
         if (testPlatform == 'all') {
             if (isStopAllTest) { return };
@@ -631,7 +658,7 @@ class RunTestForHBuilderXCli extends Common {
                     plat = deviceId;
                     await this.run_uni_test(plat);
                 } else {
-                    await this.run_uni_test(plat, deviceId);
+                    await this.run_uni_test(plat, deviceId, deviceType);
                 };
             };
         };
@@ -640,8 +667,8 @@ class RunTestForHBuilderXCli extends Common {
         };
     };
 
-    async getTestDevicesList(testPlatform) {
-        let data = await api_getMobileList(testPlatform, "Y");
+    async getTestDevicesList(testPlatform, deviceType = "") {
+        let data = await api_getMobileList(testPlatform, "Y", deviceType);
         await this.print_cli_log(`${testPlatform}，设备列表: \n ${JSON.stringify(data, null, 2)}`);
 
         if (JSON.stringify(data) == '{}') {
@@ -652,6 +679,9 @@ class RunTestForHBuilderXCli extends Common {
         let result = data[testPlatform];
         if (testPlatform == "ios") {
             result = data["ios_simulator"];
+        };
+        if (testPlatform == "ios" && deviceType == "真机") {
+            result = data["ios_phone"];
         };
 
         if (result == undefined || result.length == 0) {
@@ -669,8 +699,11 @@ class RunTestForHBuilderXCli extends Common {
     /**
      * @description 测试用例运行主入口文件
      * @param {Object} param cli传递的参数信息
+     * @param {String} terminalID 终端ID，用于区分不同的终端输出日志
+     * @param {String} uni_platformName 测试平台名称，来自cli传递的参数
+     * @param {String} deviceType 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机
      */
-    async main(params, terminalID, uni_platformName) {
+    async main(params, terminalID, uni_platformName, deviceType = "") {
         this.terminal_id = terminalID;
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
 
@@ -726,7 +759,7 @@ class RunTestForHBuilderXCli extends Common {
         if (['all', 'ios', 'android', 'harmony'].includes(argv_uni_platform) && argv_device_id == '') {
             await this.print_cli_log(`开始获取可用的测试设备列表 ..... `);
             // 选择要运行的设备
-            testPhoneList = await this.getTestDevicesList(argv_uni_platform);
+            testPhoneList = await this.getTestDevicesList(argv_uni_platform, deviceType);
             if (testPhoneList.length == 0) return;
             if (testPhoneList.length > 1) {
                 await this.print_cli_log(`检测到多个测试设备，默认只运行第一个设备 ..... `);
@@ -795,7 +828,7 @@ class RunTestForHBuilderXCli extends Common {
                 await this.run_uni_test('mp-weixin');
                 break;
             case 'ios':
-                await this.run_more_test('ios', testPhoneList);
+                await this.run_more_test('ios', testPhoneList, deviceType);
                 break;
             case 'android':
                 await this.run_more_test('android', testPhoneList);
@@ -843,7 +876,14 @@ async function readPluginsPackageJson() {
 };
 
 
-async function RunTestForHBuilderXCli_main(params, uni_platformName) {
+/**
+ * @description 运行测试的主入口，供HBuilderX CLI调用
+ * @param {*} params 
+ * @param {*} uni_platformName 
+ * @param {*} deviceType 设备类型。目前只有运行到ios真机时，才会使用到这个参数。
+ * @returns 
+ */
+async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType="") {
     // 解析命令行参数与输入
     let { args } = params;
     let client_id = params.cliconsole.clientId;
@@ -881,7 +921,7 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName) {
     } else {
         try {
             let cli = new RunTestForHBuilderXCli();
-            await cli.main(params.args, client_id, uni_platformName);
+            await cli.main(params.args, client_id, uni_platformName, deviceType);
         } catch (error) {
             await hx.cliconsole.log({ clientId: client_id, msg: "运行异常，" + error });
         };

@@ -237,10 +237,10 @@ async function handleWeixinPlatform(envjs, envJsPath, logger) {
  * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
  * @param {Object} uniProjectInfo - uni-app项目信息
  * @param {String} terminalId - 终端ID
- *
+ * @param {String} deviceType - 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机 (此方法deviceType参数只有 hbuilderx cli调用时会传值，其他场景调用时不传值，默认为"")
  * @returns {Promise<Boolean>} - 修改成功返回true，失败返回false
  */
-async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectAttributeData = {}, terminalId) {
+async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectAttributeData = {}, terminalId, deviceType = "") {
     const {
         is_uniapp_x: isUniappX,
         is_uniapp_x_vapor: isVapor
@@ -256,6 +256,9 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
     let test_device_type = "";
     if (testPlatform == "ios") {
         test_device_type = await get_ios_device_type(deviceId);
+    };
+    if (deviceType == "真机") {
+        test_device_type = "真机";
     };
 
     let envJsFileData = loadEnvConfig(envJsPath);

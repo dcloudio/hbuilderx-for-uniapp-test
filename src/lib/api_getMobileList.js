@@ -129,18 +129,24 @@ async function getDevicesFormLauncher(testPlatform, isRefresh) {
 };
 
 
-async function api_getMobileList(testPlatform, isRefresh="N") {
+async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
     hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test: 正在获取测试设备列表...", 5000, 'info');
     // console.log("============", testPlatform, global_devicesList, global_devicesList["harmony"]);
 
     if (isRefresh == "N") {
         if (testPlatform == "all" &&
             global_devicesList["ios_simulator"] != undefined &&
+            global_devicesList["ios_phone"] != undefined &&
             global_devicesList["android"] != undefined) {
             return global_devicesList;
         };
-        if (testPlatform == "ios" && global_devicesList["ios_simulator"] != undefined) {
-            return global_devicesList;
+        if (testPlatform == "ios") {
+            if (global_devicesList["ios_simulator"] != undefined && deviceType == "") {
+                return global_devicesList;
+            };
+            if (global_devicesList["ios_phone"] != undefined && deviceType == "真机") {
+                return global_devicesList;
+            };
         };
         if (testPlatform == "android" && global_devicesList["android"] != undefined) {
             return global_devicesList;

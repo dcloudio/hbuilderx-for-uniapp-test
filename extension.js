@@ -175,9 +175,9 @@ function activate(context) {
     context.subscriptions.push(cli_uni);
 
     // 批量注册 CLI 命令
-    const registerCli = (cmdId, platform) => {
+    const registerCli = (cmdId, platform, deviceType) => {
         const disposable = hx.commands.registerCliCommand(cmdId, async (params) => {
-            await RunTestForHBuilderXCli_main(params, platform);
+            await RunTestForHBuilderXCli_main(params, platform, deviceType);
         });
         context.subscriptions.push(disposable);
     };
@@ -190,8 +190,9 @@ function activate(context) {
         ['uniapp.test mp-weixin', 'mp-weixin'],
         ['uniapp.test app-android', 'android'],
         ['uniapp.test app-ios-simulator', 'ios'],
+        ['uniapp.test app-ios', 'ios', '真机'],
         ['uniapp.test app-harmony', 'harmony'],
-    ].forEach(([cmd, platform]) => registerCli(cmd, platform));};
+    ].forEach(([cmd, platform, deviceType]) => registerCli(cmd, platform, deviceType));};
 
 //该方法将在插件禁用的时候调用（目前是在插件卸载的时候触发）
 function deactivate() {
