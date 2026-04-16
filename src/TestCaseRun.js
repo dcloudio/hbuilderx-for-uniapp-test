@@ -533,6 +533,7 @@ class RunTest extends Common {
 
         // 2026-04 需求：ios需要支持真机 gml要求传递参数 HX_USE_BASE_TYPE
         if (testPlatform == "ios") {
+            cmdOpts.env.UNI_DEVICE_TYPE = "模拟器";
             let test_device_type = await get_ios_device_type(deviceId);
             console.log("test_device_type =>", test_device_type);
             if (test_device_type == "真机") {
@@ -546,6 +547,7 @@ class RunTest extends Common {
                 if (_utsBaseInfo == null) {
                     createOutputChannel(`[iOS真机测试] 未能从IPA包中读取到UTS基础信息，可能会导致测试运行异常，请检查！`, 'warning');
                 };
+                cmdOpts.env.UNI_DEVICE_TYPE = "真机";
             };
         };
 
