@@ -89,16 +89,6 @@
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 
-        <!-- 配置项 -->
-        <q-view layout='hbox' v-if="is_show_vapor_mode_element">
-            <q-checkbox id="elCheckBox2"
-                text=" 以蒸汽模式运行测试"
-                :checked='cfg_uniapp_test_vapor_mode'
-                accessibleName="cfg_uniapp_test_vapor_mode"
-                @clicked="el_set" />
-            <q-view horizontal-size-policy="Expanding"></q-view>
-        </q-view>
-
         <q-view layout='hbox'>
             <q-checkbox id="elCheckBox2"
                 text=" 是否输出 Debug 日志"
@@ -111,6 +101,35 @@
                 accessibleName="cfg_AutomaticModificationTestMatch"
                 @clicked="el_set" />
         </q-view>
+
+        <!-- 配置项 -->
+        <q-view layout='hbox' v-if="is_show_vapor_mode_element">
+            <q-checkbox id="elCheckBox2"
+                text=" 以蒸汽模式运行测试"
+                :checked='cfg_uniapp_test_vapor_mode'
+                accessibleName="cfg_uniapp_test_vapor_mode"
+                @clicked="el_set" />
+            <!-- <q-view horizontal-size-policy="Expanding"></q-view> -->
+            <!-- <q-view layout='hbox' v-if="is_show_vapor_mode_element && cfg_uniapp_test_vapor_mode"> -->
+                <!-- <q-label text="视图层编译目标: " id="vaporRenderTarget"></q-label> -->
+            <q-radio-group layout="hbox" v-if="is_show_vapor_mode_element && cfg_uniapp_test_vapor_mode" style="margin-left: 30px">
+                <q-radio id="elRadioButton"
+                    text=" 字节码"
+                    data-type="bytecode"
+                    :checked="`${uni_app_x_vapor_render_target == 'bytecode'}`"
+                    accessibleName="uni_app_x_vapor_render_target"
+                    @clicked="set_vapor_render_target"></q-radio>
+                <q-radio id="elRadioButton"
+                    text=" 机器码"
+                    data-type="nativecode"
+                    :checked="`${uni_app_x_vapor_render_target == 'nativecode'}`"
+                    accessibleName="uni_app_x_vapor_render_target"
+                    @clicked="set_vapor_render_target"></q-radio>
+            </q-radio-group>
+            <q-view horizontal-size-policy="Expanding"></q-view>
+            <!-- </q-view> -->
+        </q-view>
+        
 
         <!-- 配置项 -->
       <!--  <q-view layout='vbox' style="padding-top: 5px;">
@@ -167,6 +186,7 @@
 
                 // 设置项。是否开启蒸汽模式
                 cfg_uniapp_test_vapor_mode: '',
+                uni_app_x_vapor_render_target: 'bytecode',
                 is_show_vapor_mode_element: false
             }
         },
@@ -256,6 +276,13 @@
                 };
                 if (accessibleName == "filter_ios_name") {
                     this.filter_ios_name = e.target.text;
+                };
+                this.updateUi();
+            },
+            set_vapor_render_target(e) {
+                const data_type = e.target["data-type"];
+                if (["bytecode", "nativecode"].includes(data_type)) {
+                    this.uni_app_x_vapor_render_target = data_type;
                 };
                 this.updateUi();
             },
@@ -368,6 +395,10 @@
         font-size: 12px;
         color: rgb(64, 94, 66);
     }
+    #vaporRenderTarget {
+        font-size: 12px;
+        color: rgb(64, 94, 66);
+    }
 
     #elCheckBox2::indicator::unchecked {
         image: url(:/hxui/resource/chbx.png);
@@ -375,6 +406,26 @@
 
     #elCheckBox2::indicator::checked {
         image: url(:/hxui/resource/chbx-checked.png);
+    }
+
+    #elRadioButton {
+        font-size: 12px;
+        color: rgb(64, 94, 66);
+    }
+    #elRadioButton::indicator::unchecked {        
+        image: url(:/hxui/resource/rdbt.png); 
+        height: 12px;
+        width: 12px;
+    }
+    #elRadioButton::indicator::unchecked:hover {  
+        image: url(:/hxui/resource/rdbt-hover.png);
+        height: 12px;
+        width: 12px;
+    }                                                            
+    #elRadioButton::indicator::checked {
+        image: url(:/hxui/resource/rdbt-checked.png); 
+        height: 12px;
+        width: 12px;
     }
 
     #QListView {

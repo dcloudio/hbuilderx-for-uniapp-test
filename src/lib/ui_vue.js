@@ -6,6 +6,7 @@ const osName = os.platform();
 
 const { getPluginConfig, uniapp_x_is_vapor, isUniAppX } = require('../core/core.js');
 const projectPath_vapor_mode_cache = {};
+const projectPath_vapor_render_target_cache = {};
 
 async function ui_vue(testPlatform, projectPath="") {
     // hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"), false);
@@ -13,9 +14,9 @@ async function ui_vue(testPlatform, projectPath="") {
 
     let window_height = 750;
     if (osName == "win32") {
-        window_height = testPlatform == "all" ? 550 : 450;
+        window_height = testPlatform == "all" ? 580 : 480;
     } else {
-        window_height = testPlatform == "all" ? 750 : 450;
+        window_height = testPlatform == "all" ? 780 : 480;
     };
 
     let subtitle = "选择要测试的手机设备或模拟器";
@@ -49,6 +50,7 @@ async function ui_vue(testPlatform, projectPath="") {
     // 项目是否是蒸汽模式
     let is_show_vapor_ui = false;
     let cfg_uniapp_test_vapor_mode = false;
+    let uni_app_x_vapor_render_target = "bytecode";
 
     if (is_uniapp_x_project && projectPath) {
         const is_vapor_project = await uniapp_x_is_vapor(projectPath);
@@ -56,6 +58,9 @@ async function ui_vue(testPlatform, projectPath="") {
         is_show_vapor_ui = is_uniapp_x_project;
         if (Object.hasOwn(projectPath_vapor_mode_cache, projectPath)) {
             cfg_uniapp_test_vapor_mode = projectPath_vapor_mode_cache[projectPath];
+        };
+        if (Object.hasOwn(projectPath_vapor_render_target_cache, projectPath)) {
+            uni_app_x_vapor_render_target = projectPath_vapor_render_target_cache[projectPath];
         };
     };
 
@@ -86,6 +91,7 @@ async function ui_vue(testPlatform, projectPath="") {
                 "access": testPlatform,
                 "is_show_vapor_mode_element": is_show_vapor_ui,
                 cfg_uniapp_test_vapor_mode,
+                uni_app_x_vapor_render_target,
                 cfg_isDebug,
                 cfg_AutomaticModificationTestMatch
             },
@@ -119,6 +125,9 @@ async function ui_vue(testPlatform, projectPath="") {
     };
     if (projectPath && Object.hasOwn(result, "cfg_uniapp_test_vapor_mode") && typeof result["cfg_uniapp_test_vapor_mode"] === "boolean") {
         projectPath_vapor_mode_cache[projectPath] = result["cfg_uniapp_test_vapor_mode"];
+    };
+    if (projectPath && Object.hasOwn(result, "uni_app_x_vapor_render_target") && ["bytecode", "nativecode"].includes(result["uni_app_x_vapor_render_target"])) {
+        projectPath_vapor_render_target_cache[projectPath] = result["uni_app_x_vapor_render_target"];
     };
     // console.log("-->", result, result["selected_list"]);
 
@@ -156,7 +165,7 @@ async function ui_vue(testPlatform, projectPath="") {
         selectedList.push(`h5:h5-safari`);
     };
 
-    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch', 'cfg_uniapp_test_vapor_mode'];
+    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch', 'cfg_uniapp_test_vapor_mode', 'uni_app_x_vapor_render_target'];
     _cfg_keys.forEach(key => {
       if (Object.hasOwn(result, key)) {
         uiSettings[key] = result[key];

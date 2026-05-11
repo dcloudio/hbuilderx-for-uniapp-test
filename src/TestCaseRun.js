@@ -473,8 +473,10 @@ class RunTest extends Common {
      */
     async run_uni_test(testPlatform, deviceId) {
         let UNI_APP_X_DOM2 = false;
+        let UNI_APP_X_VAPOR_RENDER_TARGET = "";
         if (global_uniSettings?.cfg_uniapp_test_vapor_mode === true) {
             UNI_APP_X_DOM2 = true;
+            UNI_APP_X_VAPOR_RENDER_TARGET = ["bytecode", "nativecode"].includes(global_uniSettings?.uni_app_x_vapor_render_target) ? global_uniSettings.uni_app_x_vapor_render_target : "bytecode";
         };
         let uniProjectAttributeData = {
             "is_uniapp_x": is_uniapp_x,
@@ -554,6 +556,7 @@ class RunTest extends Common {
         // 蒸汽模式：设备选择窗口的配置设置
         if (UNI_APP_X_DOM2 === true) {
             cmdOpts["env"]["UNI_APP_X_DOM2"] = UNI_APP_X_DOM2;
+            cmdOpts["env"]["UNI_APP_X_VAPOR_RENDER_TARGET"] = UNI_APP_X_VAPOR_RENDER_TARGET;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
