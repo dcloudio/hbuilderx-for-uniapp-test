@@ -319,6 +319,7 @@ class RunTestForHBuilderXCli extends Common {
         this.consoleMsgPrefix = "[uniapp.test] ";
         this.raw_argv_uni_platform = "";
         this.raw_argv_vapor = false;
+        this.raw_argv_vapor_render_target = "";
 
         this.terminal_id = "";
         this.projectName = '';
@@ -392,8 +393,10 @@ class RunTestForHBuilderXCli extends Common {
      */
     async run_uni_test(testPlatform, deviceId, deviceType = "") {
         let UNI_APP_X_DOM2 = false;
+        let UNI_APP_X_VAPOR_RENDER_TARGET = "";
         if (this.raw_argv_vapor === true && is_uniapp_x) {
             UNI_APP_X_DOM2 = true;
+            UNI_APP_X_VAPOR_RENDER_TARGET = ["bytecode", "nativecode"].includes(this.raw_argv_vapor_render_target) ? this.raw_argv_vapor_render_target : "bytecode";
         };
         let uniProjectAttributeData = {
             "is_uniapp_x": is_uniapp_x,
@@ -491,6 +494,7 @@ class RunTestForHBuilderXCli extends Common {
         // 蒸汽模式：命令行传递
         if (UNI_APP_X_DOM2 === true) {
             cmdOpts["env"]["UNI_APP_X_DOM2"] = UNI_APP_X_DOM2;
+            cmdOpts["env"]["UNI_APP_X_VAPOR_RENDER_TARGET"] = UNI_APP_X_VAPOR_RENDER_TARGET;
         };
 
         if (['android', 'ios', "harmony"].includes(UNI_OS_NAME)) {
@@ -710,6 +714,7 @@ class RunTestForHBuilderXCli extends Common {
         let argv_uni_platform = uni_platformName;
         this.raw_argv_uni_platform = uni_platformName;
         this.raw_argv_vapor = params.vapor;
+        this.raw_argv_vapor_render_target = params.vapor_render_target || params.uni_app_x_vapor_render_target || "";
 
         // console.error("=========>", params);
         let argv_device_id = params.device_id || '';
@@ -846,7 +851,8 @@ class RunTestForHBuilderXCli extends Common {
 };
 
 async function check_cli_args(args, client_id) {
-    let { project, device_id, testcaseFile, vapor } = args;
+    let { project, device_id, testcaseFile, vapor, vapor_render_target, uni_app_x_vapor_render_target } = args;
+    let render_target = vapor_render_target || uni_app_x_vapor_render_target || "";
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
     };
@@ -861,6 +867,9 @@ async function check_cli_args(args, client_id) {
             return `测试用例文件 ${testcaseFile} 不存在，请检查。`;
         };
     }
+    if (render_target != "" && !["bytecode", "nativecode"].includes(render_target)) {
+        return "参数 --vapor_render_target 仅支持 bytecode|nativecode，请检查。";
+    };
     return "";
 };
 
