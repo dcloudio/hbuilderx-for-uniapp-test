@@ -308,10 +308,12 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
     };
 
     const test_cmd = cmd.join(' ');
-    if (isDebug) {
-        createOutputChannel(`${MessagePrefix} 测试命令为：${test_cmd}\n`, 'info', 'log');
-        createOutputChannel(`${MessagePrefix} 测试环境变量：${JSON.stringify(opts, null, 4)}\n`, 'info', 'log');
+    createOutputChannel(`${MessagePrefix} 测试命令为：${test_cmd}\n`, 'info', 'log');
+    let logOpts = Object.assign({}, opts);
+    if (logOpts?.env?.UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD !== undefined) {
+        logOpts = { ...logOpts, env: { ...logOpts.env, UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD: '***' } };
     };
+    createOutputChannel(`${MessagePrefix} 测试环境变量：${JSON.stringify(logOpts, null, 4)}\n`, 'info', 'log');
 
     opts = Object.assign({
         stdio: 'pipe',
@@ -410,7 +412,10 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
 
     const test_cmd = cmd.join(' ');
     await logger(`${MsgPrefix}测试命令为：${test_cmd}\n`);
-    await logger(`${MsgPrefix}测试环境变量：${JSON.stringify(opts, null, 4)}\n`);
+    const _logOpts = opts?.env?.UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD !== undefined
+        ? { ...opts, env: { ...opts.env, UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD: '***' } }
+        : opts;
+    await logger(`${MsgPrefix}测试环境变量：${JSON.stringify(_logOpts, null, 4)}\n`);
 
     opts = Object.assign({
         stdio: 'pipe',

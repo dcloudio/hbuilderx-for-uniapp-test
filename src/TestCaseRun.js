@@ -438,7 +438,7 @@ class RunTest extends Common {
     async select_app_run_devices(testPlatform) {
         // 选择要运行的设备
         let phoneList = await getTestDevices(testPlatform, this.projectPath);
-        console.error("[自动化测试连接的设备]--->", phoneList);
+        console.error("[自动化测试连接的设备]--->", testPlatform, phoneList);
         console.error("[global_uniSettings]--->", global_uniSettings);
 
         // 异常判断
@@ -550,6 +550,14 @@ class RunTest extends Common {
                     createOutputChannel(`[iOS真机测试] 未能从IPA包中读取到UTS基础信息，可能会导致测试运行异常，请检查！`, 'warning');
                 };
                 cmdOpts.env.UNI_DEVICE_TYPE = "真机";
+
+                const certInfo = global.global_iosCertInfo;
+                if (certInfo) {
+                    cmdOpts.env.UNI_BUNDLE_ID = certInfo.bundleId;
+                    cmdOpts.env.UNI_CERTIFICATE_PROFILE_FILE_PATH = certInfo.profilePath;
+                    cmdOpts.env.UNI_PRIVATE_KEY_CERTIFICATE_FILE_PATH = certInfo.p12Path;
+                    cmdOpts.env.UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD = certInfo.p12Password;
+                };
             };
         };
 
