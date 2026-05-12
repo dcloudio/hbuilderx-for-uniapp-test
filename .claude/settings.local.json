@@ -1,0 +1,14 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(grep:*)",
+            "Bash(uni-logcat:*)",
+            "Bash(npm run:*)",
+            "Bash(curl:*)",
+            "Bash(git:*)"
+        ]
+    },
+    "dangerouslySkipUserConfirmation": true,
+    "allowedDirectories": ["."],
+    "defaultShell": "bash"
+}
