@@ -83,11 +83,11 @@
             </q-list-view>
         </q-view>
 
-        <q-view layout='hbox' v-if="access == 'all'">
+        <!-- <q-view layout='hbox' v-if="access == 'all'">
             <q-label text="小程序: " id="labelView"></q-label>
             <q-checkbox id="elCheckBox" text=" 微信小程序" :checked='mp_weixin' accessibleName="mp_weixin" @clicked="el_set" />
             <q-view horizontal-size-policy="Expanding"></q-view>
-        </q-view>
+        </q-view> -->
 
         <q-view layout='hbox'>
             <q-checkbox id="elCheckBox2"
