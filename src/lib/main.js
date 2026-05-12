@@ -225,5 +225,6 @@ async function getTestDevices(testPlatform, projectPath="") {
 
 module.exports = {
     get_uniTestPlatformInfo,
-    getTestDevices
+    getTestDevices,
+    validateIosCert: _validateIosCert
 };

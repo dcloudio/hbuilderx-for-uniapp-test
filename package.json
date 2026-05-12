@@ -196,7 +196,7 @@
       {
         "name": "uniapp.test",
         "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信小程序、Android、iOS、Harmony等平台",
-        "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-ios --project <ProjectPath> \n  # 指定测试设备、指定测试用例文件  \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n  # 以蒸汽模式运行、指定视图层编译目标 \n  cli uniapp.test app-android --project <ProjectPath> --vapor true --vapor_render_target nativecode",
+        "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-ios --project <ProjectPath> --peveloperCertificate <p12Path> --provisioningProfile <mobileprovisionPath> --privateKeyPassword <password> \n  # 指定测试设备、指定测试用例文件  \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n  # 以蒸汽模式运行、指定视图层编译目标 \n  cli uniapp.test app-android --project <ProjectPath> --vapor true --vapor_render_target nativecode",
         "args": [
           {
             "name": "help",
@@ -254,7 +254,7 @@
       },
       {
         "name": "uniapp.test web-chrome",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) Chrome浏览器",
         "doc": "用法: ./cli uniapp.test web-chrome --project <ProjectPath>",
         "usage": "cli uniapp.test web-chrome --project <ProjectPath>",
         "args": [
@@ -287,7 +287,7 @@
       },
       {
         "name": "uniapp.test web-safari",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) Safari浏览器",
         "doc": "用法: ./cli uniapp.test web-safari --project <ProjectPath>",
         "args": [
           {
@@ -319,7 +319,7 @@
       },
       {
         "name": "uniapp.test web-firefox",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) Firefox浏览器",
         "doc": "用法: ./cli uniapp.test web-firefox --project <ProjectPath>",
         "args": [
           {
@@ -351,7 +351,7 @@
       },
       {
         "name": "uniapp.test mp-weixin",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) 微信小程序",
         "doc": "用法: ./cli uniapp.test mp-weixin --project <ProjectPath>",
         "args": [
           {
@@ -383,7 +383,7 @@
       },
       {
         "name": "uniapp.test app-android",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) Android应用",
         "doc": "用法: ./cli uniapp.test app-android --project <ProjectPath>",
         "args": [
           {
@@ -430,7 +430,7 @@
       },
       {
         "name": "uniapp.test app-ios-simulator",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) iOS模拟器",
         "doc": "用法: ./cli uniapp.test app-ios-simulator --project <ProjectPath>",
         "args": [
           {
@@ -477,8 +477,8 @@
       },
       {
         "name": "uniapp.test app-ios",
-        "descption": "CLI 自动化测试到uni-app (x)",
-        "doc": "用法: ./cli uniapp.test app-ios --project <ProjectPath>",
+        "descption": "CLI 自动化测试到uni-app (x) iOS真机",
+        "doc": "用法: ./cli uniapp.test app-ios --project <ProjectPath> --peveloperCertificate <p12Path> --provisioningProfile <mobileprovisionPath> --privateKeyPassword <password>",
         "args": [
           {
             "name": "help",
@@ -519,12 +519,33 @@
             "usage": "",
             "type": "string",
             "default": ""
+          },
+          {
+            "name": "peveloperCertificate",
+            "descption": "(iOS真机必填) 私钥证书(.p12)文件路径",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "provisioningProfile",
+            "descption": "(iOS真机必填) 描述文件(.mobileprovision)路径",
+            "usage": "require",
+            "type": "string",
+            "default": ""
+          },
+          {
+            "name": "privateKeyPassword",
+            "descption": "(iOS真机必填) 私钥证书密码",
+            "usage": "require",
+            "type": "string",
+            "default": ""
           }
         ]
       },
       {
         "name": "uniapp.test app-harmony",
-        "descption": "CLI 自动化测试到uni-app (x)",
+        "descption": "CLI 自动化测试到uni-app (x) Harmony应用",
         "doc": "用法: ./cli uniapp.test app-harmony --project <ProjectPath>",
         "args": [
           {

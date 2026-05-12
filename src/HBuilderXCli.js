@@ -45,7 +45,8 @@ const Initialize = require('./Initialize.js');
 
 const {
     getTestDevices,
-    get_uniTestPlatformInfo
+    get_uniTestPlatformInfo,
+    validateIosCert
 } = require('./lib/main.js');
 
 const osName = os.platform();
@@ -76,6 +77,9 @@ var is_uts_project = false;
 
 // unicloud服务信息
 let unicloud_spaces_info = [];
+
+// ios真机测试，需要appid
+UNI_BUNDLE_ID = null;
 
 class Common {
     async print_cli_log(msg) {
@@ -489,6 +493,12 @@ class RunTestForHBuilderXCli extends Common {
                 createOutputChannel(`[iOS真机测试] 未能从IPA包中读取到UTS基础信息，可能会导致测试运行异常，请检查！`, 'warning');
             };
             cmdOpts.env.UNI_DEVICE_TYPE = "真机";
+            cmdOpts.env.UNI_BUNDLE_ID = UNI_BUNDLE_ID;
+            if (this.iosCertInfo) {
+                cmdOpts.env.UNI_CERTIFICATE_PROFILE_FILE_PATH = this.iosCertInfo.profilePath;
+                cmdOpts.env.UNI_PRIVATE_KEY_CERTIFICATE_FILE_PATH = this.iosCertInfo.p12Path;
+                cmdOpts.env.UNI_PRIVATE_KEY_PRIVATE_KEY_CERTIFICATE_PASSWORD = this.iosCertInfo.password;
+            };
         };
 
         // 蒸汽模式：命令行传递
@@ -721,6 +731,16 @@ class RunTestForHBuilderXCli extends Common {
         this.projectPath = params.project;
         this.selectedFile = params.testcaseFile || '';
 
+        // iOS真机运行参数
+        this.iosCertInfo = null;
+        if (uni_platformName === 'ios' && deviceType === '真机') {
+            this.iosCertInfo = {
+                p12Path: params.peveloperCertificate || '',
+                profilePath: params.provisioningProfile || '',
+                password: params.privateKeyPassword || '',
+            };
+        };
+
         this.projectName = path.basename(this.projectPath);
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] 测试项目：" + this.projectPath, status: 'Info' });
@@ -850,8 +870,8 @@ class RunTestForHBuilderXCli extends Common {
     };
 };
 
-async function check_cli_args(args, client_id) {
-    let { project, device_id, testcaseFile, vapor, vapor_render_target, uni_app_x_vapor_render_target } = args;
+async function check_cli_args(args, client_id, uni_platformName = "", deviceType = "") {
+    let { project, device_id, testcaseFile, vapor, vapor_render_target, uni_app_x_vapor_render_target, peveloperCertificate, provisioningProfile, privateKeyPassword } = args;
     let render_target = vapor_render_target || uni_app_x_vapor_render_target || "";
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
@@ -869,6 +889,31 @@ async function check_cli_args(args, client_id) {
     }
     if (render_target != "" && !["bytecode", "nativecode"].includes(render_target)) {
         return "参数 --vapor_render_target 仅支持 bytecode|nativecode，请检查。";
+    };
+    if (uni_platformName === 'ios' && deviceType === '真机') {
+        if (!peveloperCertificate) return "运行到iOS真机时，参数 --peveloperCertificate (私钥证书.p12路径) 不能为空，请检查。";
+        if (!provisioningProfile) return "运行到iOS真机时，参数 --provisioningProfile (描述文件.mobileprovision路径) 不能为空，请检查。";
+        if (!privateKeyPassword) return "运行到iOS真机时，参数 --privateKeyPassword (私钥证书密码) 不能为空，请检查。";
+        if (!fs.existsSync(peveloperCertificate)) return `参数: peveloperCertificate 私钥证书文件 ${peveloperCertificate} 不存在，请检查。`;
+        if (!fs.existsSync(provisioningProfile)) return `参数: provisioningProfile 描述文件 ${provisioningProfile} 不存在，请检查。`;
+
+        // 从manifest.json读取appid(bundleId)用于证书校验
+        let bundleId = "";
+        try {
+            const is_cli = fs.existsSync(path.join(project, "src/manifest.json"));
+            bundleId = await readUniappManifestJson(project, is_cli, "appid");
+            if (bundleId && typeof bundleId === 'object') bundleId = bundleId.data || '';
+        } catch (e) {
+            bundleId = "";
+        };
+        if (!bundleId) return "无法从项目 manifest.json 读取到 appid (Bundle ID)，请检查项目配置。";
+        UNI_BUNDLE_ID = bundleId;
+
+        // 校验证书有效性与密码
+        const ret = await validateIosCert(bundleId, privateKeyPassword, provisioningProfile, peveloperCertificate);
+        if (ret && ret.code !== 0) {
+            return `iOS证书校验失败: ${ret.errorMsg}`;
+        };
     };
     return "";
 };
@@ -922,7 +967,7 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType=
         uni_platformName = "web-" + (args.browser || "chrome");
     };
 
-    let checkResult = await check_cli_args(args, client_id);
+    let checkResult = await check_cli_args(args, client_id, uni_platformName, deviceType);
     console.error("[cli参数校验] checkResult:", checkResult);
     if (checkResult != "") {
         await hx.cliconsole.log({ clientId: client_id, msg: checkResult, status: 'Info' });
