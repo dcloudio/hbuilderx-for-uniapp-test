@@ -213,6 +213,12 @@ class Common {
     async getProjectInfo(projectPath) {
         // 获取当前项目的workspaceFolder
         let workspaceFolder = await hx.workspace.getWorkspaceFolder(projectPath);
+        console.error("workspaceFolder = ", workspaceFolder);
+        if (workspaceFolder == null) {
+            await this.print_cli_log("\x1b[31m[自动化测试] 无法获取到项目信息，请确认项目已拖入到HBuilderX中\x1b[0m", "Error");
+            return 'error';
+        };
+
         this.projectVueVersion = workspaceFolder.vueVersion;
         await this.getProjectUniCloudInfo(projectPath, workspaceFolder);
 
@@ -547,7 +553,7 @@ class RunTestForHBuilderXCli extends Common {
 
         // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
         if (this.isDebug) {
-            await this.print_cli_log(`\x1b[31m 自动化测试运行，读取到已设置 DEBUG="automator:*"，会输出更多Debug调试日志，如果您是再AI中调用，建议在HBuilderX中关闭。\x1b[0m`);
+            await this.print_cli_log(`\x1b[31m自动化测试运行，读取到已设置 DEBUG="automator:*"，会输出更多Debug调试日志，如果您是再AI中调用，建议在HBuilderX中关闭。\x1b[0m`);
             cmdOpts.env.DEBUG = "automator:*";
         };
 
@@ -760,7 +766,8 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         // 获取项目名称、项目路径、uni-app Vue版本
-        await this.getProjectInfo(this.projectPath);
+        let _gp_reulst = await this.getProjectInfo(this.projectPath);
+        if (_gp_reulst == 'error') return;
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
