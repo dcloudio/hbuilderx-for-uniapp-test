@@ -1,5 +1,12 @@
 # 更新日志
 
+## 5.0.0
+* feat: 设备选择UI窗口，增加蒸汽模式配置选项，支持字节码和机器码选择
+* feat: hbuilderx cli 添加iOS真机测试支持，更新CLI参数和证书校验功能
+* feat: hbuilderx cli 增加蒸汽模式支持，添加vapor_render_target参数，支持bytecode和nativecode
+* fix: src/HBuilderXCli.js 增强项目信息获取，添加错误处理和调试日志输出
+* fix: 运行测试，选择all，设备选择窗口，小程序复选框的视图重复的Bug
+
 ## 4.9.0
 * feat: uni-app (x) 运行测试到iOS，增加环境变量UNI_DEVICE_TYPE
 * feat: uni-app (x) 运行测试到iOS，支持iOS真机
