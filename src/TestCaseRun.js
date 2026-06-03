@@ -278,6 +278,13 @@ class Common {
 
     // 获取测试报告目录
     async getReportOutputDir(projectName, testPlatform) {
+        const storagePathType = await getPluginConfig("hbuilderx-for-uniapp-test.storageTestReportOutPutDirType");
+        if (storagePathType == "项目目录" || storagePathType == "项目下") {
+            let ProjectReportDir = path.join(this.projectPath, '.hbuilderx', 'test-report', testPlatform);
+            mkdirsSync(ProjectReportDir);
+            return ProjectReportDir;
+        };
+
         // 使用用户自定义的目录
         const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
         if (userSet) {
