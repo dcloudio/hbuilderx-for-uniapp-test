@@ -544,6 +544,11 @@ class RunTestForHBuilderXCli extends Common {
         if (hx_config__uniappx_kotlin_compiler_memory && /^\d+$/.test(hx_config__uniappx_kotlin_compiler_memory)) {
             cmdOpts.env.UNIAPPX_KOTLIN_COMPILER_MEMORY = hx_config__uniappx_kotlin_compiler_memory;
         };
+        // 配置项：node.run.memoryParam
+        const hx_config__node_run_memoryParam = await getPluginConfig('node.run.memoryParam');
+        if (hx_config__node_run_memoryParam && /^\d+$/.test(hx_config__node_run_memoryParam)) {
+            cmdOpts.env.NODE_OPTIONS = `--max-old-space-size=${hx_config__node_run_memoryParam}`;
+        };
 
         // console.error("unicloud_spaces_info =>", JSON.stringify(unicloud_spaces_info));
         if (unicloud_spaces_info.length > 0) {
