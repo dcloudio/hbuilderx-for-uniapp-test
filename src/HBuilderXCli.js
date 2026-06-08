@@ -27,9 +27,8 @@ const {
     isNeedUpgradeHBuilderX
 } = require('../public/about.js');
 
-const {
-    checkNode
-} = require('./utils/utils_public.js');
+const { checkWebLib } = require('./utils/check_web_lib.js');
+const {checkNode} = require('./utils/utils_public.js');
 
 const {
     mkdirsSync,
@@ -772,6 +771,18 @@ class RunTestForHBuilderXCli extends Common {
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();
+        if (["h5-chrome", "h5-safari", "h5-firefox"].includes(argv_uni_platform)) {
+            const _browserName = argv_uni_platform.replace(/^h5-/, "");
+            const { exists, browserType } = await checkWebLib(_browserName, config.NODE_LIB_PATH);
+            if (exists === false) {
+                const _msg_1 = `uni-app (x) 运行测试到web，依赖Playwright。Playwright ${browserType} executable path 检查失败。`;
+                const _msg_2 = `打开终端进入cd ${config.NODE_LIB_PATH}, 执行npx playwright install ${browserType}。`;
+                const _msg_3 = `注意：playwright浏览器包体积很大（可能上G），受网络影响，可能会安装很慢。`;
+                await this.print_cli_log(`\x1b[31m${_msg_1} ${_msg_2}\x1b[0m`, 'Error');
+                await this.print_cli_log(`\x1b[31m${_msg_3}\x1b[0m`, 'Error');
+                return;
+            };
+        };
 
         // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
         let env = await this.checkAndSetEnv(argv_uni_platform, this.projectPath);
