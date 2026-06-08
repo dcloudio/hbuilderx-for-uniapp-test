@@ -1,5 +1,9 @@
 # 更新日志
 
+## 5.2.0
+* feat: 运行测试前，检查Playwright 浏览器依赖，增强 H5 测试支持
+* feat: 读取HBuilderX设置项 node.run.memoryParam，传递给uniapp-cli-vite编译器
+
 ## 5.1.0
 * feat: 优化端口检查逻辑
 * feat: 添加测试报告存储类型配置，支持将自动化测试报告，存储在项目目录
