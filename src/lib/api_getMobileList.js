@@ -97,8 +97,8 @@ async function getDevicesFormLauncher(testPlatform, isRefresh) {
         return global_devicesList;
     };
     if (testPlatform == "all" || testPlatform == 'ios') {
-        let ios_simulator_list = await extension_launcher.getDevices({ platform:'IOS_SIMULATOR'});
-        let ios_phone_list = await extension_launcher.getDevices({ platform:'iOS-iPhone'});
+        let ios_simulator_list = await extension_launcher.getDevices({ platform:'IOS_SIMULATOR'}, true);
+        let ios_phone_list = await extension_launcher.getDevices({ platform:'iOS-iPhone'}, true);
         // console.error("[IOS]", ios_simulator_list, ios_phone_list);
         if (ios_simulator_list && ios_simulator_list.length > 0){
             let tmp_ios_simulator_list = ios_simulator_list.map(function(v) {
@@ -114,13 +114,13 @@ async function getDevicesFormLauncher(testPlatform, isRefresh) {
         };
     };
     if (testPlatform == "all" || testPlatform == 'android') {
-        let _android_list = await extension_launcher.getDevices({ platform:'android'});
+        let _android_list = await extension_launcher.getDevices({ platform:'android'}, true);
         if (_android_list && _android_list.length > 0){
             global_devicesList["android"] = _android_list;
         };
     };
     if (testPlatform == "all" || testPlatform == 'harmony') {
-        let _harmony_list = await extension_launcher.getDevices({ platform:'app-harmony'});
+        let _harmony_list = await extension_launcher.getDevices({ platform:'app-harmony'}, true);
         if (_harmony_list && _harmony_list.length > 0){
             global_devicesList["harmony"] = _harmony_list;
         };
