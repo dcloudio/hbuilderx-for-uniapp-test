@@ -2,6 +2,7 @@
 
 ## 5.2.1
 * Fix: linux上，hx.extensions.getExtension("launcher") 无法获取到android设备的Bug
+* feat: linux，web-chrome运行，增加环境变量PLAYWRIGHT_BROWSERS_PATH
 
 ## 5.2.0
 * feat: 运行测试前，检查Playwright 浏览器依赖，增强 H5 测试支持
