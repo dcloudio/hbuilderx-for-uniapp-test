@@ -416,10 +416,10 @@ class RunTestForHBuilderXCli extends Common {
         let result;
         try {
             result = await editEnvjsFile(
-                this.UNI_AUTOMATOR_CONFIG, 
-                testPlatform, 
-                deviceId, 
-                uniProjectAttributeData, 
+                this.UNI_AUTOMATOR_CONFIG,
+                testPlatform,
+                deviceId,
+                uniProjectAttributeData,
                 this.terminal_id,
                 deviceType
             );
@@ -483,9 +483,24 @@ class RunTestForHBuilderXCli extends Common {
             maxBuffer: 2000 * 1024
         };
 
+        // 关于linux，用于特定的Linux包。
+        if (osName == "linux" && testPlatform == 'h5-chrome') {
+            const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib", "ms-playwright");
+            let ms_playwright_chrome = "";
+            if (fs.existsSync(ms_playwright_dir)) {
+                const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
+                const chrome_linux_dir = chromium_dir ? fs.readdirSync(path.join(ms_playwright_dir, chromium_dir)).find((item) => item.startsWith("chrome-linux")) : "";
+                ms_playwright_chrome = chrome_linux_dir ? path.join(ms_playwright_dir, chromium_dir, chrome_linux_dir, "chrome") : "";
+            };
+            if (ms_playwright_chrome && fs.existsSync(ms_playwright_chrome)) {
+                cmdOpts.env["PLAYWRIGHT_BROWSERS_PATH"] = ms_playwright_dir;
+            };
+        };
+
         if (testPlatform == "ios") {
             cmdOpts.env.UNI_DEVICE_TYPE = "模拟器";
-        }
+        };
+
         if (testPlatform == "ios" &&deviceType == "真机") {
             const iosHelper = new IOSDeviceHelper();
             let ipa_path = await iosHelper.get_ios_ipa_path(is_uniapp_x, UNI_APP_X_DOM2, this.UNI_AUTOMATOR_CONFIG);
@@ -955,10 +970,10 @@ async function readPluginsPackageJson() {
 
 /**
  * @description 运行测试的主入口，供HBuilderX CLI调用
- * @param {*} params 
- * @param {*} uni_platformName 
+ * @param {*} params
+ * @param {*} uni_platformName
  * @param {*} deviceType 设备类型。目前只有运行到ios真机时，才会使用到这个参数。
- * @returns 
+ * @returns
  */
 async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType="") {
     // 解析命令行参数与输入
