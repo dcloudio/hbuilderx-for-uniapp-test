@@ -602,7 +602,7 @@
         },
         "hbuilderx-for-uniapp-test.storageTestReportOutPutDirType": {
           "type": "string",
-          "default": "其它",
+          "default": "项目目录",
           "enum": [
             "项目目录",
             "其它"
