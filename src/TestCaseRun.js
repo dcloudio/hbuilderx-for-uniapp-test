@@ -98,8 +98,11 @@ class Common {
      * @param {String} projectPath - 项目路径，用于判断uniapp-cli环境
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
+        // 配置项：获取用户是否设置使用内置Node版本进行jest测试
+        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+
         let testEnv = true;
-        if (nodeStatus == undefined || nodeStatus == 'N') {
+        if ((nodeStatus == undefined || nodeStatus == 'N') && isUseBuiltNodeRunJest != true ) {
             nodeStatus = await checkNode().catch(error => {
                 createOutputChannel(config.i18n.msg_env_node_check, "error");
                 return error;
