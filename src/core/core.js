@@ -129,6 +129,10 @@ async function getPluginConfig(options) {
     return config.get(options);
 };
 
+function hasAnsiColor(line) {
+    return /\x1B\[[0-?]*[ -/]*m/.test(line);
+};
+
 /**
  * @description 创建输出控制台
  * @param {String} msg
@@ -160,6 +164,9 @@ function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     // data["forceshow"] = false;
 
     if (['warning', 'success', 'error', 'info'].includes(msgLevel)) {
+        if (hasAnsiColor(msg)) {
+            data["nocolor"] = false;
+        };
         output.appendLine(data);
     } else {
         output.appendLine(msg);
@@ -239,6 +246,15 @@ function message_for_test_kill(MessagePrefix) {
 function printTestRunLog(MessagePrefix, msg) {
     let msgLevel = "info";
     let lastMsg = msg.trim();
+    if (msg.includes("$RUNTIME_LOG$:") && msg.includes("$RUNTIME_LOG$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_LOG\$:?\s*/g, '').trim();
+    };
+    if (msg.includes("$RUNTIME_ERROR$:") && msg.includes("$RUNTIME_ERROR$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_ERROR\$:?\s*/g, '').trim();
+    };
+    if (msg.includes("$RUNTIME_WARN$:") && msg.includes("$RUNTIME_WARN$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_WARN\$:?\s*/g, '').trim();
+    };
     let theFour = msg.substring(0,4);
     if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
         lastMsg = lastMsg + "\n";
@@ -261,6 +277,15 @@ function printTestRunLog(MessagePrefix, msg) {
 async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
     let lastMsg = msg.trim();
     let theFour = msg.substring(0,4);
+    if (msg.includes("$RUNTIME_LOG$:") && msg.includes("$RUNTIME_LOG$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_LOG\$:?\s*/g, '').trim();
+    };
+    if (msg.includes("$RUNTIME_ERROR$:") && msg.includes("$RUNTIME_ERROR$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_ERROR\$:?\s*/g, '').trim();
+    };
+    if (msg.includes("$RUNTIME_WARN$:") && msg.includes("$RUNTIME_WARN$")) {
+        lastMsg = lastMsg.replace(/\$RUNTIME_WARN\$:?\s*/g, '').trim();
+    };
     if ((msg.includes("Module Error") && msg.includes("Errors compiling")) || msg.includes("语法错误")) {
         lastMsg = lastMsg + "\n";
         msgLevel = "error";
