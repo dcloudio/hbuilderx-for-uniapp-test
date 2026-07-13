@@ -137,6 +137,17 @@ function activate(context) {
     });
     context.subscriptions.push(debugLog);
 
+    // 是否输出运行时日志
+    let runtimeLog = hx.commands.registerCommand('unitest.enableRuntimeLog', () => {
+        let config = hx.workspace.getConfiguration();
+        let result = config.get('hbuilderx-for-uniapp-test.isRuntimeLog');
+        config.update('hbuilderx-for-uniapp-test.isRuntimeLog', !result).then( () => {
+            let text = result ? '取消' : '启用';
+            hx.window.setStatusBarMessage(`已 ${text} 运行时日志输出。`, 'info', 10000);
+        });
+    });
+    context.subscriptions.push(runtimeLog);
+
     // 记录单条用例到文件
     let recordTestCaseList = hx.commands.registerCommand('unitest.recordTestCaseList', () => {
         let config = hx.workspace.getConfiguration();

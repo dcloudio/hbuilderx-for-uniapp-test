@@ -33,11 +33,16 @@ async function ui_vue(testPlatform, projectPath="") {
 
     // 读取配置项
     let cfg_isDebug = true;
+    let cfg_isRuntimeLog = true;
     let cfg_AutomaticModificationTestMatch = true;
 
     let is_debug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
     if (typeof is_debug === 'boolean') {
         cfg_isDebug = is_debug;
+    };
+    let is_runtime_log = await getPluginConfig("hbuilderx-for-uniapp-test.isRuntimeLog");
+    if (typeof is_runtime_log === 'boolean') {
+        cfg_isRuntimeLog = is_runtime_log;
     };
     let is_modify_testMath = await getPluginConfig("hbuilderx-for-uniapp-test.AutomaticModificationTestMatch");
     if (typeof is_modify_testMath === 'boolean') {
@@ -93,6 +98,7 @@ async function ui_vue(testPlatform, projectPath="") {
                 cfg_uniapp_test_vapor_mode,
                 uni_app_x_vapor_render_target,
                 cfg_isDebug,
+                cfg_isRuntimeLog,
                 cfg_AutomaticModificationTestMatch
             },
             event: {
@@ -165,7 +171,7 @@ async function ui_vue(testPlatform, projectPath="") {
         selectedList.push(`h5:h5-safari`);
     };
 
-    const _cfg_keys = ['cfg_isDebug', 'cfg_AutomaticModificationTestMatch', 'cfg_uniapp_test_vapor_mode', 'uni_app_x_vapor_render_target'];
+    const _cfg_keys = ['cfg_isDebug', 'cfg_isRuntimeLog', 'cfg_AutomaticModificationTestMatch', 'cfg_uniapp_test_vapor_mode', 'uni_app_x_vapor_render_target'];
     _cfg_keys.forEach(key => {
       if (Object.hasOwn(result, key)) {
         uiSettings[key] = result[key];

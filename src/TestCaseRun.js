@@ -638,6 +638,10 @@ class RunTest extends Common {
         if (is_Debug) {
             cmdOpts.env.DEBUG = "automator:*";
         };
+        let is_Runtime_Log = await getPluginConfig("hbuilderx-for-uniapp-test.isRuntimeLog");
+        if (is_Runtime_Log) {
+            cmdOpts.env.UNI_AUTOMATOR_OUTPUT_RUNTIME_LOGS = "true";
+        };
 
         // 是否是vue3，决定UNI_CLI_PATH值
         if (is_uniapp_3) {

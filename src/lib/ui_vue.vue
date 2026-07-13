@@ -96,6 +96,14 @@
                 accessibleName="cfg_isDebug"
                 @clicked="el_set" />
             <q-checkbox id="elCheckBox2"
+                text=" 是否输出运行时日志"
+                :checked='cfg_isRuntimeLog'
+                accessibleName="cfg_isRuntimeLog"
+                @clicked="el_set" />
+        </q-view>
+
+        <q-view layout='hbox'>
+            <q-checkbox id="elCheckBox2"
                 text=" 自动修改 jest.config.js 文件 testMatch"
                 :checked='cfg_AutomaticModificationTestMatch'
                 accessibleName="cfg_AutomaticModificationTestMatch"
@@ -182,6 +190,7 @@
                 },
                 // 配置项
                 cfg_isDebug: true,
+                cfg_isRuntimeLog: true,
                 cfg_AutomaticModificationTestMatch: true,
 
                 // 设置项。是否开启蒸汽模式
@@ -253,7 +262,7 @@
                 const checked = e.target.checked;
 
                 // 测试配置型选项
-                const cfg_checkbox = ["cfg_isDebug", "cfg_AutomaticModificationTestMatch", "cfg_uniapp_test_vapor_mode"];
+                const cfg_checkbox = ["cfg_isDebug", "cfg_isRuntimeLog", "cfg_AutomaticModificationTestMatch", "cfg_uniapp_test_vapor_mode"];
                 if (cfg_checkbox.includes(accessibleName)) {
                     this[accessibleName] = e.target.checked;
                     this.update_test_settings(accessibleName, e.target.checked);
@@ -311,6 +320,8 @@
                 let config_name = "";
                 if (setting_name == "cfg_isDebug") {
                     config_name = "hbuilderx-for-uniapp-test.isDebug";
+                } else if (setting_name == "cfg_isRuntimeLog") {
+                    config_name = "hbuilderx-for-uniapp-test.isRuntimeLog";
                 } else if (setting_name == "cfg_AutomaticModificationTestMatch") {
                     config_name = "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch";
                 };

@@ -20,6 +20,7 @@
     "expressions": {
       "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
       "isDebugLog": "config.hbuilderx-for-uniapp-test.isDebug",
+      "isRuntimeLog": "config.hbuilderx-for-uniapp-test.isRuntimeLog",
       "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
       "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
       "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
@@ -131,6 +132,10 @@
       {
         "command": "unitest.enableDebugLog",
         "title": "是否输出Debug调试日志"
+      },
+      {
+        "command": "unitest.enableRuntimeLog",
+        "title": "是否输出运行时日志"
       },
       {
         "command": "unitest.moreSettings",
@@ -639,6 +644,11 @@
           "type": "boolean",
           "default": false,
           "description": "是否正在调试，当勾选后，将会在控制台输出更多日志。"
+        },
+        "hbuilderx-for-uniapp-test.isRuntimeLog": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否输出运行时日志。"
         }
       }
     },
@@ -872,6 +882,11 @@
         {
           "command": "unitest.enableDebugLog",
           "checked": "expression.isDebugLog",
+          "group": "unitest@1"
+        },
+        {
+          "command": "unitest.enableRuntimeLog",
+          "checked": "expression.isRuntimeLog",
           "group": "unitest@1"
         },
         {
