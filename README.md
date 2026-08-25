@@ -19,7 +19,7 @@
 
 ## HBuilderX CLI
 
-插件 4.1.0版本起，支持被HBuilderX CLI调用了， 支持使用HBuilderX CLI命令行运行 uni-app (x) 自动化测试到 Web、微信小程序、Android、iOS 和 Harmony。
+插件 4.1.0版本起，支持被HBuilderX CLI调用了， 支持使用HBuilderX CLI命令行运行 uni-app (x) 自动化测试到 Web、微信/支付宝小程序、Android、iOS 和 Harmony。
 
 ```shell
 // 查看帮助
@@ -41,6 +41,7 @@ cli uniapp.test <platform> --project <ProjectPath>
 
 - **小程序**
   - `mp-weixin`：在微信小程序中运行测试
+  - `mp-alipay`：在支付宝小程序中运行测试
 
 - **移动应用**
   - `app-android`：在 Android 设备上运行测试

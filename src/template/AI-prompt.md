@@ -66,6 +66,7 @@ uni-app测试框架，提供的API可以操控uni-app应用，包括`控制跳�
 * iOS: `npm run test:app-ios`
 * harmony: `npm run test:app-harmony`
 * 微信小程序: `npm run test:mp-weixin`
+* 支付宝小程序: `npm run test:mp-alipay`
 
 注意：
 1. 默认运行所有测试文件。
@@ -88,4 +89,3 @@ uni-app测试框架，提供的API可以操控uni-app应用，包括`控制跳�
 * 不要修改非目标页面的代码。
 * 保持测试代码简洁、可读。
 * 优先使用 `data-testid` 或具体的 class 选择器。
-

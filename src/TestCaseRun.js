@@ -733,9 +733,13 @@ class RunTest extends Common {
         if (testPlatform == 'mp-weixin') {
             createOutputChannel(`${consoleMsgPrefix}${config.i18n.weixin_tools_running_tips}`, 'warning');
         };
+        // if (testPlatform == 'mp-alipay') {
+        //     createOutputChannel(`${consoleMsgPrefix}${config.i18n.alipay_tools_running_tips}`, 'warning');
+        // };
 
         let testInfo = { "projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId };
         let testResult = await runCmd(jest_for_node, cmd, cmdOpts, testInfo, is_Debug);
+        // console.error("[自动化测试] runCmd testResult =>", testResult);
 
         if (testResult == 'run_end') {
             // 不要改此处的文本
@@ -845,11 +849,14 @@ class RunTest extends Common {
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();
-        if (["h5-chrome", "h5-safari", "h5-firefox"].includes(argv_uniPlatform)) {
-            const _browserName = argv_uniPlatform.replace(/^h5-/, "");
+        if (["h5-chrome", "h5-safari", "h5-firefox", "mp-alipay"].includes(argv_uniPlatform)) {
+            let _browserName = argv_uniPlatform.replace(/^h5-/, "");
+            if (argv_uniPlatform == "mp-alipay") {
+                _browserName = "chrome";
+            };
             const { exists, browserType } = await checkWebLib(_browserName, config.NODE_LIB_PATH);
             if (exists === false) {
-                const _msg_1 = `uni-app (x) 运行测试到web，依赖Playwright。Playwright ${browserType} executable path 检查失败。`;
+                const _msg_1 = `uni-app (x) 运行测试到${argv_uniPlatform}，依赖Playwright。Playwright ${browserType} executable path 检查失败。`;
                 const _msg_2 = `打开终端进入cd ${config.NODE_LIB_PATH}, 执行npx playwright install ${browserType}。`;
                 const _msg_3 = `注意：playwright浏览器包体积很大（可能上G），受网络影响，可能会安装很慢。`;
                 createOutputChannel(`${_msg_1} ${_msg_2}`, 'error');
@@ -913,6 +920,9 @@ class RunTest extends Common {
                 break;
             case 'mp-weixin':
                 this.run_uni_test('mp-weixin');
+                break;
+            case 'mp-alipay':
+                this.run_uni_test('mp-alipay');
                 break;
             case 'ios':
                 this.run_more_test('ios', testPhoneList);

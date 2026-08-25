@@ -1,5 +1,8 @@
 # 更新日志
 
+## 5.3.0
+* feat: 增加运行测试到支付宝小程序 mp-alipay
+
 ## 5.2.1
 * Fix: linux上，hx.extensions.getExtension("launcher") 无法获取到android设备的Bug
 * feat: linux，web-chrome运行，增加环境变量PLAYWRIGHT_BROWSERS_PATH

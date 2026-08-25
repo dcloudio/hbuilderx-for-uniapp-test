@@ -102,10 +102,11 @@ async function getUIData(testPlatform, isManualRefresh = false) {
         h5List.push({type: 'checkBox',name: 'h5-safari',text: " Safari",checked: false})
     };
 
-    // 构造：微信小程序数据
+    // 构造：小程序数据
     let wxList = [
         {type: 'label', name: 'mp',text: "小程序：",canSelect: true},
         {type: 'checkBox',name: 'mp-weixin',text: " 微信小程序",checked: false},
+        {type: 'checkBox',name: 'mp-alipay',text: " 支付宝小程序",checked: false},
     ];
 
     // 测试设备选择窗口，ui数据
@@ -303,6 +304,9 @@ async function ui_formDialog(testPlatform) {
             if (s["type"] == "checkBox") {
                 if (s["checked"] && s["name"] == "mp-weixin") {
                     selectedList.push(`mp:mp-weixin`);
+                };
+                if (s["checked"] && s["name"] == "mp-alipay") {
+                    selectedList.push(`mp:mp-alipay`);
                 };
             };
         };

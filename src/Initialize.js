@@ -218,7 +218,7 @@ class Initialize extends Common {
             let dependencies_path = path.join(test_lib_dir, 'node_modules', s);
 
             // 避免不必要的依赖检查
-            if (plat && ['ios', 'android', 'harmony', 'mp-weixin'].includes(plat)
+            if (plat && ['ios', 'android', 'harmony', 'mp-weixin', 'mp-alipay'].includes(plat)
                 && ['puppeteer', '@playwright/test', 'playwright'].includes(s)) {
                 continue;
             };

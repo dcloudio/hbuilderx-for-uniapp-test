@@ -162,7 +162,7 @@ function Html(userSelectedTestPlatform, phoneList) {
         h5PlatList.push({"name":"safari", "value":"h5-safari"})
     };
     let h5List = JSON.stringify(h5PlatList);;
-    let mpList = JSON.stringify([{"name":"微信小程序","value":"mp-weixin"}]);
+    let mpList = JSON.stringify([{"name":"微信小程序","value":"mp-weixin"},{"name":"支付宝小程序","value":"mp-alipay"}]);
 
     return `
     <!DOCTYPE html>

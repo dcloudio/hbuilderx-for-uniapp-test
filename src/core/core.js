@@ -390,13 +390,19 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
             });
         };
 
+        let isRunEndResolved = false;
+
         child.on('error', error => {
+            if (isRunEndResolved) return;
+            isRunEndResolved = true;
             createOutputChannel(`${MessagePrefix}测试运行异常，已结束运行。`, "error", "log");
             createOutputChannel(`${MessagePrefix}测试运行异常，已结束运行。`, "error");
             resolve('run_error');
         });
 
-        child.on('close', code => {
+        const resolveRunEnd = (code) => {
+            if (isRunEndResolved) return;
+            isRunEndResolved = true;
             if (is_port_9520_error) {
                 const killCmd = PORT_9520_KILL_CMD[osName] || PORT_9520_KILL_CMD.win32;
                 createOutputChannel(`${MessagePrefix} 端口被占用，解决方法: ${osName == 'darwin' ? '打开终端' : '打开命令'}，输入 ${killCmd}`, "error", "log");
@@ -407,6 +413,13 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
             let msgLevel = endMsg.includes("手动结束") ? 'error' : 'success';
             createOutputChannel(endMsg, msgLevel, "log");
             resolve('run_end');
+        };
+
+        child.on('close', resolveRunEnd);
+        child.on('exit', code => {
+            if (testPlatform == 'mp-alipay') {
+                resolveRunEnd(code);
+            };
         });
     });
 };
@@ -492,15 +505,21 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
             });
         };
 
+        let isRunEndResolved = false;
+
         child.on('error', error => {
             (async () => {
+                if (isRunEndResolved) return;
+                isRunEndResolved = true;
                 await logger(`${MsgPrefix}测试运行异常，已结束运行。`, "error");
                 resolve('run_error');
             })();
         });
 
-        child.on('close', code => {
+        const resolveRunEnd = (code) => {
             (async () => {
+                if (isRunEndResolved) return;
+                isRunEndResolved = true;
                 if (is_port_9520_error) {
                     const killCmd = PORT_9520_KILL_CMD[osName] || PORT_9520_KILL_CMD.win32;
                     await logger(`${colorS}${MsgPrefix} 端口被占用，解决方法: ${osName == 'darwin' ? '打开终端' : '打开命令行'}，输入 ${killCmd}${colorE}`);
@@ -511,6 +530,13 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
                 await logger(endMsg);
                 resolve('run_end');
             })();
+        };
+
+        child.on('close', resolveRunEnd);
+        child.on('exit', code => {
+            if (testPlatform == 'mp-alipay') {
+                resolveRunEnd(code);
+            };
         });
     });
 };

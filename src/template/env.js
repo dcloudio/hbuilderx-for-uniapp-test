@@ -25,6 +25,16 @@ module.exports = {
         "remote": false,
         "executablePath": ""
     },
+    "mp-alipay": {
+        "port": 9423,
+        "account": "",
+        "args": "",
+        "cwd": "",
+        "launch": true,
+        "teardown": "disconnect",
+        "remote": false,
+        "executablePath": ""
+    },
     "app-plus": {
         "android": {
             "id": "",

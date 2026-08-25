@@ -16,7 +16,8 @@ const PLATFORM = {
     ANDROID: 'android',
     IOS: 'ios',
     HARMONY: 'harmony',
-    MP_WEIXIN: 'mp-weixin'
+    MP_WEIXIN: 'mp-weixin',
+    MP_ALIPAY: 'mp-alipay'
 };
 
 /**
@@ -228,6 +229,23 @@ async function handleWeixinPlatform(envjs, envJsPath, logger) {
     return true;
 };
 
+/**
+ * @description 处理支付宝小程序平台配置
+ * @param {Object} envjs - env.js配置对象
+ * @param {String} envJsPath - 配置文件路径
+ * @param {Function} logger - 日志函数
+ * @returns {Promise<Boolean>} 处理结果
+ */
+async function handleAlipayPlatform(envjs, envJsPath, logger) {
+    const alipayPath = envjs?.[PLATFORM.MP_ALIPAY]?.executablePath;
+    if (!alipayPath || !fs.existsSync(alipayPath)) {
+        const errorMsg = `${envJsPath}, 请检查mp-alipay节点下的executablePath, 建议配置支付宝小程序开发者工具路径。${config.i18n.alipay_tool_path_tips}`;
+        await logger(errorMsg, 'error');
+        return false;
+    }
+    return true;
+};
+
 
 /**
  * @description 修改测试配置文件env.js， ios和android测试需要在env.js指定设备ID
@@ -275,6 +293,11 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
     // 微信小程序平台特殊处理
     if (testPlatform === PLATFORM.MP_WEIXIN) {
         return await handleWeixinPlatform(envJsFileData, envJsPath, logger);
+    };
+    if (testPlatform === PLATFORM.MP_ALIPAY) {
+        // 支付宝小程序运行不依赖真实支付宝小程序开发者工具，暂不检查executablePath。
+        // return await handleAlipayPlatform(envJsFileData, envJsPath, logger);
+        return true;
     };
 
     const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData, test_device_type);
