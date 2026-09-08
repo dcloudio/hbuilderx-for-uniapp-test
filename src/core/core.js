@@ -47,7 +47,7 @@ async function isUniAppX(projectPath) {
         let result = await hx.util.readJSONValue(manifestPath, "uni-app-x").then((data) => {
             return data;
         });
-        return result["data"] != null && is_main_ts ? true : false;
+        return result?.data?.vapor == true;
     } catch (error) {
         return false;
     };
