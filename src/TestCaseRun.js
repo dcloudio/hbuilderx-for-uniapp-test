@@ -674,7 +674,7 @@ class RunTest extends Common {
             };
             // 2026-09-21 增加harmony。适配hv
             if (testPlatform == "harmony") {
-                cmdOpts.env.UNI_TEST_LAUNCHER_HARMONY_PATH = config.UNIAPP_LAUNCHER_HARMONY_PTH
+                cmdOpts.env.UNI_TEST_LAUNCHER_HARMONY_PATH = config.UNIAPP_LAUNCHER_HARMONY_PATH
             };
         };
 
