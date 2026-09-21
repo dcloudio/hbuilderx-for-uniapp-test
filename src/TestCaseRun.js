@@ -672,6 +672,10 @@ class RunTest extends Common {
             if (testPlatform.substring(0, 2) == "mp") {
                 cmdOpts.env.UNI_UTS_PLATFORM = testPlatform;
             };
+            // 2026-09-21 增加harmony。适配hv
+            if (testPlatform == "harmony") {
+                cmdOpts.env.UNI_TEST_LAUNCHER_HARMONY_PATH = config.UNIAPP_LAUNCHER_HARMONY_PTH
+            };
         };
 
         // HBuilderX 3.2.10+，h5测试增加safari和firefox支持

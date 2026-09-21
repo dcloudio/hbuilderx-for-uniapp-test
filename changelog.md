@@ -1,5 +1,8 @@
 # 更新日志
 
+## 5.3.1
+* feat: 关于harmony, 增加环境变量 UNI_TEST_LAUNCHER_HARMONY_PATH
+
 ## 5.3.0
 * feat: 增加运行测试到支付宝小程序 mp-alipay
 * feat: 优化uni-app-x项目类型的判断
