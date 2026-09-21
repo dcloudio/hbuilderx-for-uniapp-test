@@ -23,8 +23,9 @@ const LAUNCHER_IOS = path.join(LAUNCHER_PATH, "base/Pandora_simulator.app");
 const LAUNCHER_IOS_IPA = path.join(LAUNCHER_PATH, "base/iPhone_base.ipa");
 const LAUNCHER_VERSION_TXT = path.join(LAUNCHER_PATH, "base", "version.txt");
 
-// 鸿蒙
+// 插件
 const UNIAPP_LAUNCHER_HARMONY_PATH = path.join(hx.env.appRoot, "plugins", "launcher-harmony");
+const UNIAPP_UNIAPP_EXTENSION_PATH = path.join(hx.env.appRoot, "plugins", "uniapp-extension");
 
 const UNIAPP_X_LAUNCHER_PATH = path.join(hx.env.appRoot, "plugins", "uniappx-launcher");
 const UNIAPP_X_LAUNCHER_IOS = path.join(UNIAPP_X_LAUNCHER_PATH, "base/Pandora_simulator.app");
@@ -101,6 +102,7 @@ module.exports = {
     UNIAPP_X_LAUNCHER_VERSION_TXT,
 
     UNIAPP_LAUNCHER_HARMONY_PATH,
+    UNIAPP_UNIAPP_EXTENSION_PATH,
 
     UNIAPP_X_VAPOR_LAUNCHER_PATH,
     UNIAPP_X_VAPOR_LAUNCHER_ANDROID,

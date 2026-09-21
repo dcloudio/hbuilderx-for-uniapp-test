@@ -101,6 +101,10 @@ class Common {
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
         isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
 
+        // checkNode()
+        //     .then(result => console.log('结果:', result))
+        //     .catch(error => console.log('结果:', error));
+
         let testEnv = true;
         if ((nodeStatus == undefined || nodeStatus == 'N') && isUseBuiltNodeRunJest != true ) {
             nodeStatus = await checkNode().catch(error => {
@@ -533,6 +537,7 @@ class RunTest extends Common {
                 "HX_Version": hxVersion,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
+                "UNI_TEST_UNIAPP_EXTENSION_PATH": config.UNIAPP_UNIAPP_EXTENSION_PATH,
                 "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT,
                 "HX_CONFIG_ADB_PATH": "",
                 // "LANG": "en_US.UTF-8",
