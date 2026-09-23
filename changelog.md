@@ -1,7 +1,9 @@
 # 更新日志
 
 ## 5.3.1
-* feat: 关于harmony, 增加环境变量 UNI_TEST_LAUNCHER_HARMONY_PATH
+* feat: 适配HBuilderX 5.31版本
+* feat: 增加环境变量 UNI_TEST_LAUNCHER_HARMONY_PATH
+* feat: 增加环境变量 UNI_TEST_UNIAPP_EXTENSION_PATH
 
 ## 5.3.0
 * feat: 增加运行测试到支付宝小程序 mp-alipay
