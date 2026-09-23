@@ -29,7 +29,7 @@ function handerUri(uri) {
 
 function activate(context) {
     // 检查升级
-    checkUpgrade();
+    // checkUpgrade();
 
     hx.window.registerUriHandler({
         handleUri: function(uri) {
