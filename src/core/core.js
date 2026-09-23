@@ -676,6 +676,27 @@ async function get_ios_device_type(deviceId) {
     return test_device_type;
 };
 
+/**
+ * @description 获取ios模拟器的CPU架构
+ * @param {Object} deviceId
+ */
+async function get_ios_simulator_cpu_arch(deviceId) {
+    let test_cpu_arch = "";
+    try {
+        let device_result = global.global_devicesList;
+        let ios_sim_list = device_result.ios_simulator ? device_result?.ios_simulator : [];
+        let ios_phone_list = device_result.ios_phone ? device_result?.ios_phone : [];
+        let ios_list = [...ios_phone_list, ...ios_sim_list];
+        for (let s of ios_list) {
+            if (s.udid == deviceId) {
+                test_cpu_arch = Array.isArray(s.cpuAbi) ? s.cpuAbi : [];
+                break;
+            };
+        };
+    } catch (error) {};
+    return test_cpu_arch;
+};
+
 
 module.exports = {
     getPluginConfig,
@@ -693,5 +714,6 @@ module.exports = {
     checkUtsProject,
     readUniappManifestJson,
     uniapp_x_is_vapor,
-    get_ios_device_type
+    get_ios_device_type,
+    get_ios_simulator_cpu_arch
 };

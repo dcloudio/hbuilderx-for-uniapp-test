@@ -847,6 +847,11 @@ class RunTestForHBuilderXCli extends Common {
         };
         if (argv_device_id != '' && ['ios', 'android', 'harmony'].includes(argv_uni_platform)) {
             testPhoneList = [`${argv_uni_platform}:${argv_device_id}`];
+            // 下面是为了获取iOS模拟器的CPU架构信息
+            if (argv_uni_platform == "ios") {
+                await this.print_cli_log(`获取ios设备信息开始: ${argv_uni_platform}`);
+                await this.getTestDevicesList(argv_uni_platform, deviceType);
+            };
             await this.print_cli_log(`指定的测试设备列表: ${testPhoneList}`);
         };
 

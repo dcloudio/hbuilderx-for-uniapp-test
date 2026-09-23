@@ -4,7 +4,8 @@ let config = require('./config.js');
 const {
     createOutputChannel,
     getPluginConfig,
-    get_ios_device_type
+    get_ios_device_type,
+    get_ios_simulator_cpu_arch
 } = require('./core.js');
 
 const {
@@ -60,7 +61,7 @@ function loadEnvConfig(envJsPath) {
  * @param {Object} envjs - env.js配置对象
  * @returns {Promise<String>} 启动器路径
  */
-async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs, test_device_type="") {
+async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs, test_device_type="", ios_simulator_cpuArch=[]) {
     // console.error("[test_device_type] = ", test_device_type);
     const isIOSRealDevice = testPlatform === PLATFORM.IOS && test_device_type === "真机";
     
@@ -78,6 +79,10 @@ async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs, test_dev
     // 5.31版本号，ios模拟器基座，拆分到单独的目录里了
     if (IS_HBUILDERX_VERSION_AT_LEAST_531) {
         iosSimulatorAppFile = appRuntimeConfig.launcher_ios_simulator_app_file;
+        console.error("==============ios_simulator_cpuArch, ", ios_simulator_cpuArch)
+        if (isUniappX && Array.isArray(ios_simulator_cpuArch) && ios_simulator_cpuArch.length == 1 && ios_simulator_cpuArch.includes("arm64")) {
+            iosSimulatorAppFile = appRuntimeConfig.launcher_ios_simulator_app_arm64_file;
+        };
     };
     
     // 【TODO】暂时先这样。后期优化
@@ -294,8 +299,10 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
 
     // 设备类型 模拟器、真机。目前只有ios平台需要
     let test_device_type = "";
+    let ios_simulator_cpuArch = "";
     if (testPlatform == "ios") {
         test_device_type = await get_ios_device_type(deviceId);
+        ios_simulator_cpuArch = await get_ios_simulator_cpu_arch(deviceId);
     };
     if (deviceType == "真机") {
         test_device_type = "真机";
@@ -322,7 +329,7 @@ async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", u
         return true;
     };
 
-    const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData, test_device_type);
+    const launcherPath = await getLauncherPath(testPlatform, isUniappX, isVapor, envJsFileData, test_device_type, ios_simulator_cpuArch);
     console.log("[env.js]launcherPath = ", launcherPath)
     const isCustomRuntime = envJsFileData["is-custom-runtime"];
 
