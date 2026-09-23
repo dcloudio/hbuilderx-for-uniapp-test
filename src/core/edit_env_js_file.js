@@ -11,6 +11,8 @@ const {
     fsWriteFile
 } = require('../utils/utils_files.js');
 
+const { isHBuilderXVersionAtLeast } = require('../utils/compare_hx_versions.js');
+
 const PLATFORM = {
     H5: 'h5',
     ANDROID: 'android',
@@ -19,6 +21,9 @@ const PLATFORM = {
     MP_WEIXIN: 'mp-weixin',
     MP_ALIPAY: 'mp-alipay'
 };
+
+const hx_env_app_version = hx.env.appVersion;
+const IS_HBUILDERX_VERSION_AT_LEAST_531 = isHBuilderXVersionAtLeast(hx.env.appVersion, "5.31");
 
 /**
  * @description 创建日志记录器
@@ -59,16 +64,33 @@ async function getLauncherPath(testPlatform, isUniappX, isVapor, envjs, test_dev
     // console.error("[test_device_type] = ", test_device_type);
     const isIOSRealDevice = testPlatform === PLATFORM.IOS && test_device_type === "真机";
     
+    let project_mark = "uniapp-1.0";
+    if (isUniappX) {
+        project_mark = isVapor ? "uniapp-x-vapor" : "uniapp-x-vdom";
+    };
+    const appRuntimeConfig = config.CFG_project_app_runtime_mapping_data[project_mark];
+
+    // android apk
+    const androidApkFile = appRuntimeConfig.launcher_android_apk_file;
+
+    // 原先的ios模拟器路径
+    let iosSimulatorAppFile = appRuntimeConfig.launcher_ios_simulator_app_for_old;
+    // 5.31版本号，ios模拟器基座，拆分到单独的目录里了
+    if (IS_HBUILDERX_VERSION_AT_LEAST_531) {
+        iosSimulatorAppFile = appRuntimeConfig.launcher_ios_simulator_app_file;
+    };
+    
+    // 【TODO】暂时先这样。后期优化
     const launcherConfig = {
         [PLATFORM.ANDROID]: {
-            uniappX: isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_ANDROID : config.UNIAPP_X_LAUNCHER_ANDROID,
-            normal: config.LAUNCHER_ANDROID
+            uniappX: androidApkFile,
+            normal: androidApkFile
         },
         [PLATFORM.IOS]: {
             uniappX: isIOSRealDevice 
                 ? (isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA : config.UNIAPP_X_LAUNCHER_IOS_IPA)
-                : (isVapor ? config.UNIAPP_X_VAPOR_LAUNCHER_IOS : config.UNIAPP_X_LAUNCHER_IOS),
-            normal: isIOSRealDevice ? config.LAUNCHER_IOS_IPA : config.LAUNCHER_IOS
+                : iosSimulatorAppFile,
+            normal: isIOSRealDevice ? config.LAUNCHER_IOS_IPA : iosSimulatorAppFile
         }
     };
 
