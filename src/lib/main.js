@@ -3,15 +3,13 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
-const ui_formDialog = require("./ui_formDialog.js");
 const ui_vue = require("./ui_vue.js");
 const api_getMobileList = require("./api_getMobileList.js");
 
 const compareHBuilderXVersions = require('../utils/compare_hx_versions.js');
 const hxVersion = hx.env.appVersion;
-const { get_ios_device_type } = require('../core/core.js');
+const { get_ios_device_type, createOutputChannel } = require('../core/core.js');
 
-// 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
 const hxVersionForDiff = hxVersion.replace('-alpha', '').replace('-dev', '').replace(/.\d{10}/, '');
 const cmpVerionForVue = compareHBuilderXVersions(hxVersionForDiff, '4.40');
 
@@ -185,8 +183,6 @@ async function getTestDevices(testPlatform, projectPath="") {
 
     let selected = "";
     let uiSettings = {};
-    // console.log("======", cmpVerionForVue);
-    // selected = await ui_formDialog(testPlatform);
 
     if (cmpVerionForVue < 0) {
         let _result = await ui_vue(testPlatform, projectPath);
@@ -199,7 +195,8 @@ async function getTestDevices(testPlatform, projectPath="") {
             selected = _result;
         };
     } else {
-        selected = await ui_formDialog(testPlatform);
+        createOutputChannel(`当前HBuilderX版本 ${hxVersion} 不支持测试设备选择，请升级HBuilderX至最新版本后重试。`, 'warning');
+        return [];
     };
     console.error("[_result_]", selected, uiSettings);
 
