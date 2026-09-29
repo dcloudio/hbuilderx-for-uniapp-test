@@ -1,5 +1,12 @@
 # 更新日志
 
+## 5.4.0
+* feat: 新增 针对android和harmony，增加环境变量`UNI_APP_X_TARGET_ARCHS`
+* feat: extension.js 注释掉自动检查升级功能
+* feat: 删除过期的src/lib/ui_webview.js
+* feat: 移除过期的fromDilag
+* 优化 对uni-app-x项目的判断
+
 ## 5.3.1
 * feat: 适配HBuilderX 5.31版本
 * feat: 增加环境变量 UNI_TEST_LAUNCHER_HARMONY_PATH
