@@ -671,7 +671,7 @@
         },
         "hbuilderx-for-uniapp-test.jestNodeType": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
         },
         "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
