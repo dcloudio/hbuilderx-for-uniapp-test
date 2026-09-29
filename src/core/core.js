@@ -4,6 +4,11 @@ const path = require('path');
 const readline = require('readline');
 const { spawn, exec } = require('child_process');
 
+const {
+    getHdcPath,
+    runCmdAsync
+} = require("../lib/cmd_devices.js");
+
 const os = require('os');
 const osName = os.platform();
 
@@ -47,7 +52,14 @@ async function isUniAppX(projectPath) {
         let result = await hx.util.readJSONValue(manifestPath, "uni-app-x").then((data) => {
             return data;
         });
-        return result?.data?.vapor == true;
+        console.error("[获取项目manifest.json] uni-app-x节点 == ", result?.data);
+        if (result?.data?.vapor == true) {
+            return true;
+        };
+        if (JSON.stringify(result?.data) == '{}') {
+            return true;
+        };
+        return false;
     } catch (error) {
         return false;
     };
@@ -698,6 +710,38 @@ async function get_ios_simulator_cpu_arch(deviceId) {
 };
 
 
+/**
+ * @description 获取测试设备的CPU架构
+ * @param {Object} deviceId
+ */
+async function get_test_device_cpu_arch(deviceId, test_platform="") {
+    let test_cpu_arch = [];
+    try {
+        let device_result = global.global_devicesList;
+        let android_list = device_result.android ? device_result?.android : [];
+        let harmony_list = device_result.harmony ? device_result?.harmony : [];
+        let device_list = [...android_list, ...harmony_list];
+        for (let s of device_list) {
+            if (s.udid == deviceId) {
+                test_cpu_arch = Array.isArray(s.cpuAbi) ? s.cpuAbi : [];
+                break;
+            };
+        };
+    } catch (error) {};
+
+    if (test_platform == "harmony" && test_cpu_arch.length === 0) {
+        const hdcPath = await getHdcPath();
+        let result = await runCmdAsync(hdcPath, `-t ${deviceId} shell param get const.product.cpu.abilist `);
+        // console.error("手动获取harmony测试设备CPU架构 => ", result);
+        if (result && result.length > 0) {
+            test_cpu_arch = result;
+        };
+    }
+    return test_cpu_arch;
+};
+
+
+
 module.exports = {
     getPluginConfig,
     createOutputChannel,
@@ -715,5 +759,6 @@ module.exports = {
     readUniappManifestJson,
     uniapp_x_is_vapor,
     get_ios_device_type,
-    get_ios_simulator_cpu_arch
+    get_ios_simulator_cpu_arch,
+    get_test_device_cpu_arch
 };

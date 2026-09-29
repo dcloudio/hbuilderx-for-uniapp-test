@@ -58,7 +58,7 @@ async function getHdcPath() {
     if (harmony_devTools_dir && fs.existsSync(cfg_hdcPath)) {
         hdcPath = cfg_hdcPath;
     };
-    return;
+    return hdcPath;
 };
 
 /**
@@ -145,10 +145,12 @@ async function getHarmonyDeivcesListFormCmd() {
             if (s && s.includes("localhost") && s.includes("Connected")) {
                 const serno = s.split('\t')[0];
                 let name = "";
+                let cpu_arch = "";
                 if (serno) {
                     name = await runCmdAsync(hdcPath, `-t ${serno} shell param get const.product.name`, 'string');
+                    cpu_arch = await runCmdAsync(hdcPath, `-t ${serno} shell param get const.product.cpu.abilist `, 'string');
                 };
-                devices.push({"name": name, "version": "", "udid": serno});
+                devices.push({"name": name, "version": "", "udid": serno, "cpuAbi": [ cpu_arch ]});
             };
         };
         // console.log(devices);
@@ -159,6 +161,8 @@ async function getHarmonyDeivcesListFormCmd() {
 };
 
 module.exports = {
+    runCmdAsync,
+    getHdcPath,
     getAndroidDeivcesListFormCmd,
     getHarmonyDeivcesListFormCmd
 };

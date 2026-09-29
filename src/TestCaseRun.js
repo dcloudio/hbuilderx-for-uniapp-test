@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
+const { 
+    get_test_device_cpu_arch
+} = require("./core/core.js");
 const checkNetworkStatus = require('./utils/check_network.js');
 
 const get_test_port = require("./utils/get_test_port.js");
@@ -545,6 +548,17 @@ class RunTest extends Common {
                 // "UNI_APP_X": false
             },
             maxBuffer: 2000 * 1024
+        };
+
+        // 2026-09-28
+        if (testPlatform == 'harmony' || testPlatform == "android") {
+            let _cpuArch = ["arm64-v8a"];
+            const device_cpuArch = await get_test_device_cpu_arch(deviceId, testPlatform);
+            console.error("device_cpuArch =>", device_cpuArch);
+            if (device_cpuArch) {
+                _cpuArch = device_cpuArch;
+            };
+            cmdOpts["env"]["UNI_APP_X_TARGET_ARCHS"] = JSON.stringify(_cpuArch);
         };
 
         // 关于linux，用于特定的Linux包。
