@@ -16,7 +16,7 @@ const TestCaseCreate = require("./src/TestCaseCreate.js");
 const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
-const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilderXCli.js');
+const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilder_Cli.js');
 const { registerHBuilderVConsole } = require('./src/hbuilderv-console.js');
 
 function handerUri(uri) {

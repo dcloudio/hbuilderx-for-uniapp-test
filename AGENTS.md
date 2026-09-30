@@ -26,7 +26,7 @@
 │   └── about.js 
 ├── snippets
 └── src
-    ├── HBuilderXCli.js   // 用于在cmd终端便于HBuilderX CLI 命令调用
+    ├── HBuilder_Cli.js   // 用于在cmd终端便于HBuilderX CLI 命令调用
     ├── Initialize.js     // 初始化测试环境
     ├── TestCaseRun.js    // 在HBuilderX可视化界面，运行设备
     ├── core
