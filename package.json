@@ -658,7 +658,7 @@
       }
     ],
     "configuration": {
-      "title": "hbuilderx-for-uniapp-test uni-app自动化测试插件",
+      "title": "",
       "properties": {
         "hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir": {
           "type": "string",
