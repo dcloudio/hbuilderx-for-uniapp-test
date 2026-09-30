@@ -42,6 +42,24 @@
         "path": "./snippets/jest.json"
       }
     ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "hbuilderv-uniapp-test",
+          "title": "uni-app测试",
+          "icon": "./src/static/no.svg"
+        }
+      ]
+    },
+    "views": {
+      "hbuilderv-uniapp-test": [
+        {
+          "type": "webview",
+          "id": "hbuilderv-uniapp-test.console",
+          "name": "uni-app自动化测试 - 运行日志"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "unitest.initialization",

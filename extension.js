@@ -8,7 +8,7 @@ Module._load = function(request, parent, isMain) {
 };
 
 const { about, checkUpgrade } = require('./public/about.js');
-const { stopRunTest } = require('./src/core/core.js');
+const { stopRunTest, setTestOutputView } = require('./src/core/core.js');
 const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file.js');
 
 const Initialize = require('./src/Initialize.js');
@@ -17,6 +17,7 @@ const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilderXCli.js');
+const { registerHBuilderVConsole } = require('./src/hbuilderv-console.js');
 
 function handerUri(uri) {
     console.error("uri = ", uri);
@@ -51,6 +52,8 @@ function normalizeCommandParam(param) {
 function activate(context) {
     // 检查升级
     // checkUpgrade();
+
+    context.subscriptions.push(registerHBuilderVConsole(context));
 
     hx.window.registerUriHandler({
         handleUri: function(uri) {
@@ -96,11 +99,12 @@ function activate(context) {
     const registerRunCommand = (commandId, platform, scope) => {
         const disposable = hx.commands.registerCommand(commandId, (param) => {
             param = normalizeCommandParam(param);
-            if (scope) {
-                run.main(param, platform, scope);
-            } else {
-                run.main(param, platform);
-            }
+            return Promise.resolve().then(() => {
+                if (scope) {
+                    return run.main(param, platform, scope);
+                }
+                return run.main(param, platform);
+            }).finally(() => setTestOutputView());
         });
         context.subscriptions.push(disposable);
     };

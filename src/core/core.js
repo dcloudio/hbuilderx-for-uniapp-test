@@ -152,12 +152,12 @@ function hasAnsiColor(line) {
  * @param {String} viewID 目前的值仅为: 'log'
  */
 const uniMap = new Map();
-function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
+let activeTestOutputViewID;
+
+function getOutputView(viewID) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
     let output = uniMap.get(oID);
-    // console.error("..........output", output?.timer?._destroyed);
-    // if(output?.timer?._destroyed === undefined || output?.timer?._destroyed === false) {
     if(!output) {
         output = hx.window.createOutputView({
             id: oID,
@@ -166,7 +166,22 @@ function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
         uniMap.set(oID,output);
         output.show();
     };
+    return output;
+};
 
+function setTestOutputView(viewID) {
+    activeTestOutputViewID = viewID || undefined;
+    if (activeTestOutputViewID) {
+        let output = getOutputView(activeTestOutputViewID);
+        output.show();
+    };
+};
+
+function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
+    let outputViewID = viewID === undefined ? activeTestOutputViewID : viewID;
+    let output = getOutputView(outputViewID);
+    // console.error("..........output", output?.timer?._destroyed);
+    // if(output?.timer?._destroyed === undefined || output?.timer?._destroyed === false) {
     let data = undefined;
     if (msg instanceof Object) {
         data = msg;
@@ -745,6 +760,7 @@ async function get_test_device_cpu_arch(deviceId, test_platform="") {
 module.exports = {
     getPluginConfig,
     createOutputChannel,
+    setTestOutputView,
     createOutputViewForHyperLinks,
     openAndRunTerminal,
     runCmd,

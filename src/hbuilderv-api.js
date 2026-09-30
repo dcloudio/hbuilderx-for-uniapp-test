@@ -4,6 +4,7 @@ const path = require('path');
 const childProcess = require('child_process');
 const vscode = require('vscode');
 const { parse: parseJsonc } = require('jsonc-parser');
+const { createHBuilderVConsoleView } = require('./hbuilderv-console.js');
 
 const appRoot = vscode.env.appRoot || process.cwd();
 const defaultAppData = process.platform === 'darwin'
@@ -28,6 +29,9 @@ function getConfiguration() {
 }
 
 function createOutputView(options = {}) {
+    if (options.id === 'hbuilderx.uniapp.test.log') {
+        return createHBuilderVConsoleView(options);
+    }
     const output = vscode.window.createAnsiOutputChannel(options.title || options.id || 'HBuilderV');
     return {
         show: () => output.show(true),

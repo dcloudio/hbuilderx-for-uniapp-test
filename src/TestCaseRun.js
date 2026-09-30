@@ -28,6 +28,7 @@ const {
     runCmd,
     createOutputViewForHyperLinks,
     createOutputChannel,
+    setTestOutputView,
     hxShowMessageBox,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
@@ -321,14 +322,8 @@ class Common {
 
     // 用于【全部平台】测试停止运行
     async stopAllTestRun(MessagePrefix) {
-        let outputView = hx.window.createOutputView({
-            id: "hbuilderx.uniapp.test",
-            title: "uni-app自动化测试"
-        });
-        outputView.show();
-
         let msg = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
-        outputView.appendLine({
+        createOutputChannel({
             line: msg + "全部停止\n",
             level: "info",
             hyperlinks: [
@@ -342,7 +337,7 @@ class Common {
                     }
                 }
             ]
-        });
+        }, "info", "log");
     };
 
     /**
@@ -909,6 +904,8 @@ class RunTest extends Common {
             testPhoneList = sResult;
         };
 
+        setTestOutputView('log');
+
         if (argv_uniPlatform == 'all') {
             // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
             createOutputChannel(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`, 'success');
@@ -936,31 +933,31 @@ class RunTest extends Common {
             case 'h5':
             case 'h5-chrome':
                 // 兼容，不可删除
-                this.run_uni_test('h5-chrome');
+                await this.run_uni_test('h5-chrome');
                 break;
             case 'h5-safari':
-                this.run_uni_test('h5-safari');
+                await this.run_uni_test('h5-safari');
                 break;
             case 'h5-firefox':
-                this.run_uni_test('h5-firefox');
+                await this.run_uni_test('h5-firefox');
                 break;
             case 'mp-weixin':
-                this.run_uni_test('mp-weixin');
+                await this.run_uni_test('mp-weixin');
                 break;
             case 'mp-alipay':
-                this.run_uni_test('mp-alipay');
+                await this.run_uni_test('mp-alipay');
                 break;
             case 'ios':
-                this.run_more_test('ios', testPhoneList);
+                await this.run_more_test('ios', testPhoneList);
                 break;
             case 'android':
-                this.run_more_test('android', testPhoneList);
+                await this.run_more_test('android', testPhoneList);
                 break;
             case 'harmony':
-                this.run_more_test('harmony', testPhoneList);
+                await this.run_more_test('harmony', testPhoneList);
                 break;
             case 'all':
-                this.run_more_test('all', testPhoneList);
+                await this.run_more_test('all', testPhoneList);
                 break;
             default:
                 break;

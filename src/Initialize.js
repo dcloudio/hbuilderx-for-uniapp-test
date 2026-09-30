@@ -127,7 +127,7 @@ class Initialize extends Common {
      * @return {Boolean}
      */
     async checkPluginDependencies(plat='all', isReload=false, terminal_id = "") {
-        console.log(`[checkPluginDependencies] =`, plat, isReload, terminal_id);
+        // console.log(`[checkPluginDependencies] =`, plat, isReload, terminal_id);
         let logger = createOutputChannel;
         if (terminal_id) {
             logger = async function (message) {
