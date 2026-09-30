@@ -18,3 +18,4 @@ unpackage/dist/dev/
 *.zip
 
 .hbuilderx/code-chat-project-sessions.json
+docs/public-cli-api.md
