@@ -142,16 +142,17 @@ class Common {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
 
-        if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
-        };
+        // HBuilderV不需要这个
+        // if (is_uniapp_x) {
+        //     plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        // };
 
         if (is_uts_project || is_uniapp_x) {
             plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
         };
 
         if (["android", "all"].includes(platform)) {
-            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            // plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
             plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
 
@@ -161,7 +162,7 @@ class Common {
             if (fs.existsSync(plugin_list[e]) == false) {
                 uni_plugin_check = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
+                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击扩展，在UNI-APP X核心插件下，找到【${pluginDisplayName}】插件并安装。`;
                 await this.print_cli_log(log_for_plugin);
             };
         };
@@ -662,7 +663,7 @@ class RunTestForHBuilderXCli extends Common {
 
         // 适用于uni-app普通项目
         let cmd = [
-            `${config.JEST_PATH}`, "-i", "--forceExit", "--json",
+            `"${config.JEST_PATH}"`, "-i", "--forceExit", "--json",
             `--outputFile="${outputFile}"`,
             `--env="${config.UNI_CLI_ENV}"`, `--globalTeardown="${config.UNI_CLI_teardown}"`
         ];

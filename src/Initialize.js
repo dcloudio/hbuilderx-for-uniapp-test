@@ -19,6 +19,7 @@ const {
 } = require('./utils/utils_files.js');
 
 let {
+    UNI_TEST_NODE_LIB_ROOT_DIR,
     testReportOutPutDir,
     UTS_USER_DATA_PATH,
     HBuilderX_NPM_PATH
@@ -135,7 +136,7 @@ class Initialize extends Common {
         };
 
         // 测试依赖单独放一个目录，是因为当初所需要的依赖，比如playwrite、puppeteer太大了，安装完后1个G。
-        let test_lib_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib");
+        let test_lib_dir = UNI_TEST_NODE_LIB_ROOT_DIR;
         mkdirsSync(test_lib_dir);
 
         // 复制模板package.json -> hbuildrx-for-uniapp-test-lib/package.json

@@ -103,7 +103,7 @@ class Common {
     async checkAndSetEnv(platform = undefined, projectPath) {
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
         isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
-
+        console.log("[使用使用内置Node版本] ........ ", isUseBuiltNodeRunJest);
         // checkNode()
         //     .then(result => console.log('结果:', result))
         //     .catch(error => console.log('结果:', error));
@@ -145,10 +145,11 @@ class Common {
         if (["android", "ios", "all"].includes(platform)) {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
-
-        if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
-        };
+        
+        // HBuilderV不需要这个
+        // if (is_uniapp_x) {
+        //     plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+        // };
 
         if (project_manifestJson_vapor) {
             plugin_list["uniappx-vapor-launcher"] = config.UNIAPP_X_VAPOR_LAUNCHER_PATH;
@@ -159,7 +160,7 @@ class Common {
         };
 
         if (["android", "all"].includes(platform)) {
-            plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
+            // plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
             plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
 
@@ -563,7 +564,7 @@ class RunTest extends Common {
 
         // 关于linux，用于特定的Linux包。
         if (osName == "linux" && testPlatform == 'h5-chrome') {
-            const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib", "ms-playwright");
+            const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
             let ms_playwright_chrome = "";
             if (fs.existsSync(ms_playwright_dir)) {
                 const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
@@ -740,7 +741,7 @@ class RunTest extends Common {
             delete cmdOpts.env.UNI_CLI_PATH;
             let cliJest = path.join(this.projectPath, 'node_modules/jest/bin/jest.js');
             cmd = [
-                `${cliJest}`, "-i", "--forceExit", "--json",
+                `"${cliJest}"`, "-i", "--forceExit", "--json",
                 `--outputFile="${outputFile}"`
             ];
         };

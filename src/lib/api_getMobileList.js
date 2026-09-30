@@ -11,55 +11,169 @@ const osName = os.platform();
 global.global_devicesList = {};
 
 var extension_launcher = undefined;
+const HBUILDERV_FEATURES_EXTENSION_ID = "dcloud.hbuilderx-uniapp-features";
+let extension_features_api;
+let extension_features_api_promise;
 
-/**
- * @param {String} testPlatform
- *
- */
-async function getDevicesFormLauncher(testPlatform, isRefresh) {
-    // {
-    //     "iOS-iPhone": iphoneLauncher,
-    //     "android": androidLauncher,
-    //     "IOS_SIMULATOR": iossimLauncher,
-    //     "app-harmony": harmonyLauncher,
-    //     "mp-harmony": harmonyASLauncher,
-    // }
-    if (extension_launcher == undefined) {
-        extension_launcher = hx.extensions.getExtension("launcher");;
+/** 获取 HBuilderV 内置 uni-app x CLI 公共 API。 */
+async function getHBuilderVFeaturesApi() {
+    if (extension_features_api) {
+        return extension_features_api;
     };
-    if (extension_launcher == undefined) {
-        return global_devicesList;
+    if (extension_features_api_promise) {
+        return extension_features_api_promise;
     };
-    if (testPlatform == "all" || testPlatform == 'ios') {
-        let ios_simulator_list = await extension_launcher.getDevices({ platform:'IOS_SIMULATOR'}, true);
-        let ios_phone_list = await extension_launcher.getDevices({ platform:'iOS-iPhone'}, true);
-        // console.error("[IOS]", ios_simulator_list, ios_phone_list);
-        if (ios_simulator_list && ios_simulator_list.length > 0){
-            let tmp_ios_simulator_list = ios_simulator_list.map(function(v) {
-                return Object.assign(v, {"device_type": "模拟器"})
+
+    extension_features_api_promise = (async function() {
+        let extension = hx.extensions && hx.extensions.getExtension
+            ? hx.extensions.getExtension(HBUILDERV_FEATURES_EXTENSION_ID)
+            : undefined;
+        if (!extension) {
+            return undefined;
+        };
+        let api = extension.exports;
+        if (!api && typeof extension.activate == "function") {
+            api = await extension.activate();
+        };
+        if (!api || api.version !== 1 || !api.cli ||
+            typeof api.cli.createClient !== "function" ||
+            typeof api.cli.createCommand !== "function") {
+            return undefined;
+        };
+        extension_features_api = api;
+        return api;
+    })().catch(function(error) {
+        console.error("获取 HBuilderV uni-app x CLI 公共 API 失败：", error);
+        return undefined;
+    });
+    return extension_features_api_promise;
+};
+
+/** 去除 CLI JSON 输出中的时间戳和 ANSI 控制字符。 */
+function stripCliDecorations(value) {
+    return String(value || "")
+        .replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "")
+        .replace(/^\d{1,2}:\d{2}:\d{2}\.\d{3}\s+/, "")
+        .trim();
+};
+
+/** 从带时间戳的 CLI 输出中提取 JSON 载荷。 */
+function parseCliJsonPayloads(value) {
+    let payloads = [];
+    let lines = String(value || "").split(/\r?\n/);
+    for (let line of lines) {
+        let normalized = stripCliDecorations(line);
+        if (!normalized || (normalized[0] !== "{" && normalized[0] !== "[")) {
+            continue;
+        };
+        try {
+            payloads.push(JSON.parse(normalized));
+        } catch (error) {
+            // CLI 日志可能包含尚未完成的 JSON 行，继续尝试其它输出。
+        };
+    };
+    if (payloads.length == 0) {
+        let normalized = stripCliDecorations(value);
+        try {
+            if (normalized[0] == "{" || normalized[0] == "[") {
+                payloads.push(JSON.parse(normalized));
+            };
+        } catch (error) {
+            // 解析失败时由调用方按空设备列表处理。
+        };
+    };
+    return payloads;
+};
+
+/** 将 CLI 设备载荷转换为现有设备列表使用的结构。 */
+function normalizeCliDevices(payload, deviceType) {
+    let devices = [];
+    if (Array.isArray(payload)) {
+        devices = payload;
+    } else if (payload && Array.isArray(payload.devices)) {
+        devices = payload.devices;
+    } else if (payload && Array.isArray(payload.data)) {
+        devices = payload.data;
+    };
+    return devices.map(function(item) {
+        if (typeof item == "string") {
+            let device = { name: item, version: "", udid: item };
+            if (deviceType) {
+                device.device_type = deviceType;
+            };
+            return device;
+        };
+        if (!item || typeof item != "object") {
+            return undefined;
+        };
+        let device = Object.assign({}, item);
+        let udid = device.udid || device.uuid || device.deviceId || device.id || device.serialNumber;
+        if (!device.udid && udid) {
+            device.udid = udid;
+        };
+        if (!device.name) {
+            device.name = device.deviceName || device.model || udid || "";
+        };
+        if (!device.version) {
+            device.version = device.systemVersion || device.runtimeVersion || "";
+        };
+        if (deviceType) {
+            device.device_type = deviceType;
+        };
+        return device;
+    }).filter(function(item) {
+        return item != undefined;
+    });
+};
+
+/** 通过 HBuilderV 公共 CLI API 获取 Android、iOS 和 Harmony 设备。 */
+async function getDevicesFormCli(testPlatform) {
+    let api = await getHBuilderVFeaturesApi();
+    if (!api) {
+        return undefined;
+    };
+
+    let queryList = [];
+    if (testPlatform == "all" || testPlatform == "ios") {
+        queryList.push({ platform: "ios-simulator", key: "ios_simulator", deviceType: "模拟器" });
+        queryList.push({ platform: "ios-iPhone", key: "ios_phone", deviceType: "真机" });
+    };
+    if (testPlatform == "all" || testPlatform == "android") {
+        queryList.push({ platform: "android", key: "android", deviceType: "" });
+    };
+    if (testPlatform == "all" || testPlatform == "harmony") {
+        queryList.push({ platform: "app-harmony", key: "harmony", deviceType: "" });
+    };
+    if (queryList.length == 0) {
+        return undefined;
+    };
+
+    let successCount = 0;
+    await Promise.all(queryList.map(async function(query) {
+        try {
+            let client = api.cli.createClient();
+            let command = api.cli.createCommand("devices", "list")
+                .option("--platform", query.platform)
+                .booleanOption("--json", true);
+            let result = await client.execute(command, {
+                timeout: 15000,
+                maxBuffer: 2 * 1024 * 1024
             });
-            global_devicesList["ios_simulator"] = tmp_ios_simulator_list;
+            if (!result || result.code !== 0) {
+                return;
+            };
+            let payloads = parseCliJsonPayloads(result.stdout);
+            let devices = [];
+            for (let payload of payloads) {
+                devices = devices.concat(normalizeCliDevices(payload, query.deviceType));
+            };
+            global_devicesList[query.key] = devices;
+            successCount++;
+        } catch (error) {
+            console.error("获取 " + query.platform + " 设备失败：", error);
         };
-        if (ios_phone_list && ios_phone_list.length > 0){
-            let tmp_ios_phone_list = ios_phone_list.map(function(v) {
-                return Object.assign(v, {"device_type": "真机"})
-            });
-            global_devicesList["ios_phone"] = tmp_ios_phone_list;
-        };
-    };
-    if (testPlatform == "all" || testPlatform == 'android') {
-        let _android_list = await extension_launcher.getDevices({ platform:'android'}, true);
-        if (_android_list && _android_list.length > 0){
-            global_devicesList["android"] = _android_list;
-        };
-    };
-    if (testPlatform == "all" || testPlatform == 'harmony') {
-        let _harmony_list = await extension_launcher.getDevices({ platform:'app-harmony'}, true);
-        if (_harmony_list && _harmony_list.length > 0){
-            global_devicesList["harmony"] = _harmony_list;
-        };
-    };
-    return global_devicesList;
+    }));
+    return successCount > 0 ? global_devicesList : undefined;
 };
 
 
@@ -71,7 +185,8 @@ async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
         if (testPlatform == "all" &&
             global_devicesList["ios_simulator"] != undefined &&
             global_devicesList["ios_phone"] != undefined &&
-            global_devicesList["android"] != undefined) {
+            global_devicesList["android"] != undefined &&
+            global_devicesList["harmony"] != undefined) {
             return global_devicesList;
         };
         if (testPlatform == "ios") {
@@ -90,21 +205,23 @@ async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
         };
     };
 
-    if (testPlatform == "harmony" && isRefresh == "Y") {
-        let h_tmp = await getHarmonyDeivcesListFormCmd();
-        global_devicesList["harmony"] = h_tmp;
-        return global_devicesList;
-    };
-
     let result = {};
     let is_error = false;
     try {
-        result = await getDevicesFormLauncher(testPlatform, isRefresh);
+        result = await getDevicesFormCli(testPlatform);
+        console.log("[获取测试设备]--->", JSON.stringify(result, null, 4), is_error);
+        if (result == undefined) {
+            if (testPlatform == "harmony" && isRefresh == "Y") {
+                let h_tmp = await getHarmonyDeivcesListFormCmd();
+                global_devicesList["harmony"] = h_tmp;
+                result = global_devicesList;
+            };
+        };
     } catch (error) {
         console.error(error);
         is_error = true
     };
-    // console.log("--->", result, is_error);
+
     // console.error("------[所有的设备]------", result);
     return result;
 };

@@ -14,7 +14,7 @@ const browserMap = {
 function checkWebLib(browser, nodeLibPath) {
 
     // 针对linux ai包的特殊处理
-    const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderx-for-uniapp-test-lib", "ms-playwright");
+    const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
     if (osName == "linux" && browser == "chrome" && fs.existsSync(ms_playwright_dir)) {
         let ms_playwright_chrome = "";
         if (fs.existsSync(ms_playwright_dir)) {

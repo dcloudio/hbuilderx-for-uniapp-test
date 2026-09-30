@@ -1,4 +1,11 @@
-const hx = require("hbuilderx");
+const Module = require('module');
+const vscode = require('vscode');
+const hx = require('./src/hbuilderv-api.js');
+const originalModuleLoad = Module._load;
+Module._load = function(request, parent, isMain) {
+    if (request === 'hbuilderx') return hx;
+    return originalModuleLoad.call(this, request, parent, isMain);
+};
 
 const { about, checkUpgrade } = require('./public/about.js');
 const { stopRunTest } = require('./src/core/core.js');
@@ -26,6 +33,20 @@ function handerUri(uri) {
     }
 };
 
+function normalizeCommandParam(param) {
+    if (param?.workspaceFolder || param?.document) return param;
+    const activeDocument = vscode.window.activeTextEditor?.document;
+    const resource = param?.fsPath ? vscode.Uri.file(param.fsPath) : activeDocument?.uri;
+    const folder = resource ? vscode.workspace.getWorkspaceFolder(resource) : vscode.workspace.workspaceFolders?.[0];
+    if (!folder) return param;
+    return {
+        ...(param || {}),
+        fsPath: param?.fsPath || activeDocument?.uri.fsPath || folder.uri.fsPath,
+        workspaceFolder: folder,
+        document: activeDocument,
+    };
+}
+
 
 function activate(context) {
     // 检查升级
@@ -42,7 +63,7 @@ function activate(context) {
     // 初始化测试环境：安装测试环境、创建测试配置文件
     let initialization = hx.commands.registerCommand('unitest.initialization', (param) => {
         let init = new Initialize();
-        init.main(param);
+        init.main(normalizeCommandParam(param));
     });
     context.subscriptions.push(initialization);
 
@@ -55,13 +76,13 @@ function activate(context) {
 
     // 创建测试用例 (uni-app项目，pages页面，右键菜单)
     let createTestCase = hx.commands.registerCommand('unitest.createTestCase', (param) => {
-        TestCaseCreate(param);
+        TestCaseCreate(normalizeCommandParam(param));
     });
     context.subscriptions.push(createTestCase);
 
     // 创建 AGENTS.test.md 文件 (uni-app项目根目录，右键菜单)
     let createAgents = hx.commands.registerCommand('unitest.createAgentsMd', (param) => {
-        createAgentsMd(param);
+        createAgentsMd(normalizeCommandParam(param));
     });
     context.subscriptions.push(createAgents);
 
@@ -74,6 +95,7 @@ function activate(context) {
     // 批量注册运行命令，避免重复样板代码
     const registerRunCommand = (commandId, platform, scope) => {
         const disposable = hx.commands.registerCommand(commandId, (param) => {
+            param = normalizeCommandParam(param);
             if (scope) {
                 run.main(param, platform, scope);
             } else {
@@ -163,7 +185,7 @@ function activate(context) {
 
     // 添加文件路径到jest.config.js
     let addFilePath = hx.commands.registerCommand('unitest.addFilePathToJestConfig', (param) => {
-        addFilePathToJestConfig(param);
+        addFilePathToJestConfig(normalizeCommandParam(param));
     });
     context.subscriptions.push(addFilePath);
 
