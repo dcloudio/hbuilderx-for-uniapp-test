@@ -13,72 +13,6 @@ global.global_devicesList = {};
 var extension_launcher = undefined;
 
 /**
- * @description 通过Api hx.app.getMobileList, 获取当前电脑连接的手机设备
- * @description {Sting} testPlatform [ios|android|all]
- * @returns {Object} 手机列表 {"ios": [], "android": []}
- */
-let PLATFORM_ANDROID = 0x00000001;
-let PLATFORM_ANDROID_SIMULATOR = 0x00000002;
-let PLATFORM_IOS = 0x00000004;
-let PLATFORM_IOS_SIMULATOR = 0x00000008;
-let PLATFORM_ALL = 0x00000010;
-async function getMobileList(testPlatform, isRefresh="N") {
-    let deviceType = PLATFORM_ALL;
-    if (testPlatform == 'ios') {
-        deviceType = PLATFORM_IOS_SIMULATOR;
-    };
-    if (testPlatform == 'android') {
-        deviceType = PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR;
-    };
-    if (testPlatform == 'all') {
-        deviceType = osName == 'darwin' ? PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR | PLATFORM_IOS_SIMULATOR :
-            PLATFORM_ANDROID | PLATFORM_ANDROID_SIMULATOR;
-    };
-    let platform = {
-        "platform": deviceType
-    };
-    let data = await hx.app.getMobileList(platform).then(data => {
-        return data;
-    });
-    try{
-        // 这里的目的主要是为了合并android真机和模拟器，并增加一个udid字段。
-        let {android_simulator, android} = data;
-        let tmp_android_simulator = [];
-        let tmp_android = [];
-        if (android_simulator != undefined && android_simulator.length > 0) {
-            tmp_android_simulator = android_simulator.map(function(v) {
-                return Object.assign(v, {"udid": v["uuid"]})
-            });
-        };
-        if (android != undefined && android.length > 0) {
-            tmp_android = android.map(function(v) {
-                return Object.assign(v, {"udid": v["uuid"]})
-            });
-        };
-        global_devicesList["android"] = [...tmp_android_simulator, ...tmp_android];
-    }catch(e){};
-
-    try {
-        let {ios_simulator} = data;
-        if (ios_simulator != undefined && ios_simulator.length > 0) {
-            let tmp = ios_simulator.filter(n => {
-                return !(n.name).includes('Apple Watch') && !(n.name).includes('iPad') && !(n.name)
-                    .includes('Apple TV') && !(n.name).includes('iPod touch');
-            });
-            tmp = tmp.map(function(v) {
-                return Object.assign(v, {"udid": v["uuid"]})
-            });
-            data['ios_simulator'] = tmp.reverse();
-        };
-        global_devicesList = data;
-        return data;
-    } catch (e) {
-        global_devicesList = data;
-        return data;
-    }
-};
-
-/**
  * @param {String} testPlatform
  *
  */
@@ -171,13 +105,6 @@ async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
         is_error = true
     };
     // console.log("--->", result, is_error);
-
-    if (is_error) {
-        try {
-            console.error("因getDevicesFormLauncher错误，使用getMobileList获取设备列表......")
-            result = await getMobileList(testPlatform, isRefresh);
-        } catch (error) {}
-    };
     // console.error("------[所有的设备]------", result);
     return result;
 };
