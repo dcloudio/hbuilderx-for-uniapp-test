@@ -170,12 +170,9 @@ class Initialize extends Common {
 			await logger(msg_0, 'error');
 
             const cmd_npm_install = `npm install --save --registry=https://registry.npmmirror.com`;
-            let msg_f = `\n方法1：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
+            let msg_f = `\n方法：打开操作系统终端，进入 ${test_lib_dir} 目录，执行 ${cmd_npm_install}`;
             msg_f = msg_f + `\n  - 运行测试到Web(如Chrome)，需安装浏览器二进制文件（Chromium、WebKit 和 Firefox），请在命令行执行npx playwright install。如不需要运行测试到Web，可忽略此步骤。`;
             msg_f = msg_f + `\n  - 如果playwright安装遇到问题，请参考: https://playwright.dev/docs/intro#updating-playwright \n`;
-
-            const doc_url = "https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension/#share-test-libs"
-            msg_f = msg_f + `方法2：如果您电脑上安装了HBuilderX 正式版、Dev、Alpha版本，是否每个程序都重新安装一遍测试依赖？答案：不需要。解决办法参考: ${doc_url}\n`;
             await logger(msg_f, 'info');
 
             return false;

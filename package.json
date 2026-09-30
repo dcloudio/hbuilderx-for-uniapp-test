@@ -49,7 +49,7 @@
       },
       {
         "command": "unitest.createTestCase",
-        "title": "新建自动化测试用例(&N)"
+        "title": "新建uni-app (x) 测试用例文件(&N)"
       },
       {
         "command": "unitest.stopRunTest",

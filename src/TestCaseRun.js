@@ -151,7 +151,7 @@ class Common {
         //     plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
         // };
 
-        if (project_manifestJson_vapor) {
+        if (["android", "all"].includes(platform) && project_manifestJson_vapor) {
             plugin_list["uniappx-vapor-launcher"] = config.UNIAPP_X_VAPOR_LAUNCHER_PATH;
         };
 
@@ -873,11 +873,17 @@ class RunTest extends Common {
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();
+
+        // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
+        let env = await this.checkAndSetEnv(argv_uniPlatform, projectPath);
+        if (!env) return;
+        
         if (["h5-chrome", "h5-safari", "h5-firefox", "mp-alipay"].includes(argv_uniPlatform)) {
             let _browserName = argv_uniPlatform.replace(/^h5-/, "");
             if (argv_uniPlatform == "mp-alipay") {
                 _browserName = "chrome";
             };
+
             const { exists, browserType } = await checkWebLib(_browserName, config.NODE_LIB_PATH);
             if (exists === false) {
                 const _msg_1 = `uni-app (x) 运行测试到${argv_uniPlatform}，依赖Playwright。Playwright ${browserType} executable path 检查失败。`;
@@ -888,10 +894,6 @@ class RunTest extends Common {
                 return;
             };
         };
-
-        // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
-        let env = await this.checkAndSetEnv(argv_uniPlatform, projectPath);
-        if (!env) return;
 
         // 运行：到iOS和android
         if (['all', 'android'].includes(argv_uniPlatform) && is_uts_project) {

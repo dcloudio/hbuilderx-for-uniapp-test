@@ -9,6 +9,12 @@ const osName = os.platform();
 
 const appData_dir = hx.env.appData;
 
+let PC_APPDATA_DIR = process.env.APPDATA;
+if (osName == "darwin") {
+    PC_APPDATA_DIR = path.join( os.homedir(), 'Library', 'Application Support' );
+};
+let HV_UNI_TEST_ENV_DIR = path.join(PC_APPDATA_DIR, "dcloud-uniapp-test")
+
 /**
  * @description 获取dcloud.hbuilderx-uniapp-sdk plugins目录路径
  * @returns 
@@ -137,10 +143,10 @@ let UNIAPP_UTS_V1_PATH = cfg_hv_plugin_uniapp_uts_v1_dir;
 let UTS_DEVELOPMENT_ANDROID_PATH = cfg_hv_plugin_uts_development_android_dir;
 
 // 测试报告默认输出路径
-var testReportOutPutDir = path.join(appData_dir, 'hbuilderv-for-uniapp-test');
+var testReportOutPutDir = path.join(HV_UNI_TEST_ENV_DIR, 'test_reports');
 
 // uni-app自动化测试依赖目录。默认为：$APPDATA_DIR/hbuilderv-for-uniapp-test-lib/node_modules
-let UNI_TEST_NODE_LIB_ROOT_DIR = path.join(appData_dir, "hbuilderv-for-uniapp-test-lib");
+let UNI_TEST_NODE_LIB_ROOT_DIR = path.join(HV_UNI_TEST_ENV_DIR, "hbuilderv-for-uniapp-test-lib");
 let NODE_LIB_PATH = path.join(UNI_TEST_NODE_LIB_ROOT_DIR, "node_modules");
 let CROSS_ENV_PATH = path.join(UNI_TEST_NODE_LIB_ROOT_DIR, "node_modules/cross-env/src/bin/cross-env.js");
 let JEST_PATH = path.join(UNI_TEST_NODE_LIB_ROOT_DIR, 'node_modules/jest/bin/jest.js');

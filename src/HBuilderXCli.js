@@ -818,6 +818,12 @@ class RunTestForHBuilderXCli extends Common {
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();
+
+        // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
+        let env = await this.checkAndSetEnv(argv_uni_platform, this.projectPath);
+        await this.print_cli_log(`测试环境检查结果: ${env}`);
+        if (!env) return;
+
         if (["h5-chrome", "h5-safari", "h5-firefox", "mp-alipay"].includes(argv_uni_platform)) {
             let _browserName = argv_uni_platform.replace(/^h5-/, "");
             if (argv_uni_platform == "mp-alipay") {
@@ -833,11 +839,6 @@ class RunTestForHBuilderXCli extends Common {
                 return;
             };
         };
-
-        // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
-        let env = await this.checkAndSetEnv(argv_uni_platform, this.projectPath);
-        await this.print_cli_log(`测试环境检查结果: ${env}`);
-        if (!env) return;
 
         // 运行：到iOS和android
         if (['all', 'android'].includes(argv_uni_platform) && is_uts_project) {
