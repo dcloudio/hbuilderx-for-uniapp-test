@@ -3,7 +3,7 @@
   "name": "hbuilderx-for-uniapp-test",
   "description": "uni-app自动化测试，支持初始化测试环境，运行测试到Android、iOS、h5、微信/支付宝小程序、Harmony应用",
   "displayName": "HBuilderX uni-app自动化测试",
-  "version": "5.3.1",
+  "version": "5.4.0",
   "publisher": "hbuilderx",
   "__from": "ext-market",
   "engines": {
@@ -671,7 +671,7 @@
         },
         "hbuilderx-for-uniapp-test.jestNodeType": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
         },
         "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
