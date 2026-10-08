@@ -71,7 +71,8 @@
       },
       {
         "command": "unitest.stopRunTest",
-        "title": "停止运行测试"
+        "title": "停止运行测试",
+        "icon": "$(debug-stop)"
       },
       {
         "command": "unitest.runTestAll",
@@ -735,6 +736,13 @@
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "command": "unitest.stopRunTest",
+          "when": "view == hbuilderv-uniapp-test.console && hbuildervUniappTestRunning",
+          "group": "navigation@1"
+        }
+      ],
       "explorer/context": [
         {
           "command": "unitest.initialization",

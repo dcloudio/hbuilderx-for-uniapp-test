@@ -54,6 +54,7 @@ function activate(context) {
     // checkUpgrade();
 
     context.subscriptions.push(registerHBuilderVConsole(context));
+    hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
 
     hx.window.registerUriHandler({
         handleUri: function(uri) {
@@ -104,7 +105,10 @@ function activate(context) {
                     return run.main(param, platform, scope);
                 }
                 return run.main(param, platform);
-            }).finally(() => setTestOutputView());
+            }).finally(() => {
+                setTestOutputView();
+                return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
+            });
         });
         context.subscriptions.push(disposable);
     };

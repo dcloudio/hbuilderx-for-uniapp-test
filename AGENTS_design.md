@@ -126,6 +126,7 @@ api.cli.createCommand('devices', 'list')
 - 支持 info、warning、success、error 颜色。
 - 去除 ANSI 颜色转义码，避免 Webview 显示不可读控制字符。
 - 使用 `workbench.view.extension.hbuilderv-uniapp-test` 打开 panel。
+- 通过 `view/title` 在控制台右上角提供停止运行图标，不要在 Webview HTML 内重复实现按钮。
 
 ### 5.2 日志路由时机
 
@@ -142,10 +143,19 @@ GUI 命令通过 `finally` 清理活动输出目标：
 ```js
 return Promise.resolve()
     .then(() => run.main(param, platform, scope))
-    .finally(() => setTestOutputView());
+    .finally(() => {
+        setTestOutputView();
+        return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
+    });
 ```
 
 测试运行分支必须 `await` `run_uni_test()` 和 `run_more_test()`；否则命令 Promise 会提前完成，`finally` 会过早恢复输出目标，导致后续日志路由错误。
+
+### 5.3 停止运行入口
+
+`unitest.stopRunTest` 使用 `$(debug-stop)` 图标，并通过 `hbuildervUniappTestRunning` context key 控制可见性。设备选择窗口打开或取消时不显示停止图标；用户确认设备并开始运行后设置为 `true`，测试 Promise 结束后在 `finally` 中恢复为 `false`。点击图标继续复用 `src/core/core.js` 的 `stopRunTest()`，由子进程实际退出后的命令生命周期负责隐藏图标。
+
+插件激活时必须将 `hbuildervUniappTestRunning` 初始化为 `false`，避免窗口重新加载后显示过期状态。修改 `commands` 或 `view/title` 后需要重新加载 HBuilderV 才能生效。
 
 ## 6. 新建自动化测试用例窗口
 

@@ -905,6 +905,7 @@ class RunTest extends Common {
         };
 
         setTestOutputView('log');
+        await hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', true);
 
         if (argv_uniPlatform == 'all') {
             // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
