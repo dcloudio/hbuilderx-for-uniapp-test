@@ -222,7 +222,11 @@ function createDialogHtml(webview, state) {
                     + '>' + label + '</label>';
             };
             const deviceRow = (name, device) => {
-                const detail = [device.udid, device.version, device.device_type]
+                const originalName = String(device.name || device.udid || '');
+                const displayName = name === 'ios' && device.version
+                    ? originalName.replace(/\\s*\\(iOS\\s+[^)]+\\)\\s*$/i, '')
+                    : originalName;
+                const detail = [device.device_type, device.version, device.udid]
                     .filter(Boolean)
                     .join(' · ');
                 const checked = selected[name]?.includes(device.udid) ? ' checked' : '';
@@ -230,7 +234,7 @@ function createDialogHtml(webview, state) {
                     + '<input class="device-radio" type="radio" name="device-' + name + '" data-name="' + name
                     + '" data-value="' + (device.udid || '') + '"' + checked + '>'
                     + '<span class="device-copy">'
-                    + '<span class="device-name">' + esc(device.name || device.udid) + '</span>'
+                    + '<span class="device-name">' + esc(displayName) + '</span>'
                     + '<span class="device-detail">' + esc(detail) + '</span>'
                     + '</span></label>';
             };
@@ -257,13 +261,18 @@ function createDialogHtml(webview, state) {
                 \${((state.access === 'all' || state.access === 'ios') && state.osName === 'darwin') ? \`
                     <section>
                         <div class="section-head">
-                            <strong>iOS 模拟器与真机</strong>
+                            <span class="section-title-group">
+                                <strong>iOS 模拟器与真机</strong>
+                                <span class="filter-field">
+                                    <svg class="filter-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                                    <input class="filter" data-filter aria-label="过滤设备" placeholder="搜索名称或 UDID" value="\${esc(state.filter_ios_name)}">
+                                </span>
+                            </span>
                             <span class="section-actions">
-                                <span class="device-count">共 \${ios.length} 个设备</span>
-                                <button class="link" data-refresh="ios">刷新设备</button>
+                                <!-- <span class="device-count">共 \${ios.length} 个设备</span> -->
+                                <button class="icon-button" data-refresh="ios" aria-label="刷新设备" title="刷新设备"><svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M8 16H3v5"></path></svg></button>
                             </span>
                         </div>
-                        <input class="filter" data-filter placeholder="过滤设备名称或 UDID" value="\${esc(state.filter_ios_name)}">
                         <div class="device-list">\${deviceList('ios', ios)}</div>
                     </section>
                 \` : ''}
@@ -271,7 +280,7 @@ function createDialogHtml(webview, state) {
                     <section>
                         <div class="section-head">
                             <strong>Android 测试设备</strong>
-                            <button class="link" data-refresh="android">刷新设备</button>
+                            <button class="icon-button" data-refresh="android" aria-label="刷新设备" title="刷新设备"><svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M8 16H3v5"></path></svg></button>
                         </div>
                         <div class="device-list">\${deviceList('android', state.android_list)}</div>
                     </section>
@@ -280,7 +289,7 @@ function createDialogHtml(webview, state) {
                     <section>
                         <div class="section-head">
                             <strong>Harmony 测试设备</strong>
-                            <button class="link" data-refresh="harmony">刷新设备</button>
+                            <button class="icon-button" data-refresh="harmony" aria-label="刷新设备" title="刷新设备"><svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M8 16H3v5"></path></svg></button>
                         </div>
                         <div class="device-list">\${deviceList('harmony', state.harmony_list)}</div>
                     </section>
@@ -399,14 +408,22 @@ function dialogCss() {
         section { padding: 12px 0; border-bottom: 1px solid var(--vscode-panel-border, #ddd); }
         .device-sections > section:last-child { border-bottom: 0; }
         .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .link { border: 0; background: transparent; color: #1683c5; cursor: pointer; }
-        .filter { width: 100%; padding: 7px 9px; border: 1px solid var(--vscode-input-border, #ccc); background: var(--vscode-input-background, #fff); color: inherit; margin-bottom: 8px; }
-        .section-actions { display: inline-flex; align-items: center; gap: 12px; }
-        .device-count { color: var(--vscode-descriptionForeground, #777); font-size: 12px; }
-        .device-list { display: grid; gap: 2px; min-height: 200px; max-height: 240px; align-content: start; overflow: auto; padding: 4px; border: 1px solid var(--vscode-input-border, #ccc); border-radius: 4px; background: var(--vscode-input-background, #fff); }
-        .device-row { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 10px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
+        .section-title-group { display: flex; flex: 1; align-items: center; min-width: 0; gap: 8px; }
+        .section-title-group strong { flex: 0 0 auto; }
+        .icon-button { display: inline-grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: #1683c5; cursor: pointer; }
+        .icon-button:hover { background: var(--vscode-toolbar-hoverBackground, rgba(127, 127, 127, 0.14)); }
+        .icon-button:focus-visible { outline: 1px solid var(--vscode-focusBorder, #1683c5); outline-offset: 1px; }
+        .refresh-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .filter-field { display: inline-flex; flex: 0 1 210px; align-items: center; min-width: 140px; height: 28px; color: var(--vscode-descriptionForeground, #888); }
+        .filter-icon { flex: 0 0 14px; width: 14px; height: 14px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; opacity: 0.8; }
+        .filter { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: transparent; color: var(--vscode-input-foreground, inherit); font: inherit; font-size: 12px; }
+        .filter::placeholder { color: var(--vscode-descriptionForeground, #888); opacity: 1; }
+        .section-actions { display: inline-flex; align-items: center; margin-left: 12px; gap: 12px; }
+        .device-count { color: var(--vscode-descriptionForeground, #777); font-size: 12px; white-space: nowrap; }
+        .device-list { display: grid; gap: 2px; min-height: 160px; max-height: 220px; align-content: start; overflow: auto; padding: 4px; border: 1px solid var(--vscode-input-border, #ccc); border-radius: 4px; background: var(--vscode-input-background, #fff); }
+        .device-row { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 10px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
         .device-row:hover { background: var(--vscode-list-hoverBackground, #f0f0f0); }
-        .device-row.selected { background: rgba(22, 131, 197, 0.1); border-color: rgba(22, 131, 197, 0.55); color: inherit; }
+        .device-row.selected { background: rgba(22, 131, 197, 0.08); border-color: transparent; box-shadow: inset 2px 0 0 #1683c5; color: inherit; }
         input[type="checkbox"], input[type="radio"] { -webkit-appearance: none; appearance: none; flex: 0 0 16px; width: 16px; height: 16px; margin: 0; border: 1px solid var(--vscode-checkbox-border, #858585); background: var(--vscode-checkbox-background, transparent); cursor: pointer; transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease; }
         input[type="checkbox"] { display: inline-grid; place-content: center; border-radius: 3px; }
         input[type="checkbox"]::after { width: 7px; height: 4px; border-bottom: 2px solid var(--vscode-button-foreground, #fff); border-left: 2px solid var(--vscode-button-foreground, #fff); content: ''; opacity: 0; transform: translateY(-1px) rotate(-45deg); }
@@ -420,16 +437,16 @@ function dialogCss() {
         input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 1px solid var(--vscode-focusBorder, #1683c5); outline-offset: 2px; }
         input[type="checkbox"]:disabled, input[type="radio"]:disabled { cursor: default; opacity: 0.5; }
         .device-radio { flex: 0 0 16px; }
-        .device-copy { display: grid; gap: 2px; min-width: 0; }
-        .device-name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-        .device-detail { overflow: hidden; color: var(--vscode-descriptionForeground, #777); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+        .device-copy { display: flex; flex: 1; align-items: baseline; min-width: 0; gap: 8px; }
+        .device-name { flex: 0 1 auto; max-width: 45%; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+        .device-detail { flex: 1; min-width: 0; overflow: hidden; color: var(--vscode-descriptionForeground, #777); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
         .check { display: flex; gap: 8px; align-items: center; line-height: 1.5; cursor: pointer; }
         .empty-state { display: grid; place-items: center; min-height: 58px; padding: 8px; color: var(--vscode-descriptionForeground, #777); text-align: center; }
         .device-loading-state { display: grid; place-items: center; min-height: 58px; color: var(--vscode-descriptionForeground, #777); font-size: 12px; }
-        .settings { display: grid; gap: 8px; border-bottom: 0; }
-        .settings-row { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+        .settings { display: grid; gap: 6px; padding: 8px 0; border-bottom: 0; }
+        .settings-row { display: flex; flex-wrap: wrap; gap: 8px 18px; }
         .settings label:last-child { display: flex; align-items: center; gap: 10px; }
-        .vapor-options { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .vapor-options { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .radio-option { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
         select { padding: 4px; background: var(--vscode-dropdown-background, #fff); color: inherit; border: 1px solid var(--vscode-dropdown-border, #ccc); }
         footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 28px; background: var(--vscode-editor-background, #fff); border-top: 1px solid var(--vscode-panel-border, #ddd); display: flex; justify-content: flex-end; gap: 10px; }

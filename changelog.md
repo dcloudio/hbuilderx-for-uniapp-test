@@ -3,6 +3,7 @@
 ## 5.4.0
 * feat: 新增 针对android和harmony，增加环境变量`UNI_APP_X_TARGET_ARCHS`
 * feat: HBuilderV测试控制台增加停止运行图标
+* 优化 iOS设备选择区域的过滤输入框布局
 * feat: extension.js 注释掉自动检查升级功能
 * feat: 删除过期的src/lib/ui_webview.js
 * feat: 移除过期的fromDilag
