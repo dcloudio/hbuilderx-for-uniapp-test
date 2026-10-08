@@ -853,6 +853,8 @@ class RunTest extends Common {
      */
     async main(param, UNI_PLATFORM, scope = "all") {
         // console.log("[main] ->", param, UNI_PLATFORM, scope);
+        setTestOutputView('log', false);
+
         // 初始化变量，用于停止测试
         this.StopAllTest = false;
 

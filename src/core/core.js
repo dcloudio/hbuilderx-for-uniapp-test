@@ -153,6 +153,7 @@ function hasAnsiColor(line) {
  */
 const uniMap = new Map();
 let activeTestOutputViewID;
+let showActiveTestOutputViewOnWrite = false;
 
 function getOutputView(viewID) {
     let oID = viewID == undefined || viewID == '' ? 'hbuilderx.uniapp.test' : 'hbuilderx.uniapp.test' + `.${viewID}`;
@@ -169,9 +170,10 @@ function getOutputView(viewID) {
     return output;
 };
 
-function setTestOutputView(viewID) {
+function setTestOutputView(viewID, show = true) {
     activeTestOutputViewID = viewID || undefined;
-    if (activeTestOutputViewID) {
+    showActiveTestOutputViewOnWrite = Boolean(activeTestOutputViewID && !show);
+    if (activeTestOutputViewID && show) {
         let output = getOutputView(activeTestOutputViewID);
         output.show();
     };
@@ -180,6 +182,10 @@ function setTestOutputView(viewID) {
 function createOutputChannel(msg, msgLevel = 'info', viewID = undefined) {
     let outputViewID = viewID === undefined ? activeTestOutputViewID : viewID;
     let output = getOutputView(outputViewID);
+    if (showActiveTestOutputViewOnWrite && outputViewID === activeTestOutputViewID) {
+        showActiveTestOutputViewOnWrite = false;
+        output.show();
+    };
     // console.error("..........output", output?.timer?._destroyed);
     // if(output?.timer?._destroyed === undefined || output?.timer?._destroyed === false) {
     let data = undefined;

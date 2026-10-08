@@ -139,7 +139,7 @@ api.cli.createCommand('devices', 'list')
 - `viewID === 'log'` 时，使用 `hbuilderx.uniapp.test.log`，由 API 兼容层转入 Webview 控制台。
 - CLI 路径继续使用 `hx.cliconsole.log()`，不要把 CLI 日志写到 GUI Webview。
 
-设备选择窗口打开时不能立刻显示测试控制台。`RunTest.main()` 必须在 `select_app_run_devices()` 成功返回、用户点击“确定”之后调用 `setTestOutputView('log')`。用户取消或关闭设备窗口时直接返回，不打开独立控制台。
+GUI 测试命令进入 `RunTest.main()` 后立即调用 `setTestOutputView('log', false)` 设置日志路由，但不主动显示面板。此后的环境检查、依赖检查、配置修改和测试运行日志全部写入独立测试控制台；产生首条日志时才显示面板。移动端在 `select_app_run_devices()` 成功返回、用户点击“确定”之后调用 `setTestOutputView('log')` 主动打开控制台；用户取消或关闭设备窗口且没有日志时，不打开控制台。
 
 GUI 命令通过 `finally` 清理活动输出目标：
 
@@ -196,12 +196,12 @@ GUI 启动测试时，`RunTest.main()` 在设备选择前检查项目根目录�
 1. HBuilderV 是否已重新加载清单。
 2. `extension.js` 是否注册 `registerHBuilderVConsole(context)`。
 3. `package.json` 的 container/view ID 是否分别为 `hbuilderv-uniapp-test` 和 `hbuilderv-uniapp-test.console`。
-4. `core.js` 是否在用户确认设备后调用 `setTestOutputView('log')`。
+4. `RunTest.main()` 是否先调用 `setTestOutputView('log', false)` 设置路由，并在用户确认设备后调用 `setTestOutputView('log')`。
 5. `hbuilderv-api.js` 是否只对 `hbuilderx.uniapp.test.log` 使用 Webview 实现。
 
 ### 设备窗口取消后控制台仍弹出
 
-不能在 `registerRunCommand()` 入口调用 `setTestOutputView('log')`。必须等待设备选择 Promise 成功返回后再切换；取消、关闭和无设备都应在切换前返回。
+不能在 `registerRunCommand()` 入口主动显示测试控制台。应在 `RunTest.main()` 使用 `setTestOutputView('log', false)` 仅设置路由，并等待设备选择 Promise 成功返回后再调用 `setTestOutputView('log')` 主动显示；取消、关闭和无设备且未产生日志时不应弹出控制台。
 
 ## 9. 验证清单
 
