@@ -388,6 +388,18 @@ class RunTest extends Common {
         };
     };
 
+    async ensureEnvConfigFile() {
+        if (fs.existsSync(this.UNI_AUTOMATOR_CONFIG)) return true;
+        let init = new Initialize();
+        try {
+            await init.CreateTestEnvConfigFile(this.projectPath, 'env.js', true);
+        } catch (error) {
+            console.error('[自动化测试] 使用默认模板创建env.js失败:', error);
+            return false;
+        };
+        return fs.existsSync(this.UNI_AUTOMATOR_CONFIG);
+    };
+
     // 主要是为了拉平各个提示语
     testPlatDisplayName(testPlatform) {
         let tpl = testPlatform;
@@ -865,6 +877,10 @@ class RunTest extends Common {
         this.projectName = projectName;
         this.projectVueVersion = projectVueVersion;
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
+
+        // env.js缺失时使用插件默认模板创建，已有文件不会被覆盖
+        let envConfigReady = await this.ensureEnvConfigFile();
+        if (!envConfigReady) return;
 
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();

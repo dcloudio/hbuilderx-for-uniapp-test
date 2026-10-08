@@ -449,8 +449,8 @@ function dialogCss() {
         .vapor-options { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .radio-option { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
         select { padding: 4px; background: var(--vscode-dropdown-background, #fff); color: inherit; border: 1px solid var(--vscode-dropdown-border, #ccc); }
-        footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 28px; background: var(--vscode-editor-background, #fff); border-top: 1px solid var(--vscode-panel-border, #ddd); display: flex; justify-content: flex-end; gap: 10px; }
-        button.primary, button.secondary { padding: 7px 18px; border-radius: 3px; cursor: pointer; }
+        footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 10px 28px; background: var(--vscode-editor-background, #fff); border-top: 1px solid var(--vscode-panel-border, #ddd); display: flex; justify-content: flex-end; gap: 8px; }
+        button.primary, button.secondary { min-width: 58px; padding: 5px 14px; border-radius: 3px; font: inherit; font-size: 12px; cursor: pointer; }
         button.primary { background: #1683c5; color: white; border: 1px solid #1683c5; }
         button.secondary { background: transparent; color: inherit; border: 1px solid var(--vscode-button-secondaryBorder, #bbb); }
     `;

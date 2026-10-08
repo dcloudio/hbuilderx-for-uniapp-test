@@ -89,6 +89,7 @@ Module._load = function(request, parent, isMain) {
 - Vapor 模式下，“以蒸汽模式运行测试”、字节码、机器码位于同一行；字节码和机器码必须是 radio 单选。
 - 不额外显示“视图层编译目标”标题，也不在设备区域下方添加多余 border。
 - 取消按钮必须真正关闭当前窗口，并通过 `cancel`/dispose 结束 Promise。
+- 底部确定和取消按钮保持紧凑尺寸，避免在设备选择窗口中显得过重。
 
 ### 4.2 设备 API
 
@@ -175,6 +176,8 @@ return Promise.resolve()
 运行环境依赖仍由 HBuilderV 插件目录提供，不能硬编码 `/Applications/HBuilderV-Alpha.app` 内部路径。优先通过 `vscode.extensions.getExtension('dcloud.<plugin-id>')` 获取扩展位置，再按平台处理 macOS SDK 包结构；找不到独立扩展时从 `dcloud.hbuilderx-uniapp-sdk` 的 `plugins` 目录回退。
 
 Android、iOS、Harmony 测试依赖 launcher、uniapp CLI、UTS 和 Node 等插件路径，统一从 `src/core/config.js` 导出。新增平台或 launcher 时，应先在路径解析层增加配置，再在运行逻辑中使用。
+
+GUI 启动测试时，`RunTest.main()` 在设备选择前检查项目根目录的 `env.js`。文件不存在时通过 `Initialize.CreateTestEnvConfigFile()` 从 `src/template/env.js` 静默创建；已有文件不得覆盖，已有文件加载失败仍按语法错误处理。
 
 ## 8. 常见错误与排查
 
