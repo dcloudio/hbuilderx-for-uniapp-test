@@ -122,6 +122,7 @@ api.cli.createCommand('devices', 'list')
 - 面板标题为 `uni-app测试`。
 - 缓存最近 2000 行日志，防止长时间运行无限增长。
 - 使用 Webview 消息增量追加日志，达到缓存上限时整体替换。
+- 隐藏面板时保留 Webview 上下文；重新切回面板时从日志缓存恢复内容，不能因为切换控制台而清空日志。
 - 支持 info、warning、success、error 颜色。
 - 去除 ANSI 颜色转义码，避免 Webview 显示不可读控制字符。
 - 使用 `workbench.view.extension.hbuilderv-uniapp-test` 打开 panel。

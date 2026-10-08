@@ -46,6 +46,7 @@ body { overflow: auto; font: 12px var(--vscode-editor-font-family, monospace); }
 <body><div id="output">${content}</div>
 <script>
 const output = document.getElementById('output');
+const scrollToBottom = () => window.scrollTo(0, document.body.scrollHeight);
 window.addEventListener('message', (event) => {
     const message = event.data || {};
     if (message.type === 'append') {
@@ -53,12 +54,13 @@ window.addEventListener('message', (event) => {
         line.className = 'line ' + (['warning', 'success', 'error', 'info'].includes(message.item.level) ? message.item.level : 'info');
         line.textContent = message.item.line;
         output.appendChild(line);
-        output.scrollTop = output.scrollHeight;
+        scrollToBottom();
     } else if (message.type === 'replace') {
         output.innerHTML = message.html;
-        output.scrollTop = output.scrollHeight;
+        scrollToBottom();
     }
 });
+requestAnimationFrame(scrollToBottom);
 </script>
 </body>
 </html>`;
@@ -101,12 +103,17 @@ function registerHBuilderVConsole(context) {
             view = webviewView;
             view.webview.options = { enableScripts: true };
             view.webview.html = getHtml();
+            view.onDidChangeVisibility?.(() => {
+                if (webviewView.visible) webviewView.webview.html = getHtml();
+            }, null, context.subscriptions);
             view.onDidDispose(() => {
                 if (view === webviewView) view = undefined;
             }, null, context.subscriptions);
         }
     };
-    return vscode.window.registerWebviewViewProvider(VIEW_ID, provider);
+    return vscode.window.registerWebviewViewProvider(VIEW_ID, provider, {
+        webviewOptions: { retainContextWhenHidden: true }
+    });
 }
 
 module.exports = {
