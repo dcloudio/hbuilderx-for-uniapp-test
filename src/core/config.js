@@ -61,6 +61,7 @@ const cfg_hv_plugin_uniapp_extension_dir = get_hbuilderv_plugin_path("uniapp-ext
 
 // 基座
 const cfg_hv_plugin_launcher_dir = get_hbuilderv_plugin_path("launcher");
+const cfg_hv_plugin_launcher_tools_dir = get_hbuilderv_plugin_path("launcher-tools");
 const cfg_hv_plugin_uniappx_launcher_dir = get_hbuilderv_plugin_path("uniappx-launcher");
 const cfg_hv_plugin_uniappx_vapor_launcher_dir = get_hbuilderv_plugin_path("uniappx-vapor-launcher");
 const cfg_hv_plugin_launcher_harmony_dir = get_hbuilderv_plugin_path("launcher-harmony");
@@ -199,7 +200,9 @@ let CFG_project_app_runtime_mapping_data = {
 
 module.exports = {
     i18n,
-
+    cfg_hv_plugin_launcher_dir,
+    cfg_hv_plugin_launcher_tools_dir,
+    
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,
     HBuilderX_BuiltIn_Node_Path,
