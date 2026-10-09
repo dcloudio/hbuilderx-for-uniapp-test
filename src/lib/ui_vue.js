@@ -424,7 +424,7 @@ function dialogCss() {
         .device-row { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 10px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
         .device-row:hover { background: var(--vscode-list-hoverBackground, #f0f0f0); }
         .device-row.selected { background: rgba(22, 131, 197, 0.08); border-color: transparent; box-shadow: inset 2px 0 0 #1683c5; color: inherit; }
-        input[type="checkbox"], input[type="radio"] { -webkit-appearance: none; appearance: none; flex: 0 0 16px; width: 16px; height: 16px; margin: 0; border: 1px solid var(--vscode-checkbox-border, #858585); background: var(--vscode-checkbox-background, transparent); cursor: pointer; transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease; }
+        input[type="checkbox"], input[type="radio"] { -webkit-appearance: none; appearance: none; flex: 0 0 14px; width: 14px; height: 14px; margin: 0; border: 1px solid var(--vscode-checkbox-border, #858585); background: var(--vscode-checkbox-background, transparent); cursor: pointer; transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease; }
         input[type="checkbox"] { display: inline-grid; place-content: center; border-radius: 3px; }
         input[type="checkbox"]::after { width: 7px; height: 4px; border-bottom: 2px solid var(--vscode-button-foreground, #fff); border-left: 2px solid var(--vscode-button-foreground, #fff); content: ''; opacity: 0; transform: translateY(-1px) rotate(-45deg); }
         input[type="checkbox"]:checked { border-color: var(--vscode-button-background, #1683c5); background: var(--vscode-button-background, #1683c5); }
@@ -436,18 +436,18 @@ function dialogCss() {
         input[type="checkbox"]:hover, input[type="radio"]:hover { border-color: var(--vscode-focusBorder, #1683c5); }
         input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 1px solid var(--vscode-focusBorder, #1683c5); outline-offset: 2px; }
         input[type="checkbox"]:disabled, input[type="radio"]:disabled { cursor: default; opacity: 0.5; }
-        .device-radio { flex: 0 0 16px; }
+        .device-radio { flex: 0 0 14px; }
         .device-copy { display: flex; flex: 1; align-items: baseline; min-width: 0; gap: 8px; }
         .device-name { flex: 0 1 auto; max-width: 45%; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
         .device-detail { flex: 1; min-width: 0; overflow: hidden; color: var(--vscode-descriptionForeground, #777); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-        .check { display: flex; gap: 8px; align-items: center; line-height: 1.5; cursor: pointer; }
+        .check { display: flex; gap: 8px; align-items: center; font-size: 12px; line-height: 1.5; cursor: pointer; }
         .empty-state { display: grid; place-items: center; min-height: 58px; padding: 8px; color: var(--vscode-descriptionForeground, #777); text-align: center; }
         .device-loading-state { display: grid; place-items: center; min-height: 58px; color: var(--vscode-descriptionForeground, #777); font-size: 12px; }
         .settings { display: grid; gap: 6px; padding: 8px 0; border-bottom: 0; }
         .settings-row { display: flex; flex-wrap: wrap; gap: 8px 18px; }
         .settings label:last-child { display: flex; align-items: center; gap: 10px; }
         .vapor-options { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .radio-option { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+        .radio-option { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; cursor: pointer; }
         select { padding: 4px; background: var(--vscode-dropdown-background, #fff); color: inherit; border: 1px solid var(--vscode-dropdown-border, #ccc); }
         footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 10px 28px; background: var(--vscode-editor-background, #fff); border-top: 1px solid var(--vscode-panel-border, #ddd); display: flex; justify-content: flex-end; gap: 8px; }
         button.primary, button.secondary { min-width: 58px; padding: 5px 14px; border-radius: 3px; font: inherit; font-size: 12px; cursor: pointer; }
