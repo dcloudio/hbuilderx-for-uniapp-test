@@ -158,10 +158,6 @@
         "title": "运行当前测试到 Harmony"
       },
       {
-        "command": "unitest.reportHistory",
-        "title": "查看历史测试报告"
-      },
-      {
         "command": "unitest.isAutotestMatch",
         "title": "是否自动修改jest.config.js中的testMatch"
       },
@@ -904,10 +900,6 @@
         {
           "command": "unitest.createAgentsMd",
           "group": "unitest@1"
-        },
-        {
-          "command": "unitest.reportHistory",
-          "group": "unitest@2"
         },
         {
           "command": "unitest.reloadEnv",

@@ -14,7 +14,6 @@ const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
 const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
-const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilder_Cli.js');
 const { finishHBuilderVConsole, registerHBuilderVConsole, setHBuilderVConsoleRestartHandler } = require('./src/hbuilderv-console.js');
 
@@ -85,12 +84,6 @@ function activate(context) {
         return createAgentsMd(normalizeCommandParam(param));
     });
     context.subscriptions.push(createAgents);
-
-    // 查看历史测试报告
-    let reportHistory = hx.commands.registerCommand('unitest.reportHistory', (param) => {
-        openReportOutputDir();
-    });
-    context.subscriptions.push(reportHistory);
 
     // 批量注册运行命令，避免重复样板代码
     const registerRunCommand = (commandId, platform, scope) => {
