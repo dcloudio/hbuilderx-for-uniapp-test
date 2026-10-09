@@ -42,24 +42,35 @@
         "path": "./snippets/jest.json"
       }
     ],
-    "viewsContainers": {
-      "panel": [
-        {
-          "id": "hbuilderv-uniapp-test",
-          "title": "uni-app测试",
-          "icon": "./src/static/no.svg"
+    "debuggers": [
+      {
+        "sessionKind": "run",
+        "type": "hbuilderv:uni-app-test",
+        "label": "UNI-APP测试",
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "request",
+              "type"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "request": {
+                "type": "string",
+                "enum": [
+                  "launch"
+                ]
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          }
         }
-      ]
-    },
-    "views": {
-      "hbuilderv-uniapp-test": [
-        {
-          "type": "webview",
-          "id": "hbuilderv-uniapp-test.console",
-          "name": "uni-app自动化测试 - 运行日志"
-        }
-      ]
-    },
+      }
+    ],
     "commands": [
       {
         "command": "unitest.initialization",
@@ -73,11 +84,6 @@
         "command": "unitest.stopRunTest",
         "title": "停止运行测试",
         "icon": "$(debug-stop)"
-      },
-      {
-        "command": "unitest.clearTestConsole",
-        "title": "清空控制台",
-        "icon": "$(clear-all)"
       },
       {
         "command": "unitest.runTestAll",
@@ -741,25 +747,6 @@
       }
     ],
     "menus": {
-      "view/title": [
-        {
-          "command": "unitest.stopRunTest",
-          "when": "view == hbuilderv-uniapp-test.console && hbuildervUniappTestRunning",
-          "group": "navigation@1"
-        },
-        {
-          "command": "unitest.clearTestConsole",
-          "when": "view == hbuilderv-uniapp-test.console",
-          "group": "navigation@2"
-        }
-      ],
-      "webview/context": [
-        {
-          "command": "unitest.clearTestConsole",
-          "when": "webviewId == 'hbuilderv-uniapp-test.console'",
-          "group": "1_modification"
-        }
-      ],
       "explorer/context": [
         {
           "command": "unitest.initialization",

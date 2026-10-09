@@ -15,7 +15,7 @@ Module._load = function(request, parent, isMain) {
 };
 ```
 
-业务代码应继续调用 `hx`/`hbuilderx` 兼容 API。只有确实属于 HBuilderV 宿主能力的代码，才直接使用 `vscode`，例如 Webview View 注册、Output channel 和扩展路径查询。
+业务代码应继续调用 `hx`/`hbuilderx` 兼容 API。只有确实属于 HBuilderV 宿主能力的代码，才直接使用 `vscode`，例如 Run Adapter 注册、Output channel 和扩展路径查询。
 
 ## 2. HBuilderV API 兼容层
 
@@ -29,7 +29,7 @@ Module._load = function(request, parent, isMain) {
 - `readJSONValue` 使用 `jsonc-parser` 读取 JSONC，允许配置文件存在注释和尾逗号；不能用裸 `JSON.parse` 替代。
 - CLI 运行通过 `params.cliconsole` 输出，GUI 面板日志和 CLI 日志必须分离。
 
-`createOutputView()` 对普通输出仍使用 `vscode.window.createAnsiOutputChannel()`。只有 ID 为 `hbuilderx.uniapp.test.log` 的测试日志视图，才切换为独立 Webview 控制台实现。
+`createOutputView()` 对普通输出仍使用 `vscode.window.createAnsiOutputChannel()`。只有 ID 为 `hbuilderx.uniapp.test.log` 的测试日志视图，才切换到 `src/hbuilderv-console.js` 提供的原生 Run Console 日志桥接。
 
 ## 3. 扩展清单与命令注册
 
@@ -41,28 +41,19 @@ Module._load = function(request, parent, isMain) {
 
 `unitest.runTestAll`、`unitest.runCurrentTestAll` 等命令即使不显示在菜单中，也不要删除命令实现；隐藏菜单和删除命令是两个不同操作。
 
-### 3.2 Panel 控制台清单
+### 3.2 Run Console 清单
 
-顶部独立测试面板由以下贡献点组成：
+测试控制台必须声明为 `sessionKind: "run"` 的 debugger，不能使用 `viewsContainers.panel` 和 Webview 模拟：
 
 ```json
-"viewsContainers": {
-  "panel": [{
-    "id": "hbuilderv-uniapp-test",
-    "title": "uni-app测试",
-    "icon": "./src/static/no.svg"
-  }]
-},
-"views": {
-  "hbuilderv-uniapp-test": [{
-    "type": "webview",
-    "id": "hbuilderv-uniapp-test.console",
-    "name": "uni-app自动化测试 - 运行日志"
-  }]
-}
+"debuggers": [{
+  "sessionKind": "run",
+  "type": "hbuilderv:uni-app-test",
+  "label": "UNI-APP测试"
+}]
 ```
 
-修改 `viewsContainers` 或 `views` 后必须重新加载/重启 HBuilderV，扩展清单才会重新解析。
+修改 debugger 贡献后必须重新加载/重启 HBuilderV，扩展清单才会重新解析。
 
 ## 4. 设备选择窗口
 
@@ -115,30 +106,30 @@ api.cli.createCommand('devices', 'list')
 
 ## 5. 测试日志控制台
 
-### 5.1 为什么不能只创建 Output channel
+### 5.1 原生 Run Console
 
-`createAnsiOutputChannel()` 只会增加“输出”面板里的 channel 选项，不会在顶部“输出/调试控制台”标签区域增加真正的 panel tab。因此独立测试日志使用 `src/hbuilderv-console.js` 注册 Webview View。
+`createAnsiOutputChannel()` 只会增加“输出”面板里的 channel 选项，Webview View 也无法获得宿主运行控制台标题栏里的原生筛选器。因此测试日志使用 HBuilderV Run Adapter API，创建与 uni-app【WEB】相同类型的原生运行控制台。
 
 该模块负责：
 
-- 注册 `hbuilderv-uniapp-test.console` Webview provider。
-- 面板标题为 `uni-app测试`。
-- 缓存最近 2000 行日志，防止长时间运行无限增长。
-- 使用 Webview 消息增量追加日志，达到缓存上限时整体替换。
-- 隐藏面板时保留 Webview 上下文；重新切回面板时从日志缓存恢复内容，不能因为切换控制台而清空日志。
-- 支持 info、warning、success、error 颜色。
-- 去除 ANSI 颜色转义码，避免 Webview 显示不可读控制字符。
-- 保留 `appendLine()` 数据中的 `hyperlinks`，由 Webview 将链接点击事件传回扩展端执行原 `onOpen` 回调；测试报告路径必须可以点击打开。
-- 使用 `workbench.view.extension.hbuilderv-uniapp-test` 打开 panel。
-- 通过 `view/title` 在控制台右上角提供停止运行和清空控制台图标，不要在 Webview HTML 内重复实现按钮。
+- 通过 `vscode.debug.registerRunAdapterDescriptorFactory()` 注册内联 Run Adapter。
+- 通过 `vscode.debug.startDebugging()` 启动 `hbuilderv:uni-app-test` 运行会话。
+- 配置固定使用 `runConsoleId: "hbuilderv.uni-app-test"` 和 `runConsoleTitle: "UNI-APP测试"`。
+- 既有 `createOutputChannel()` 调用不改，兼容层将日志转换为 DAP `output` 事件。
+- 普通日志使用 DAP `stdout`，错误日志使用 `stderr`；不要将全部日志标记为 `console`，否则 HBuilderV 会统一显示为黄色。
+- 会话启动完成前最多缓存 2000 条日志，收到 `configurationDone` 后按顺序写入控制台。
+- `appendLine()` 中的文件超链接转换为 DAP `source`，测试报告路径仍须支持点击打开。
+- 筛选、清屏、滚动和停止入口由 HBuilderV 原生 Run Console 提供，不在 HTML 或 `view/title` 中重复实现。
+- 收到 DAP `terminate` 或 `disconnect` 请求时调用 `stopRunTest()`，自然结束时发送 `exited` 和 `terminated` 事件收尾。
+- 原生“重新启动”会先停止当前测试并等待 GUI 命令完成，再由新 Run Adapter 调用最近一次测试命令；不能在收到 `terminate` 后立即发送 `terminated`，否则新旧 Jest 进程可能重叠。
 
 ### 5.2 日志路由时机
 
 `src/core/core.js` 使用 `activeTestOutputViewID` 管理当前测试输出目标：
 
 - 未指定视图时，写入当前活动测试视图。
-- `viewID === 'log'` 时，使用 `hbuilderx.uniapp.test.log`，由 API 兼容层转入 Webview 控制台。
-- CLI 路径继续使用 `hx.cliconsole.log()`，不要把 CLI 日志写到 GUI Webview。
+- `viewID === 'log'` 时，使用 `hbuilderx.uniapp.test.log`，由 API 兼容层转入原生 Run Console。
+- CLI 路径继续使用 `hx.cliconsole.log()`，不要把 CLI 日志写到 GUI Run Console。
 
 GUI 测试命令进入 `RunTest.main()` 后立即调用 `setTestOutputView('log', false)` 设置日志路由，但不主动显示面板。此后的环境检查、依赖检查、配置修改和测试运行日志全部写入独立测试控制台；产生首条日志时才显示面板。移动端在 `select_app_run_devices()` 成功返回、用户点击“确定”之后调用 `setTestOutputView('log')` 主动打开控制台；用户取消或关闭设备窗口且没有日志时，不打开控制台。
 
@@ -149,19 +140,16 @@ return Promise.resolve()
     .then(() => run.main(param, platform, scope))
     .finally(() => {
         setTestOutputView();
+        finishHBuilderVConsole();
         return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
     });
 ```
 
 测试运行分支必须 `await` `run_uni_test()` 和 `run_more_test()`；否则命令 Promise 会提前完成，`finally` 会过早恢复输出目标，导致后续日志路由错误。
 
-### 5.3 停止运行入口
+### 5.3 会话控制
 
-`unitest.stopRunTest` 使用 `$(debug-stop)` 图标，并通过 `hbuildervUniappTestRunning` context key 控制可见性。设备选择窗口打开或取消时不显示停止图标；用户确认设备并开始运行后设置为 `true`，测试 Promise 结束后在 `finally` 中恢复为 `false`。点击图标继续复用 `src/core/core.js` 的 `stopRunTest()`，由子进程实际退出后的命令生命周期负责隐藏图标。
-
-插件激活时必须将 `hbuildervUniappTestRunning` 初始化为 `false`，避免窗口重新加载后显示过期状态。修改 `commands` 或 `view/title` 后需要重新加载 HBuilderV 才能生效。
-
-`unitest.clearTestConsole` 同时注册到 `view/title` 和 `webview/context`。清屏时必须同时清空 Webview 内容与模块内的日志缓存，否则切换控制台后旧日志会重新出现。
+停止、重新启动与清屏均使用 Run Console 的原生工具栏。停止按钮发送 DAP `terminate`/`disconnect` 请求，适配器复用 `src/core/core.js` 的 `stopRunTest()`；GUI 命令完成后必须调用 `finishHBuilderVConsole()`，否则控制台会一直保持运行状态。`registerRunCommand()` 通过 `setHBuilderVConsoleRestartHandler()` 保存最近一次 GUI 测试命令，宿主重建 Run Adapter 后再次执行。不要再贡献同名 Webview 按钮或自行绘制筛选输入框。
 
 ## 6. 新建自动化测试用例窗口
 
@@ -198,9 +186,9 @@ GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `
 
 1. HBuilderV 是否已重新加载清单。
 2. `extension.js` 是否注册 `registerHBuilderVConsole(context)`。
-3. `package.json` 的 container/view ID 是否分别为 `hbuilderv-uniapp-test` 和 `hbuilderv-uniapp-test.console`。
+3. `package.json` 是否声明 `sessionKind: "run"` 和 `type: "hbuilderv:uni-app-test"`。
 4. `RunTest.main()` 是否先调用 `setTestOutputView('log', false)` 设置路由，并在用户确认设备后调用 `setTestOutputView('log')`。
-5. `hbuilderv-api.js` 是否只对 `hbuilderx.uniapp.test.log` 使用 Webview 实现。
+5. `hbuilderv-api.js` 是否只对 `hbuilderx.uniapp.test.log` 使用 Run Console 桥接。
 
 ### 设备窗口取消后控制台仍弹出
 
@@ -208,7 +196,7 @@ GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `
 
 ## 9. 验证清单
 
-每次涉及 HBuilderV 适配、清单、Webview 或日志路由的修改，至少执行：
+每次涉及 HBuilderV 适配、清单、Run Console、Webview 或日志路由的修改，至少执行：
 
 ```bash
 node --check extension.js
@@ -220,4 +208,4 @@ node -e "JSON.parse(require('fs').readFileSync('package.json'))"
 git diff --check
 ```
 
-修改 Webview 时还应手动验证：打开/取消设备窗口、设备单选、刷新设备、确定后控制台显示、测试结束后的日志、CLI 日志隔离，以及 HBuilderV 重启后 panel tab 是否仍存在。
+修改设备 Webview 或 Run Console 时还应手动验证：打开/取消设备窗口、设备单选、刷新设备、确定后控制台显示、原生筛选与清屏、停止测试、测试报告链接、切换控制台后的日志保留、CLI 日志隔离，以及 HBuilderV 重启后【UNI-APP测试】运行控制台是否正常创建。

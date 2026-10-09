@@ -17,7 +17,7 @@ const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilder_Cli.js');
-const { clearHBuilderVConsole, registerHBuilderVConsole } = require('./src/hbuilderv-console.js');
+const { finishHBuilderVConsole, registerHBuilderVConsole, setHBuilderVConsoleRestartHandler } = require('./src/hbuilderv-console.js');
 
 function handerUri(uri) {
     console.error("uri = ", uri);
@@ -100,15 +100,18 @@ function activate(context) {
     const registerRunCommand = (commandId, platform, scope) => {
         const disposable = hx.commands.registerCommand(commandId, (param) => {
             param = normalizeCommandParam(param);
-            return Promise.resolve().then(() => {
+            const executeRun = () => Promise.resolve().then(() => {
                 if (scope) {
                     return run.main(param, platform, scope);
                 }
                 return run.main(param, platform);
             }).finally(() => {
                 setTestOutputView();
+                finishHBuilderVConsole();
                 return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
             });
+            setHBuilderVConsoleRestartHandler(executeRun);
+            return executeRun();
         });
         context.subscriptions.push(disposable);
     };
@@ -147,11 +150,6 @@ function activate(context) {
         stopRunTest();
     });
     context.subscriptions.push(stopRun);
-
-    let clearTestConsole = hx.commands.registerCommand('unitest.clearTestConsole', () => {
-        clearHBuilderVConsole();
-    });
-    context.subscriptions.push(clearTestConsole);
 
     let AutotestMatch = hx.commands.registerCommand('unitest.isAutotestMatch', () => {
         let config = hx.workspace.getConfiguration();
