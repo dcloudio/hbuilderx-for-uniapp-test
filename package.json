@@ -86,10 +86,6 @@
         "icon": "$(debug-stop)"
       },
       {
-        "command": "unitest.runTestAll",
-        "title": "运行测试到 全部平台"
-      },
-      {
         "command": "unitest.runTestH5",
         "title": "运行测试到 Web-Chrome"
       },
@@ -120,10 +116,6 @@
       {
         "command": "unitest.runTestHarmony",
         "title": "运行测试到 android"
-      },
-      {
-        "command": "unitest.runCurrentTestAll",
-        "title": "运行当前测试到 全部平台"
       },
       {
         "command": "unitest.runCurrentTestH5",

@@ -108,7 +108,6 @@ function activate(context) {
     };
 
     [
-        ['unitest.runTestAll', 'all'],
         ['unitest.runTestH5', 'web-chrome'],
         ['unitest.runTestH5Firefox', 'web-firefox'],
         ['unitest.runTestH5Safari', 'web-safari'],
@@ -120,7 +119,6 @@ function activate(context) {
     ].forEach(([id, platform]) => registerRunCommand(id, platform));
 
     [
-        ['unitest.runCurrentTestAll', 'all'],
         ['unitest.runCurrentTestH5', 'web-chrome'],
         ['unitest.runCurrentTestH5Firefox', 'web-firefox'],
         ['unitest.runCurrentTestH5Safari', 'web-safari'],

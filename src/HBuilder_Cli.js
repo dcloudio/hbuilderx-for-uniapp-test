@@ -62,9 +62,6 @@ var is_uniapp_3 = false;
 // 判断是否是uniapp-x项目
 var is_uniapp_x = false;
 
-// 是否全部停止测试运行
-var isStopAllTest = false;
-
 // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
 var isUseBuiltNodeCompileUniapp;
 
@@ -134,7 +131,7 @@ class Common {
             plugin_list["uniapp-cli"] = config.UNI_CLI_PATH;
         };
 
-        if (["android", "ios", "all"].includes(platform)) {
+        if (["android", "ios"].includes(platform)) {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
 
@@ -147,7 +144,7 @@ class Common {
             plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
         };
 
-        if (["android", "all"].includes(platform)) {
+        if (["android"].includes(platform)) {
             // plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
             plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
@@ -263,32 +260,6 @@ class Common {
         let DefaultReportDir = path.join(config.testReportOutPutDir, projectName, testPlatform);
         mkdirsSync(DefaultReportDir);
         return DefaultReportDir;
-    };
-
-    // 用于【全部平台】测试停止运行
-    async stopAllTestRun(MessagePrefix) {
-        let outputView = hx.window.createOutputView({
-            id: "hbuilderx.uniapp.test",
-            title: "uni-app自动化测试"
-        });
-        outputView.show();
-
-        let msg = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
-        outputView.appendLine({
-            line: msg + "全部停止\n",
-            level: "info",
-            hyperlinks: [
-                {
-                    linkPosition: {
-                        start: msg.length,
-                        end: (msg + '全部停止').length
-                    },
-                    onOpen: function () {
-                        isStopAllTest = true;
-                    }
-                }
-            ]
-        });
     };
 
     /**
@@ -701,18 +672,12 @@ class RunTestForHBuilderXCli extends Common {
 
     /**
      * @description 运行测试，适用于选择多个设备后执行
-     * @param {Object} testPlatform [iOS|android|all]
      * @param {Object} testDevicesList
      * @param {Object} deviceType 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机
      */
-    async run_more_test(testPlatform, testDevicesList, deviceType = "") {
-        if (isStopAllTest) { return };
-        if (testPlatform == 'all') {
-            if (isStopAllTest) { return };
-        };
+    async run_more_test(testDevicesList, deviceType = "") {
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
-                if (isStopAllTest) { break };
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
@@ -725,9 +690,6 @@ class RunTestForHBuilderXCli extends Common {
                     await this.run_uni_test(plat, deviceId, deviceType);
                 };
             };
-        };
-        if (isStopAllTest) {
-            await this.print_cli_log(`【全部平台】测试，后续测试已停止\n`);
         };
     };
 
@@ -839,7 +801,7 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         // 运行：到iOS和android
-        if (['all', 'android'].includes(argv_uni_platform) && is_uts_project) {
+        if (['android'].includes(argv_uni_platform) && is_uts_project) {
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) {
                 await this.print_cli_log(config.i18n.msg_warning_uts_env);
@@ -848,7 +810,7 @@ class RunTestForHBuilderXCli extends Common {
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android', 'harmony'].includes(argv_uni_platform) && argv_device_id == '') {
+        if (['ios', 'android', 'harmony'].includes(argv_uni_platform) && argv_device_id == '') {
             await this.print_cli_log(`开始获取可用的测试设备列表 ..... `);
             // 选择要运行的设备
             testPhoneList = await this.getTestDevicesList(argv_uni_platform, deviceType);
@@ -868,12 +830,6 @@ class RunTestForHBuilderXCli extends Common {
                 await this.getTestDevicesList(argv_uni_platform, deviceType);
             };
             await this.print_cli_log(`指定的测试设备列表: ${testPhoneList}`);
-        };
-
-        if (argv_uni_platform == 'all') {
-            // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
-            await this.print_cli_log(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`);
-            this.stopAllTestRun();
         };
 
         // 修改测试范围: 即全部测试、仅测试某个页面
@@ -929,16 +885,13 @@ class RunTestForHBuilderXCli extends Common {
                 await this.run_uni_test('mp-alipay');
                 break;
             case 'ios':
-                await this.run_more_test('ios', testPhoneList, deviceType);
+                await this.run_more_test(testPhoneList, deviceType);
                 break;
             case 'android':
-                await this.run_more_test('android', testPhoneList);
+                await this.run_more_test(testPhoneList);
                 break;
             case 'harmony':
-                await this.run_more_test('harmony', testPhoneList);
-                break;
-            case 'all':
-                await this.run_more_test('all', testPhoneList);
+                await this.run_more_test(testPhoneList);
                 break;
             default:
                 break;

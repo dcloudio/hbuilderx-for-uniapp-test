@@ -69,9 +69,6 @@ var is_uniapp_x = false;
 // 项目manifest.json是否蒸汽模式
 var project_manifestJson_vapor = false;
 
-// 是否全部停止测试运行
-var isStopAllTest = false;
-
 // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
 var isUseBuiltNodeCompileUniapp;
 
@@ -138,7 +135,7 @@ class Common {
             plugin_list["uniapp-cli"] = config.UNI_CLI_PATH;
         };
 
-        if (["android", "ios", "all"].includes(platform)) {
+        if (["android", "ios"].includes(platform)) {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
         
@@ -147,7 +144,7 @@ class Common {
         //     plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
         // };
 
-        if (["android", "all"].includes(platform) && project_manifestJson_vapor) {
+        if (["android"].includes(platform) && project_manifestJson_vapor) {
             plugin_list["uniappx-vapor-launcher"] = config.UNIAPP_X_VAPOR_LAUNCHER_PATH;
         };
 
@@ -155,7 +152,7 @@ class Common {
             plugin_list["uniapp-uts-v1"] = config.UNIAPP_UTS_V1_PATH;
         };
 
-        if (["android", "all"].includes(platform)) {
+        if (["android"].includes(platform)) {
             // plugin_list["uniapp-runextension"] = config.UNIAPP_RUNEXTENSION_PATH;
             plugin_list["uts-development-android"] = config.UTS_DEVELOPMENT_ANDROID_PATH;
         };
@@ -315,26 +312,6 @@ class Common {
         return DefaultReportDir;
     };
 
-    // 用于【全部平台】测试停止运行
-    async stopAllTestRun(MessagePrefix) {
-        let msg = "您选择了【全部平台】测试，如需停止后续测试，请点击: ";
-        createOutputChannel({
-            line: msg + "全部停止\n",
-            level: "info",
-            hyperlinks: [
-                {
-                    linkPosition: {
-                        start: msg.length,
-                        end: (msg + '全部停止').length
-                    },
-                    onOpen: function () {
-                        isStopAllTest = true;
-                    }
-                }
-            ]
-        }, "info", "log");
-    };
-
     /**
      * @description 控制台打印测试报告某些信息
      * @param {String} outputFile - 测试报告路径
@@ -482,12 +459,6 @@ class RunTest extends Common {
         // 异常判断
         if (phoneList == 'error') {
             createOutputChannel('选择设备时错误，请联系插件作者', 'warning');
-            return;
-        };
-
-        // 当选择了【全部平台】测试，但是没有选择任何设备，直接关闭。
-        if ((phoneList == 'noSelected' || JSON.stringify(phoneList) == '[]') && testPlatform == 'all') {
-            createOutputChannel(`您选择了【${testPlatform}】测试，但是未选择任何设备，测试中止。`, 'warning');
             return;
         };
 
@@ -797,17 +768,11 @@ class RunTest extends Common {
 
     /**
      * @description 运行测试，适用于选择多个设备后执行
-     * @param {Object} testPlatform [iOS|android|all]
      * @param {Object} testDevicesList
      */
-    async run_more_test(testPlatform, testDevicesList) {
-        if (isStopAllTest) { return };
-        if (testPlatform == 'all') {
-            if (isStopAllTest) { return };
-        };
+    async run_more_test(testDevicesList) {
         if (testDevicesList.length && testDevicesList != 'noSelected') {
             for (let s of testDevicesList) {
-                if (isStopAllTest) { break };
                 let plat = s.split(':')[0];
 
                 // 当plat=mp|h5时，deviceId取值为h5-chrome,mp-weixin
@@ -820,9 +785,6 @@ class RunTest extends Common {
                     await this.run_uni_test(plat, deviceId);
                 };
             };
-        };
-        if (isStopAllTest) {
-            createOutputChannel(`【全部平台】测试，后续测试已停止\n`, 'success');
         };
     };
 
@@ -850,16 +812,13 @@ class RunTest extends Common {
     /**
      * @description 测试用例运行主入口文件
      * @param {Object} param 项目管理器或编辑器选中的信息
-     * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | web-browser
+     * @param {String} UNI_PLATFORM 测试平台: android | ios | harmony | mp-weixin | web-browser
      * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
      * @param {Boolean} reuseSelectedDevices 是否复用上次选择的设备
      */
     async main(param, UNI_PLATFORM, scope = "all", reuseSelectedDevices = false) {
         // console.log("[main] ->", param, UNI_PLATFORM, scope);
         setTestOutputView('log', false);
-
-        // 初始化变量，用于停止测试
-        this.StopAllTest = false;
 
         // 注意：以前叫h5, 后来uni-app x测试改成web。 为了兼容以前的命令行参数，不做修改。
         this.raw_argv_uni_platform = UNI_PLATFORM;
@@ -910,13 +869,13 @@ class RunTest extends Common {
         };
 
         // 运行：到iOS和android
-        if (['all', 'android'].includes(argv_uniPlatform) && is_uts_project) {
+        if (['android'].includes(argv_uniPlatform) && is_uts_project) {
             let checkUTS = await this.checkAndSetUTSTestEnv();
             if (checkUTS == false) return;
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
+        if (['ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
             const lastSelection = this.lastSelectedTestDevices;
             const canReuseDevices = reuseSelectedDevices === true && lastSelection?.platform === argv_uniPlatform && lastSelection?.projectPath === projectPath && Array.isArray(lastSelection?.devices);
             const sResult = canReuseDevices ? [...lastSelection.devices] : await this.select_app_run_devices(argv_uniPlatform);
@@ -939,11 +898,6 @@ class RunTest extends Common {
         setTestOutputView('log');
         await vscode.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', true);
 
-        if (argv_uniPlatform == 'all') {
-            // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';
-            createOutputChannel(`您选择了【全部平台】测试，将依次运行测试到各个平台 ......`, 'success');
-            this.stopAllTestRun();
-        };
         // 蒸汽模式：设备选择窗口的配置设置
         if (global_uniSettings?.cfg_uniapp_test_vapor_mode !== true) {
             project_manifestJson_vapor = false;
@@ -981,16 +935,13 @@ class RunTest extends Common {
                 await this.run_uni_test('mp-alipay');
                 break;
             case 'ios':
-                await this.run_more_test('ios', testPhoneList);
+                await this.run_more_test(testPhoneList);
                 break;
             case 'android':
-                await this.run_more_test('android', testPhoneList);
+                await this.run_more_test(testPhoneList);
                 break;
             case 'harmony':
-                await this.run_more_test('harmony', testPhoneList);
-                break;
-            case 'all':
-                await this.run_more_test('all', testPhoneList);
+                await this.run_more_test(testPhoneList);
                 break;
             default:
                 break;

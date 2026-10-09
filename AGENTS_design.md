@@ -39,8 +39,6 @@ Module._load = function(request, parent, isMain) {
 
 命令在 `package.json` 声明，在 `extension.js` 通过 `hx.commands.registerCommand` 注册。命令实现不要只依赖编辑器上下文，因为项目管理器右键、空白区域和编辑器右键传入的参数形状不同；统一经过 `normalizeCommandParam()` 补全 `fsPath`、`workspaceFolder` 和 `document`。
 
-`unitest.runTestAll`、`unitest.runCurrentTestAll` 等命令即使不显示在菜单中，也不要删除命令实现；隐藏菜单和删除命令是两个不同操作。
-
 ### 3.2 Run Console 清单
 
 测试控制台必须声明为 `sessionKind: "run"` 的 debugger，不能使用 `viewsContainers.panel` 和 Webview 模拟：
