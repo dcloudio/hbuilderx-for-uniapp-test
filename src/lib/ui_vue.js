@@ -420,7 +420,7 @@ function dialogCss() {
         .filter::placeholder { color: var(--vscode-descriptionForeground, #888); opacity: 1; }
         .section-actions { display: inline-flex; align-items: center; margin-left: 12px; gap: 12px; }
         .device-count { color: var(--vscode-descriptionForeground, #777); font-size: 12px; white-space: nowrap; }
-        .device-list { display: grid; gap: 2px; min-height: 160px; max-height: 220px; align-content: start; overflow: auto; padding: 4px; border: 1px solid var(--vscode-input-border, #ccc); border-radius: 4px; background: var(--vscode-input-background, #fff); }
+        .device-list { display: grid; gap: 2px; min-height: 200px; max-height: 250px; align-content: start; overflow: auto; padding: 4px; border: 1px solid var(--vscode-input-border, #ccc); border-radius: 4px; background: var(--vscode-input-background, #fff); }
         .device-row { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 10px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
         .device-row:hover { background: var(--vscode-list-hoverBackground, #f0f0f0); }
         .device-row.selected { background: rgba(22, 131, 197, 0.08); border-color: transparent; box-shadow: inset 2px 0 0 #1683c5; color: inherit; }
