@@ -128,6 +128,7 @@ api.cli.createCommand('devices', 'list')
 - 隐藏面板时保留 Webview 上下文；重新切回面板时从日志缓存恢复内容，不能因为切换控制台而清空日志。
 - 支持 info、warning、success、error 颜色。
 - 去除 ANSI 颜色转义码，避免 Webview 显示不可读控制字符。
+- 保留 `appendLine()` 数据中的 `hyperlinks`，由 Webview 将链接点击事件传回扩展端执行原 `onOpen` 回调；测试报告路径必须可以点击打开。
 - 使用 `workbench.view.extension.hbuilderv-uniapp-test` 打开 panel。
 - 通过 `view/title` 在控制台右上角提供停止运行和清空控制台图标，不要在 Webview HTML 内重复实现按钮。
 
