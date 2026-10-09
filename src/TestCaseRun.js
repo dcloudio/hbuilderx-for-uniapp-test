@@ -581,18 +581,18 @@ class RunTest extends Common {
         };
 
         // 关于linux，用于特定的Linux包。
-        if (osName == "linux" && testPlatform == 'h5-chrome') {
-            const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
-            let ms_playwright_chrome = "";
-            if (fs.existsSync(ms_playwright_dir)) {
-                const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
-                const chrome_linux_dir = chromium_dir ? fs.readdirSync(path.join(ms_playwright_dir, chromium_dir)).find((item) => item.startsWith("chrome-linux")) : "";
-                ms_playwright_chrome = chrome_linux_dir ? path.join(ms_playwright_dir, chromium_dir, chrome_linux_dir, "chrome") : "";
-            };
-            if (ms_playwright_chrome && fs.existsSync(ms_playwright_chrome)) {
-                cmdOpts.env["PLAYWRIGHT_BROWSERS_PATH"] = ms_playwright_dir;
-            };
-        };
+        // if (osName == "linux" && testPlatform == 'h5-chrome') {
+        //     const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
+        //     let ms_playwright_chrome = "";
+        //     if (fs.existsSync(ms_playwright_dir)) {
+        //         const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
+        //         const chrome_linux_dir = chromium_dir ? fs.readdirSync(path.join(ms_playwright_dir, chromium_dir)).find((item) => item.startsWith("chrome-linux")) : "";
+        //         ms_playwright_chrome = chrome_linux_dir ? path.join(ms_playwright_dir, chromium_dir, chrome_linux_dir, "chrome") : "";
+        //     };
+        //     if (ms_playwright_chrome && fs.existsSync(ms_playwright_chrome)) {
+        //         cmdOpts.env["PLAYWRIGHT_BROWSERS_PATH"] = ms_playwright_dir;
+        //     };
+        // };
 
         // 2026-04 需求：ios需要支持真机 gml要求传递参数 HX_USE_BASE_TYPE
         if (testPlatform == "ios") {
