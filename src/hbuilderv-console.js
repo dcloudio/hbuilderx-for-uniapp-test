@@ -61,9 +61,12 @@ class UniAppTestRunAdapter {
     appendLine(value) {
         if (!this.ready || this.ended) return false;
         const data = normalizeOutput(value);
+        const output = data.filePath
+            ? `${data.line.substring(0, data.linkStart)}\x1B]8;;${vscode.Uri.file(data.filePath).toString()}\x07${data.line.substring(data.linkStart, data.linkEnd)}\x1B]8;;\x07${data.line.substring(data.linkEnd)}`
+            : data.line;
         const body = {
             category: data.level === 'error' ? 'stderr' : 'stdout',
-            output: data.line.endsWith('\n') ? data.line : `${data.line}\n`
+            output: output.endsWith('\n') ? output : `${output}\n`
         };
         if (data.filePath) {
             body.source = { name: path.basename(data.filePath), path: data.filePath };
@@ -122,7 +125,9 @@ function normalizeOutput(value) {
             level: value.level || 'info',
             filePath: Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end > start && end <= line.length
                 ? line.substring(start, end).trim()
-                : undefined
+                : undefined,
+            linkStart: start,
+            linkEnd: end
         };
     }
     return { line: String(value ?? ''), level: 'info' };
