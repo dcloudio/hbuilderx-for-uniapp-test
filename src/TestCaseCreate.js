@@ -103,7 +103,7 @@ async function showTestCaseDialog(options) {
         message: '',
     };
     try {
-        dialog = await hx.window.openWebviewDialog({
+        dialog = await vscode.window.openWebviewDialog({
             viewType: 'uniapp.createTestCase',
             title: '新建自动化测试用例',
             size: { width: 560, height: 460 },

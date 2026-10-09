@@ -13,7 +13,7 @@ async function ui_vue(testPlatform, projectPath = '') {
     const state = await createInitialState(testPlatform, projectPath);
     let dialog;
     try {
-        dialog = await hx.window.openWebviewDialog({
+        dialog = await vscode.window.openWebviewDialog({
             viewType: 'uniapp.autoTestDeviceSelection',
             title: 'uni-app 自动化测试设备选择',
             size: { width: 600, height: testPlatform === 'all' ? 780 : 480 },
