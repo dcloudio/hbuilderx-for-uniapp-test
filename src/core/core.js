@@ -84,26 +84,6 @@ async function isUniAppX(projectPath) {
 };
 
 /**
- * @description 安装插件
- * @param {version} String 插件版本
- */
-function installPlugin() {
-    let terminalName = osName == "win32" ? "builtincef3terminal" : "builtinterminal";
-    return new Promise((resolve, reject) => {
-        let info = {
-            "id": terminalName,
-            "name": terminalName,
-            "category_name": "HBuilderX",
-            "category_code": "extension-for-hbuilderx",
-            "category_id": 11,
-            "platforms": []
-        };
-        let url = 'hbuilderx://ext/download?plugin=' + encodeURIComponent(JSON.stringify(info));
-        hx.env.openExternal(url);
-    });
-};
-
-/**
  * @description 获取插件配置
  */
 async function getPluginConfig(options) {
