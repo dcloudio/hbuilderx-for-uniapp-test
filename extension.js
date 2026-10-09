@@ -17,7 +17,7 @@ const createAgentsMd = require('./src/createAgentsMd.js');
 const { RunTest } = require("./src/TestCaseRun.js");
 const openReportOutputDir = require('./src/TestReports.js');
 const { RunTestForHBuilderXCli_main, readPluginsPackageJson } = require('./src/HBuilder_Cli.js');
-const { registerHBuilderVConsole } = require('./src/hbuilderv-console.js');
+const { clearHBuilderVConsole, registerHBuilderVConsole } = require('./src/hbuilderv-console.js');
 
 function handerUri(uri) {
     console.error("uri = ", uri);
@@ -147,6 +147,11 @@ function activate(context) {
         stopRunTest();
     });
     context.subscriptions.push(stopRun);
+
+    let clearTestConsole = hx.commands.registerCommand('unitest.clearTestConsole', () => {
+        clearHBuilderVConsole();
+    });
+    context.subscriptions.push(clearTestConsole);
 
     let AutotestMatch = hx.commands.registerCommand('unitest.isAutotestMatch', () => {
         let config = hx.workspace.getConfiguration();

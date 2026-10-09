@@ -129,7 +129,7 @@ api.cli.createCommand('devices', 'list')
 - 支持 info、warning、success、error 颜色。
 - 去除 ANSI 颜色转义码，避免 Webview 显示不可读控制字符。
 - 使用 `workbench.view.extension.hbuilderv-uniapp-test` 打开 panel。
-- 通过 `view/title` 在控制台右上角提供停止运行图标，不要在 Webview HTML 内重复实现按钮。
+- 通过 `view/title` 在控制台右上角提供停止运行和清空控制台图标，不要在 Webview HTML 内重复实现按钮。
 
 ### 5.2 日志路由时机
 
@@ -160,6 +160,8 @@ return Promise.resolve()
 
 插件激活时必须将 `hbuildervUniappTestRunning` 初始化为 `false`，避免窗口重新加载后显示过期状态。修改 `commands` 或 `view/title` 后需要重新加载 HBuilderV 才能生效。
 
+`unitest.clearTestConsole` 同时注册到 `view/title` 和 `webview/context`。清屏时必须同时清空 Webview 内容与模块内的日志缓存，否则切换控制台后旧日志会重新出现。
+
 ## 6. 新建自动化测试用例窗口
 
 `src/TestCaseCreate.js` 已从旧的 HBuilderX 表单实现改为 Webview Dialog，当前布局从上到下为：
@@ -177,7 +179,7 @@ return Promise.resolve()
 
 Android、iOS、Harmony 测试依赖 launcher、uniapp CLI、UTS 和 Node 等插件路径，统一从 `src/core/config.js` 导出。新增平台或 launcher 时，应先在路径解析层增加配置，再在运行逻辑中使用。
 
-GUI 启动测试时，`RunTest.main()` 在设备选择前检查项目根目录的 `env.js`。文件不存在时通过 `Initialize.CreateTestEnvConfigFile()` 从 `src/template/env.js` 静默创建；已有文件不得覆盖，已有文件加载失败仍按语法错误处理。
+GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `env.js`。GUI 的 `env.js` 在环境检查前创建；GUI 与 CLI 的 `jest.config.js` 必须等设备选择或指定设备成功后再创建，取消或关闭设备窗口、未检测到设备时不能修改项目文件。文件不存在时通过 `Initialize.CreateTestEnvConfigFile()` 从 `src/template` 下的对应默认模板静默创建；已有文件不得覆盖，已有文件加载失败仍按语法错误处理。
 
 ## 8. 常见错误与排查
 

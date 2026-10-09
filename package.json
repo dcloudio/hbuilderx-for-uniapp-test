@@ -75,6 +75,11 @@
         "icon": "$(debug-stop)"
       },
       {
+        "command": "unitest.clearTestConsole",
+        "title": "清空控制台",
+        "icon": "$(clear-all)"
+      },
+      {
         "command": "unitest.runTestAll",
         "title": "运行测试到 全部平台"
       },
@@ -741,6 +746,18 @@
           "command": "unitest.stopRunTest",
           "when": "view == hbuilderv-uniapp-test.console && hbuildervUniappTestRunning",
           "group": "navigation@1"
+        },
+        {
+          "command": "unitest.clearTestConsole",
+          "when": "view == hbuilderv-uniapp-test.console",
+          "group": "navigation@2"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "unitest.clearTestConsole",
+          "when": "webviewId == 'hbuilderv-uniapp-test.console'",
+          "group": "1_modification"
         }
       ],
       "explorer/context": [

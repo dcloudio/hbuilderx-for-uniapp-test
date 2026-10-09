@@ -87,6 +87,11 @@ function appendLine(value) {
     }
 }
 
+function clearHBuilderVConsole() {
+    lines.length = 0;
+    if (view) view.webview.postMessage({ type: 'replace', html: '' });
+}
+
 function createHBuilderVConsoleView(options = {}) {
     return {
         show: () => vscode.commands.executeCommand(`workbench.view.extension.${VIEW_CONTAINER_ID}`),
@@ -117,6 +122,7 @@ function registerHBuilderVConsole(context) {
 }
 
 module.exports = {
+    clearHBuilderVConsole,
     createHBuilderVConsoleView,
     registerHBuilderVConsole
 };
