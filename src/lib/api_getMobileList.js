@@ -178,7 +178,7 @@ async function getDevicesFormCli(testPlatform) {
 
 
 async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
-    hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test: 正在获取测试设备列表...", 5000, 'info');
+    hx.window.setStatusBarMessage("uniapp-test: 正在获取测试设备列表...", 5000, 'info');
     // console.log("============", testPlatform, global_devicesList, global_devicesList["harmony"]);
 
     if (isRefresh == "N") {

@@ -427,11 +427,11 @@ function dialogCss() {
         input[type="checkbox"], input[type="radio"] { -webkit-appearance: none; appearance: none; flex: 0 0 14px; width: 14px; height: 14px; margin: 0; border: 1px solid var(--vscode-checkbox-border, #858585); background: var(--vscode-checkbox-background, transparent); cursor: pointer; transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease; }
         input[type="checkbox"] { display: inline-grid; place-content: center; border-radius: 3px; }
         input[type="checkbox"]::after { width: 7px; height: 4px; border-bottom: 2px solid var(--vscode-button-foreground, #fff); border-left: 2px solid var(--vscode-button-foreground, #fff); content: ''; opacity: 0; transform: translateY(-1px) rotate(-45deg); }
-        input[type="checkbox"]:checked { border-color: var(--vscode-button-background, #1683c5); background: var(--vscode-button-background, #1683c5); }
+        input[type="checkbox"]:checked { border-color: var(--vscode-focusBorder, #1683c5); background: var(--vscode-focusBorder, #1683c5); }
         input[type="checkbox"]:checked::after { opacity: 1; }
         input[type="radio"] { display: inline-grid; place-content: center; border-radius: 50%; }
-        input[type="radio"]::after { width: 8px; height: 8px; border-radius: 50%; background: var(--vscode-focusBorder, #1683c5); content: ''; opacity: 0; transform: scale(0.5); transition: opacity 0.12s ease, transform 0.12s ease; }
-        input[type="radio"]:checked { border: 2px solid var(--vscode-focusBorder, #1683c5); background: transparent; }
+        input[type="radio"]::after { width: 6px; height: 6px; border-radius: 50%; background: var(--vscode-button-foreground, #fff); content: ''; opacity: 0; transform: scale(0.5); transition: opacity 0.12s ease, transform 0.12s ease; }
+        input[type="radio"]:checked { border-color: var(--vscode-focusBorder, #1683c5); background: var(--vscode-focusBorder, #1683c5); }
         input[type="radio"]:checked::after { opacity: 1; transform: scale(1); }
         input[type="checkbox"]:hover, input[type="radio"]:hover { border-color: var(--vscode-focusBorder, #1683c5); }
         input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 1px solid var(--vscode-focusBorder, #1683c5); outline-offset: 2px; }
