@@ -1,4 +1,5 @@
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -11,11 +12,6 @@ const checkNetworkStatus = require('./utils/check_network.js');
 
 const get_test_port = require("./utils/get_test_port.js");
 const compareHBuilderXVersions = require('./utils/compare_hx_versions.js');
-const hxVersion = hx.env.appVersion;
-
-// 版本判断：判断是否支持safari和firefox，因为firefox和safari自动化测试仅支持3.2.10+版本
-const hxVersionForDiff = hxVersion.replace('-alpha', '').replace(/.\d{10}/, '');
-const cmpVerionForH5 = compareHBuilderXVersions(hxVersionForDiff, '3.2.10');
 
 let config = require('./core/config.js');
 
@@ -29,7 +25,6 @@ const {
     createOutputViewForHyperLinks,
     createOutputChannel,
     setTestOutputView,
-    hxShowMessageBox,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson,
@@ -486,7 +481,7 @@ class RunTest extends Common {
 
         // 异常判断
         if (phoneList == 'error') {
-            hxShowMessageBox('测试提醒', '选择设备时错误，请联系插件作者', ['关闭']).then(btn => { });
+            createOutputChannel('选择设备时错误，请联系插件作者', 'warning');
             return;
         };
 
@@ -559,7 +554,7 @@ class RunTest extends Common {
                 "UNI_CLI_PATH": config.UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
-                "HX_Version": hxVersion,
+                "HX_Version": config.hx_env_app_version,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
                 "UNI_TEST_UNIAPP_EXTENSION_PATH": config.UNIAPP_UNIAPP_EXTENSION_PATH,
@@ -832,22 +827,15 @@ class RunTest extends Common {
     };
 
     async run_before(UNI_PLATFORM, param) {
-        // 增加版本判断：firefox和safari测试，仅支持HBuilderX 3.2.10+版本
-        // 【TODO】上次AI调整导致这里判断异常。但是目前hx已经到5.0版本了。这里的判断可以去掉了。
-        // if (cmpVerionForH5 < 0 && ['h5-firefox','h5-safari'].includes(UNI_PLATFORM)) {
-        //     createOutputChannel(config.i18n.env_h5_test_version_prompt, 'warning');
-        //     return;
-        // };
-
         // 判断：项目信息。必须在项目管理器、或编辑器选中项目
         if (param == null) {
-            hx.window.showErrorMessage("请在项目管理器选中项目后再试。", ["我知道了"]);
+            vscode.window.showErrorMessage("请在项目管理器选中项目后再试。", "我知道了");
             return;
         };
 
         // 判断：操作系统, uni-app iOS测试，不支持windows
         if (osName != 'darwin' && UNI_PLATFORM == 'ios') {
-            hxShowMessageBox('提醒', config.i18n.env_win32_not_support_ios_testing);
+            createOutputChannel(config.i18n.env_win32_not_support_ios_testing, 'warning');
             return;
         };
 
@@ -949,7 +937,7 @@ class RunTest extends Common {
         if (!jestConfigReady) return;
 
         setTestOutputView('log');
-        await hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', true);
+        await vscode.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', true);
 
         if (argv_uniPlatform == 'all') {
             // let pmsg = Array.isArray(testPhoneList) ? testPhoneList.join(' ') : '';

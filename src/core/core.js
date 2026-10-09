@@ -1,8 +1,10 @@
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { spawn, exec } = require('child_process');
+const { applyEdits: applyJsoncEdits, format: formatJsonc, parse: parseJsonc } = require('jsonc-parser');
 
 const {
     getHdcPath,
@@ -22,6 +24,22 @@ const PORT_9520_KILL_CMD = {
     darwin: 'lsof -i:9520 | awk \'{print $2}\' | tail -n +2 | xargs kill -9',
     win32: 'netstat -ano | findstr :9520 查找PID，然后执行 taskkill /F /PID <PID>'
 };
+
+function readJSONValue(filePath, field) {
+    return Promise.resolve().then(() => {
+        const errors = [];
+        const value = parseJsonc(fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, ''), errors, {
+            allowTrailingComma: true,
+            disallowComments: false,
+        });
+        if (errors.length) {
+            const error = new SyntaxError(`Invalid JSONC in ${filePath}`);
+            error.errors = errors;
+            throw error;
+        };
+        return { data: field ? value[field] : value };
+    });
+}
 
 
 /**
@@ -49,7 +67,7 @@ async function isUniAppX(projectPath) {
     if (!fs.existsSync(manifestPath)) return false;
 
     try {
-        let result = await hx.util.readJSONValue(manifestPath, "uni-app-x").then((data) => {
+        let result = await readJSONValue(manifestPath, "uni-app-x").then((data) => {
             return data;
         });
         console.error("[获取项目manifest.json] uni-app-x节点 == ", result?.data);
@@ -63,38 +81,6 @@ async function isUniAppX(projectPath) {
     } catch (error) {
         return false;
     };
-};
-
-/**
- * @description 对话框
- *     - 插件API: hx.window.showMessageBox
- *     - 已屏蔽esc事件，不支持esc关闭弹窗；因此弹窗上的x按钮，也无法点击。
- *     - 按钮组中必须提供`关闭`操作。且关闭按钮需要位于数组最后。
- * @param {String} title
- * @param {String} text
- * @param {String} buttons 按钮，必须大于1个
- * @return {String}
- */
-function hxShowMessageBox(title, text, buttons = ['关闭']) {
-    return new Promise((resolve, reject) => {
-        if ( buttons.length > 1 && (buttons.includes('关闭') || buttons.includes('取消')) ) {
-            if (osName == 'darwin') {
-                buttons = buttons.reverse();
-            };
-        };
-        hx.window.showMessageBox({
-            type: 'info',
-            title: title,
-            text: text,
-            buttons: buttons,
-            defaultButton: 0,
-            escapeButton: -100
-        }).then(button => {
-            resolve(button);
-        }).catch(error => {
-            reject(error);
-        });
-    });
 };
 
 /**
@@ -118,26 +104,10 @@ function installPlugin() {
 };
 
 /**
- * @description 安装终端
- * @param {Object} options
- */
-async function installTerminal() {
-    hxShowMessageBox("提示", "uni-app自动化测试环境安装，依赖终端插件，请安装终端插件。\n\n 安装方法：点击顶部菜单【工具】【插件安装】，安装新插件，找到内置终端，点击安装。", ["我知道了"]).then( btn => {
-        return btn;
-    });
-    // let userSelected = await hxShowMessageBox("提示", "uni-app自动化测试环境安装，依赖终端插件，请安装终端插件", ["安装"]).then( btn => {
-    //     return btn;
-    // });
-    // if (userSelected == "安装") {
-    //     installPlugin();
-    // };
-};
-
-/**
  * @description 获取插件配置
  */
 async function getPluginConfig(options) {
-    let config = await hx.workspace.getConfiguration();
+    let config = await vscode.workspace.getConfiguration();
     return config.get(options);
 };
 
@@ -233,13 +203,23 @@ function createOutputViewForHyperLinks(msg, msgLevel='info', viewID, runDir) {
                     start: start,
                     end: msg.length
                 },
-                onOpen: function() {
+                onOpen: async function() {
                     filepath = filepath.trim();
-                    hx.workspace.openTextDocument(filepath);
-                    setTimeout(function() {
-                        hx.commands.executeCommand('editor.action.format');
-                        hx.commands.executeCommand('workbench.action.files.save');
-                    }, 100);
+                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filepath));
+                    const editor = await vscode.window.showTextDocument(document);
+                    const source = document.getText();
+                    const edits = formatJsonc(source, undefined, {
+                        insertSpaces: true,
+                        tabSize: 4,
+                        eol: os.EOL
+                    });
+                    if (edits.length > 0) {
+                        const formatted = applyJsoncEdits(source, edits);
+                        await editor.edit(editBuilder => {
+                            editBuilder.replace(new vscode.Range(document.positionAt(0), document.positionAt(source.length)), formatted);
+                        });
+                        await document.save();
+                    };
                 }
             }
         ]
@@ -606,10 +586,10 @@ async function checkCustomTestEnvironmentDependency() {
     if (userSet != undefined && userSet.trim() != '') {
         if (fs.existsSync(userSet) && path.basename(userSet) == "node_modules") {
             console.error("自定义测试目录为：", userSet);
-            hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test:: 使用自定义测试环境依赖目录！", 50000, "info");
+            vscode.window.setStatusBarMessage("hbuilderx-for-uniapp-test:: 使用自定义测试环境依赖目录！", 50000);
             return userSet;
         };
-        hx.window.setStatusBarMessage("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！", 50000, "error");
+        vscode.window.setStatusBarMessage("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！", 50000);
         console.error("hbuilderx-for-uniapp-test:: 自定义测试环境依赖目录无效！");
         return false;
     } else {
@@ -655,7 +635,7 @@ async function readUniappManifestJson(project_path, is_uniapp_cli, field) {
     if (is_uniapp_cli) {
         manifest_file = path.join(project_path, "src", "manifest.json");
     };
-    let result = hx.util.readJSONValue(manifest_file, field).then((data) => {
+    let result = readJSONValue(manifest_file, field).then((data) => {
         return data;
     });
     return result;
@@ -757,11 +737,9 @@ module.exports = {
     createOutputViewForHyperLinks,
     runCmd,
     runCmdForHBuilderXCli,
-    hxShowMessageBox,
     isUniAppCli,
     isUniAppX,
     stopRunTest,
-    installTerminal,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson,

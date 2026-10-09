@@ -23,7 +23,7 @@ Module._load = function(request, parent, isMain) {
 
 - `hx.commands.registerCommand`、`registerCliCommand` 映射到 VS Code 命令 API。
 - `hx.window.openWebviewDialog`、消息框、输入框、保存文件等能力映射到 HBuilderV 提供的窗口 API。
-- `hx.workspace.getConfiguration()` 保持 `get/update` 形状，业务模块不直接依赖 VS Code 配置对象。
+- 配置读写直接使用 `vscode.workspace.getConfiguration()`，不再经过 HBuilderX 兼容层。
 - `hx.extensions.getExtension(id)` 用于获取 HBuilderV 扩展对象和 `extensionPath`，不要假设插件固定安装路径。
 - HBuilderV SDK 内置插件路径由 `src/core/config.js` 通过扩展查询获得；若独立扩展不存在，再从 SDK `plugins` 目录回退查找。
 - `readJSONValue` 使用 `jsonc-parser` 读取 JSONC，允许配置文件存在注释和尾逗号；不能用裸 `JSON.parse` 替代。
@@ -141,7 +141,7 @@ return Promise.resolve()
     .finally(() => {
         setTestOutputView();
         finishHBuilderVConsole();
-        return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
+        return vscode.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
     });
 ```
 
@@ -178,7 +178,7 @@ GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `
 
 ### JSON.parse 报 property name 错误
 
-先检查目标文件是否为 JSONC。HBuilderV 配置文件可能包含注释或尾逗号，业务读取应使用 `hx.util.readJSONValue()`，该 API 当前由 `jsonc-parser` 实现。`package.json` 本身仍必须是严格 JSON。
+先检查目标文件是否为 JSONC。VS Code 公共 API 不提供任意 JSONC 文件读取能力，业务代码应直接使用 `jsonc-parser`，以支持注释和尾逗号。`package.json` 本身仍必须是严格 JSON。
 
 ### 日志没有进入独立 tab
 

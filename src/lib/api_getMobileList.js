@@ -1,4 +1,5 @@
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const os = require('os');
 
 const {
@@ -178,7 +179,7 @@ async function getDevicesFormCli(testPlatform) {
 
 
 async function api_getMobileList(testPlatform, isRefresh="N", deviceType = "") {
-    hx.window.setStatusBarMessage("uniapp-test: 正在获取测试设备列表...", 5000, 'info');
+    vscode.window.setStatusBarMessage("uniapp-test: 正在获取测试设备列表...", 5000);
     // console.log("============", testPlatform, global_devicesList, global_devicesList["harmony"]);
 
     if (isRefresh == "N") {

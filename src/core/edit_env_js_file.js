@@ -1,6 +1,7 @@
 const fs = require('fs');
 const hx = require('hbuilderx');
-let config = require('./config.js');
+const vscode = require('vscode');
+
 const {
     createOutputChannel,
     getPluginConfig,
@@ -11,6 +12,8 @@ const {
 const {
     fsWriteFile
 } = require('../utils/utils_files.js');
+
+let config = require('./config.js');
 
 const { isHBuilderXVersionAtLeast } = require('../utils/compare_hx_versions.js');
 
@@ -23,8 +26,7 @@ const PLATFORM = {
     MP_ALIPAY: 'mp-alipay'
 };
 
-const hx_env_app_version = hx.env.appVersion;
-const IS_HBUILDERX_VERSION_AT_LEAST_531 = isHBuilderXVersionAtLeast(hx.env.appVersion, "5.31");
+const IS_HBUILDERX_VERSION_AT_LEAST_531 = isHBuilderXVersionAtLeast(config.hx_env_app_version, "5.31");
 
 /**
  * @description 创建日志记录器

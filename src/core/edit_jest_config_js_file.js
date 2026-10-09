@@ -1,5 +1,5 @@
 const fs = require('fs');
-const hx = require('hbuilderx');
+const vscode = require('vscode');
 const path = require('path');
 let config = require('./config.js');
 const {
@@ -206,7 +206,7 @@ async function addFilePathToJestConfig(param) {
     // 检查是否已存在
     if (oldTestMatch.includes(projectTestMatch)) {
         await logger(`[uniapp.test] 路径已存在于testMatch中: ${projectTestMatch}`);
-        hx.window.setStatusBarMessage(`路径已存在: ${testcase_file_relative_path}`, 'info', 5000);
+        vscode.window.setStatusBarMessage(`路径已存在: ${testcase_file_relative_path}`, 5000);
         return true;
     }
 
@@ -215,7 +215,7 @@ async function addFilePathToJestConfig(param) {
     let success = await updateTestMatch(jest_config_js_path, newTestMatchArray, logger);
     if (success) {
         await logger(`[uniapp.test] 已添加到testMatch: ${projectTestMatch}`);
-        hx.window.setStatusBarMessage(`已添加: ${testcase_file_relative_path}`, 'info', 5000);
+        vscode.window.setStatusBarMessage(`已添加: ${testcase_file_relative_path}`, 5000);
     } else {
         await logger(`[uniapp.test] 修改 ${jest_config_js_path} 失败`, 'warning');
     }

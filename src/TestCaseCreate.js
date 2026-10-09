@@ -1,4 +1,5 @@
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -72,7 +73,7 @@ async function TestCaseCreate(param) {
         };
 
         // 读取编辑器缩进配置
-        let config = await hx.workspace.getConfiguration();
+        let config = await vscode.workspace.getConfiguration();
         let isSpaces = config.get('editor.insertSpaces');
         let tabSize = config.get('editor.tabSize');
         if (isSpaces && isSpaces) {
@@ -81,12 +82,13 @@ async function TestCaseCreate(param) {
     };
     try {
         await fs.promises.writeFile(file, filecontents, { flag: 'wx' });
-        await hx.workspace.openTextDocument(file);
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.file(file));
+        await vscode.window.showTextDocument(document);
     } catch (error) {
         if (error && error.code == 'EEXIST') {
-            hx.window.showErrorMessage('测试用例文件已存在');
+            vscode.window.showErrorMessage('测试用例文件已存在');
         } else {
-            hx.window.showErrorMessage('创建文件失败');
+            vscode.window.showErrorMessage('创建文件失败');
         };
     };
 
@@ -110,7 +112,7 @@ async function showTestCaseDialog(options) {
             webviewOptions: { enableScripts: true },
         });
     } catch (error) {
-        hx.window.showErrorMessage(`打开新建测试用例窗口失败：${error.message || error}`);
+        vscode.window.showErrorMessage(`打开新建测试用例窗口失败：${error.message || error}`);
         return undefined;
     }
     dialog.webview.html = createTestCaseDialogHtml(dialog.webview, state, options.templates);

@@ -6,12 +6,8 @@ const path = require('path');
 const ui_vue = require("./ui_vue.js");
 const api_getMobileList = require("./api_getMobileList.js");
 
-const compareHBuilderXVersions = require('../utils/compare_hx_versions.js');
-const hxVersion = hx.env.appVersion;
 const { get_ios_device_type, createOutputChannel } = require('../core/core.js');
-
-const hxVersionForDiff = hxVersion.replace('-alpha', '').replace('-dev', '').replace(/.\d{10}/, '');
-const cmpVerionForVue = compareHBuilderXVersions(hxVersionForDiff, '4.40');
+const config = require('../core/config.js');
 
 // 全局：测试设备
 global.global_devicesList = {};
@@ -22,7 +18,7 @@ global.global_uniSettings = {};
 // 全局：iOS证书信息（含密码，仅本次启动有效）
 global.global_iosCertInfo = null;
 
-const _certCacheFile = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test', '.ios_cert_cache.json');
+const _certCacheFile = path.join(config.HV_UNI_TEST_ENV_DIR, '.ios_cert_cache.json');
 
 function _loadCertCache() {
     try {
@@ -184,20 +180,17 @@ async function getTestDevices(testPlatform, projectPath="") {
     let selected = "";
     let uiSettings = {};
 
-    if (cmpVerionForVue < 0) {
-        let _result = await ui_vue(testPlatform, projectPath);
-        if (Array.isArray(_result) && _result.length == 2) {
-            [selected, uiSettings] = _result;
-            if (uiSettings && Object.keys(uiSettings).length > 0) {
-                global.global_uniSettings = uiSettings;
-            };
-        } else {
-            selected = _result;
+    // 设备选择
+    let _result = await ui_vue(testPlatform, projectPath);
+    if (Array.isArray(_result) && _result.length == 2) {
+        [selected, uiSettings] = _result;
+        if (uiSettings && Object.keys(uiSettings).length > 0) {
+            global.global_uniSettings = uiSettings;
         };
     } else {
-        createOutputChannel(`当前HBuilderX版本 ${hxVersion} 不支持测试设备选择，请升级HBuilderX至最新版本后重试。`, 'warning');
-        return [];
+        selected = _result;
     };
+
     console.error("[_result_]", selected, uiSettings);
 
     // 检查是否有iOS真机，若有则弹出证书信息窗口

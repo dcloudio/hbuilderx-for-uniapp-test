@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const os = require('os');
 
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const api_getMobileList = require('./api_getMobileList.js');
 const { getPluginConfig, uniapp_x_is_vapor, isUniAppX } = require('../core/core.js');
 
@@ -21,7 +22,7 @@ async function ui_vue(testPlatform, projectPath = '') {
             webviewOptions: { enableScripts: true },
         });
     } catch (error) {
-        hx.window.showErrorMessage(`打开自动化测试设备窗口失败：${error.message || error}`);
+        vscode.window.showErrorMessage(`打开自动化测试设备窗口失败：${error.message || error}`);
         return 'error';
     }
     dialog.webview.html = createDialogHtml(dialog.webview, state);
@@ -149,9 +150,9 @@ async function updateSetting(name, value) {
         cfg_AutomaticModificationTestMatch: 'hbuilderx-for-uniapp-test.AutomaticModificationTestMatch',
     };
     if (!names[name]) return;
-    const config = await hx.workspace.getConfiguration();
+    const config = await vscode.workspace.getConfiguration();
     await config.update(names[name], value);
-    hx.window.setStatusBarMessage(`[UI窗口] 更新配置项 ${names[name]} 成功`, 3000);
+    vscode.window.setStatusBarMessage(`[UI窗口] 更新配置项 ${names[name]} 成功`, 3000);
 }
 
 function toResult(result) {

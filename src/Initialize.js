@@ -4,13 +4,13 @@
  */
 
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 
 const {
     isUniAppCli,
     createOutputChannel,
-    hxShowMessageBox,
     checkCustomTestEnvironmentDependency
 } = require('./core/core.js');
 
@@ -107,9 +107,10 @@ class Initialize extends Common {
             ? `自动化测试环境，依赖的jest、adbkit等库有更新，请选择是否更新？ \n\n强烈建议您选择更新。更新升级命令，请参考控制台输出。`
             : `自动化测试环境，需要安装jest、adbkit等库，是否安装？安装环境之后，才可以正常使用此插件。 ${Notes}`;
         let title = action == 'upgrade' ? '更新uni-app自动化测试依赖' : '安装uni-app自动化测试依赖';
-        let btn = await hxShowMessageBox(title, prompt, ['去升级', '忽略升级']).then( btn => {
-            return btn;
-        });
+        let btn = await vscode.window.showWarningMessage(title, {
+            modal: true,
+            detail: prompt
+        }, '去升级', '忽略升级');
         if (['好的', '去升级'].includes(btn) && action == 'upgrade') {
             await this.createFile("package.json", source_file, target_file);
 

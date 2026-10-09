@@ -4,10 +4,11 @@ const {
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const hx = require('hbuilderx');
+const vscode = require('vscode');
 
-const appRoot = hx.env.appRoot;
 const osName = os.platform();
+
+const config = require('../core/config.js');
 
 var adbPath = "adb";
 var hdcPath = "hdc";
@@ -16,7 +17,7 @@ var hdcPath = "hdc";
  * @description 获取插件配置
  */
 async function getPluginConfig(options) {
-    let config = await hx.workspace.getConfiguration();
+    let config = await vscode.workspace.getConfiguration();
     return config.get(options);
 };
 
@@ -30,18 +31,14 @@ async function getAdbPath() {
         return;
     };
 
-    let plugin_dir = path.join(appRoot, "plugins");
+    let plugin_dir = config.cfg_hv_plugin_launcher_tools_dir;
     let adb_releative_path = path.join("tools", "adbs", "adb");
     if (osName == "win32") {
         adb_releative_path = path.join("tools", "adbs", "adb.exe");
     };
-    let path_1 = path.join(plugin_dir, "launcher-tools", adb_releative_path);
-    let path_2 = path.join(plugin_dir, "launcher", adb_releative_path);
+    let path_1 = path.join(plugin_dir, adb_releative_path);
     if (fs.existsSync( path_1)) {
         adbPath = path_1;
-    };
-    if (fs.existsSync( path_2)) {
-        adbPath = path_2;
     };
 };
 

@@ -1,4 +1,5 @@
 const hx = require('hbuilderx');
+const vscode = require('vscode');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +11,6 @@ const {
 
 const checkNetworkStatus = require('./utils/check_network.js');
 const get_test_port = require("./utils/get_test_port.js");
-const hxVersion = hx.env.appVersion;
 
 let config = require('./core/config.js');
 
@@ -215,7 +215,7 @@ class Common {
      */
     async getProjectInfo(projectPath) {
         // 获取当前项目的workspaceFolder
-        let workspaceFolder = await hx.workspace.getWorkspaceFolder(projectPath);
+        let workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectPath));
         console.error("workspaceFolder = ", workspaceFolder);
         if (workspaceFolder == null) {
             await this.print_cli_log("\x1b[31m[自动化测试] 无法获取到项目信息，请确认项目已拖入到HBuilderX中\x1b[0m", "Error");
@@ -1022,12 +1022,12 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType=
     console.error("[cli参数] params:", params);
     console.error("[cli参数] clientID:", client_id);
 
-    const hx_version = hx.env.appVersion;
+    const hx_version = config.hx_env_app_version;
     const plugin_version = (await readPluginsPackageJson()).version || '';
     const welcome_msg = `欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具 (${plugin_version}) ！`;
 
     await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
-    await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderX Version ${hx_version}`, status: 'Info' });
+    await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderV Version ${hx_version}`, status: 'Info' });
 
     if (uni_platformName == "web") {
         if (!["chrome", "safari", "firefox"].includes(args.browser)) {

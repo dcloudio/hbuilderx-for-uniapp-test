@@ -10,6 +10,7 @@ Module._load = function(request, parent, isMain) {
 const { stopRunTest, setTestOutputView } = require('./src/core/core.js');
 const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file.js');
 
+const config = require('./src/core/config.js');
 const Initialize = require('./src/Initialize.js');
 const TestCaseCreate = require("./src/TestCaseCreate.js");
 const createAgentsMd = require('./src/createAgentsMd.js');
@@ -27,7 +28,7 @@ function handerUri(uri) {
     if (query_params) {
         query_params = Object.fromEntries(new URLSearchParams(query_params));
         if (actions == "command") {
-            hx.commands.executeCommand(query_params.id);
+            vscode.commands.executeCommand(query_params.id);
         }
     }
 };
@@ -48,46 +49,47 @@ function normalizeCommandParam(param) {
 
 
 function activate(context) {
+    // console.log("----2342----", vscode.hbuilderxVersion)
     context.subscriptions.push(registerHBuilderVConsole(context));
-    hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
+    vscode.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
 
-    hx.window.registerUriHandler({
+    context.subscriptions.push(vscode.window.registerUriHandler({
         handleUri: function(uri) {
             handerUri(uri);
         }
-    }, context);
+    }));
 
     let run = new RunTest();
 
     // 初始化测试环境：安装测试环境、创建测试配置文件
-    let initialization = hx.commands.registerCommand('unitest.initialization', (param) => {
+    let initialization = vscode.commands.registerCommand('unitest.initialization', (param) => {
         let init = new Initialize();
         init.main(normalizeCommandParam(param));
     });
     context.subscriptions.push(initialization);
 
     // 重装测试环境
-    let reloadEnv = hx.commands.registerCommand('unitest.reloadEnv', () => {
+    let reloadEnv = vscode.commands.registerCommand('unitest.reloadEnv', () => {
         let init = new Initialize();
         init.checkPluginDependencies('all', true);
     });
     context.subscriptions.push(reloadEnv);
 
     // 创建测试用例 (uni-app项目，pages页面，右键菜单)
-    let createTestCase = hx.commands.registerCommand('unitest.createTestCase', (param) => {
+    let createTestCase = vscode.commands.registerCommand('unitest.createTestCase', (param) => {
         TestCaseCreate(normalizeCommandParam(param));
     });
     context.subscriptions.push(createTestCase);
 
     // 创建 AGENTS.test.md 文件 (uni-app项目根目录，右键菜单)
-    let createAgents = hx.commands.registerCommand('unitest.createAgentsMd', (param) => {
+    let createAgents = vscode.commands.registerCommand('unitest.createAgentsMd', (param) => {
         return createAgentsMd(normalizeCommandParam(param));
     });
     context.subscriptions.push(createAgents);
 
     // 批量注册运行命令，避免重复样板代码
     const registerRunCommand = (commandId, platform, scope) => {
-        const disposable = hx.commands.registerCommand(commandId, (param) => {
+        const disposable = vscode.commands.registerCommand(commandId, (param) => {
             param = normalizeCommandParam(param);
             const executeRun = (reuseSelectedDevices = false) => Promise.resolve().then(() => {
                 if (scope) {
@@ -97,7 +99,7 @@ function activate(context) {
             }).finally(() => {
                 setTestOutputView();
                 finishHBuilderVConsole();
-                return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
+                return vscode.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
             });
             setHBuilderVConsoleRestartHandler(() => executeRun(true));
             return executeRun();
@@ -129,63 +131,63 @@ function activate(context) {
         ['unitest.runCurrentTestHarmony', 'harmony'],
     ].forEach(([id, platform]) => registerRunCommand(id, platform, 'one'));
     // stop run
-    let stopRun = hx.commands.registerCommand('unitest.stopRunTest', () => {
+    let stopRun = vscode.commands.registerCommand('unitest.stopRunTest', () => {
         stopRunTest();
     });
     context.subscriptions.push(stopRun);
 
-    let AutotestMatch = hx.commands.registerCommand('unitest.isAutotestMatch', () => {
-        let config = hx.workspace.getConfiguration();
+    let AutotestMatch = vscode.commands.registerCommand('unitest.isAutotestMatch', () => {
+        let config = vscode.workspace.getConfiguration();
         let result = config.get('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
         config.update('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch', !result).then( () => {
             let text = result ? '取消' : '启用';
-            hx.window.setStatusBarMessage(`已 ${text} 自动修改testMatch。`, 'info', 10000);
+            vscode.window.setStatusBarMessage(`已 ${text} 自动修改testMatch。`, 10000);
         });
     });
     context.subscriptions.push(AutotestMatch);
 
     // 是否输出调试日志
-    let debugLog = hx.commands.registerCommand('unitest.enableDebugLog', () => {
-        let config = hx.workspace.getConfiguration();
+    let debugLog = vscode.commands.registerCommand('unitest.enableDebugLog', () => {
+        let config = vscode.workspace.getConfiguration();
         let result = config.get('hbuilderx-for-uniapp-test.isDebug');
         config.update('hbuilderx-for-uniapp-test.isDebug', !result).then( () => {
             let text = result ? '取消' : '启用';
-            hx.window.setStatusBarMessage(`已 ${text} 自动修改调试日志输出。`, 'info', 10000);
+            vscode.window.setStatusBarMessage(`已 ${text} 自动修改调试日志输出。`, 10000);
         });
     });
     context.subscriptions.push(debugLog);
 
     // 是否输出运行时日志
-    let runtimeLog = hx.commands.registerCommand('unitest.enableRuntimeLog', () => {
-        let config = hx.workspace.getConfiguration();
+    let runtimeLog = vscode.commands.registerCommand('unitest.enableRuntimeLog', () => {
+        let config = vscode.workspace.getConfiguration();
         let result = config.get('hbuilderx-for-uniapp-test.isRuntimeLog');
         config.update('hbuilderx-for-uniapp-test.isRuntimeLog', !result).then( () => {
             let text = result ? '取消' : '启用';
-            hx.window.setStatusBarMessage(`已 ${text} 运行时日志输出。`, 'info', 10000);
+            vscode.window.setStatusBarMessage(`已 ${text} 运行时日志输出。`, 10000);
         });
     });
     context.subscriptions.push(runtimeLog);
 
     // 记录单条用例到文件
-    let recordTestCaseList = hx.commands.registerCommand('unitest.recordTestCaseList', () => {
-        let config = hx.workspace.getConfiguration();
+    let recordTestCaseList = vscode.commands.registerCommand('unitest.recordTestCaseList', () => {
+        let config = vscode.workspace.getConfiguration();
         let result = config.get('hbuilderx-for-uniapp-test.recordTestCaseList');
         config.update('hbuilderx-for-uniapp-test.recordTestCaseList', !result).then( () => {
             let text = result ? '取消' : '启用';
-            hx.window.setStatusBarMessage(`已 ${text} 运行单条test.js时记录到文件。`, 'info', 10000);
+            vscode.window.setStatusBarMessage(`已 ${text} 运行单条test.js时记录到文件。`, 10000);
         });
     });
     context.subscriptions.push(recordTestCaseList);
 
     // 添加文件路径到jest.config.js
-    let addFilePath = hx.commands.registerCommand('unitest.addFilePathToJestConfig', (param) => {
+    let addFilePath = vscode.commands.registerCommand('unitest.addFilePathToJestConfig', (param) => {
         addFilePathToJestConfig(normalizeCommandParam(param));
     });
     context.subscriptions.push(addFilePath);
 
     // 更多设置
-    let moreSet = hx.commands.registerCommand('unitest.moreSettings', () => {
-        hx.workspace.gotoConfiguration('hbuilderx-for-uniapp-test.uniappCompileNodeType')
+    let moreSet = vscode.commands.registerCommand('unitest.moreSettings', () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', '@id:hbuilderx-for-uniapp-test.uniappCompileNodeType')
     });
     context.subscriptions.push(moreSet);
 
@@ -196,8 +198,8 @@ function activate(context) {
         if (version || version == "") {
             let pkg = await readPluginsPackageJson();
             const plugin_version = pkg.version;
-            const hx_version = hx.env.appVersion;
-            const msg = `plugin version：${plugin_version}\nHBuilderX version: ${hx_version}`;
+            const hx_version = config.hx_env_app_version;
+            const msg = `plugin version：${plugin_version}\nHBuilderV version: ${hx_version}`;
             await hx.cliconsole.log({ hideTime: true, clientId: client_id, msg: msg, status: 'Info' });
         };
     });

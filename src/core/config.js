@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-const hx = require('hbuilderx');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +6,7 @@ const i18n = require("./i18n/zh_CN.json")
 
 const osName = os.platform();
 
-const appData_dir = hx.env.appData;
+const hx_env_app_version = vscode.hbuilderxVersion;
 
 let PC_APPDATA_DIR = process.env.APPDATA;
 if (osName == "darwin") {
@@ -162,7 +161,7 @@ let UTS_GRADLE_HOME = '';
 let UTS_APP_ROOT = hbuilderv_uniapp_sdk_dir;
 
 // uts插件编译所需, 可随意指定目录
-let UTS_USER_DATA_PATH = path.join(appData_dir, 'hbuilderv-for-uniapp-test_cache');
+let UTS_USER_DATA_PATH = path.join(HV_UNI_TEST_ENV_DIR, 'hbuilderv-for-uniapp-test_cache');
 
 const HX_PLUGINS_DISPLAYNAME_LIST = {
     "uniapp-cli-vite": "uni-app (vue3)编译器",
@@ -203,6 +202,8 @@ let CFG_project_app_runtime_mapping_data = {
 
 module.exports = {
     i18n,
+    hx_env_app_version,
+    
     cfg_hv_plugin_launcher_dir,
     cfg_hv_plugin_launcher_tools_dir,
     
@@ -236,6 +237,7 @@ module.exports = {
     UNI_CLI_ENV,
     UNI_CLI_teardown,
 
+    HV_UNI_TEST_ENV_DIR,
     UNI_TEST_NODE_LIB_ROOT_DIR,
     NODE_LIB_PATH,
     CROSS_ENV_PATH,

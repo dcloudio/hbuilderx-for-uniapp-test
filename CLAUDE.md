@@ -58,12 +58,10 @@
 #### 1. 保持兼容性
 
 ```javascript
-// ✅ 正确：保持 HBuilderX API 调用方式
-let config = hx.workspace.getConfiguration();
+// ✅ 正确：直接使用 VS Code API
+const vscode = require('vscode');
+let config = vscode.workspace.getConfiguration();
 let result = config.get('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-
-// ❌ 错误：不要使用标准 Node.js 或其他 IDE API
-const vscode = require('vscode'); // 不适用于 HBuilderX
 ```
 
 #### 2. 命令注册模式
