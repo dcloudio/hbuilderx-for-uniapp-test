@@ -368,6 +368,7 @@ class RunTest extends Common {
         this.projectPath = '';
         this.UNI_AUTOMATOR_CONFIG = '';
         this.raw_argv_uni_platform = "";
+        this.lastSelectedTestDevices = undefined;
     };
 
     /**
@@ -863,8 +864,9 @@ class RunTest extends Common {
      * @param {Object} param 项目管理器或编辑器选中的信息
      * @param {String} UNI_PLATFORM 测试平台: android | ios | all | mp-weixin | web-browser
      * @param {String} scope 测试用例的运行范围：all（运行全部测试用例） | one（运行单个测试用例）
+     * @param {Boolean} reuseSelectedDevices 是否复用上次选择的设备
      */
-    async main(param, UNI_PLATFORM, scope = "all") {
+    async main(param, UNI_PLATFORM, scope = "all", reuseSelectedDevices = false) {
         // console.log("[main] ->", param, UNI_PLATFORM, scope);
         setTestOutputView('log', false);
 
@@ -927,10 +929,15 @@ class RunTest extends Common {
 
         let testPhoneList = [];
         if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
-            const sResult = await this.select_app_run_devices(argv_uniPlatform);
+            const lastSelection = this.lastSelectedTestDevices;
+            const canReuseDevices = reuseSelectedDevices === true && lastSelection?.platform === argv_uniPlatform && lastSelection?.projectPath === projectPath && Array.isArray(lastSelection?.devices);
+            const sResult = canReuseDevices ? [...lastSelection.devices] : await this.select_app_run_devices(argv_uniPlatform);
             // console.error("=====>", sResult);
             if (sResult == undefined || sResult == "noSelected") return;
             testPhoneList = sResult;
+            if (!canReuseDevices && Array.isArray(sResult)) {
+                this.lastSelectedTestDevices = { platform: argv_uniPlatform, projectPath, devices: [...sResult] };
+            };
         };
 
         // env.js缺失时使用插件默认模板创建，已有文件不会被覆盖

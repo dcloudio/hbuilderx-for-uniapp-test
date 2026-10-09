@@ -100,17 +100,17 @@ function activate(context) {
     const registerRunCommand = (commandId, platform, scope) => {
         const disposable = hx.commands.registerCommand(commandId, (param) => {
             param = normalizeCommandParam(param);
-            const executeRun = () => Promise.resolve().then(() => {
+            const executeRun = (reuseSelectedDevices = false) => Promise.resolve().then(() => {
                 if (scope) {
-                    return run.main(param, platform, scope);
+                    return run.main(param, platform, scope, reuseSelectedDevices);
                 }
-                return run.main(param, platform);
+                return run.main(param, platform, "all", reuseSelectedDevices);
             }).finally(() => {
                 setTestOutputView();
                 finishHBuilderVConsole();
                 return hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
             });
-            setHBuilderVConsoleRestartHandler(executeRun);
+            setHBuilderVConsoleRestartHandler(() => executeRun(true));
             return executeRun();
         });
         context.subscriptions.push(disposable);
