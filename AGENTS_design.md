@@ -149,7 +149,7 @@ return Promise.resolve()
 
 ### 5.3 会话控制
 
-停止、重新启动与清屏均使用 Run Console 的原生工具栏。停止按钮发送 DAP `terminate`/`disconnect` 请求，适配器复用 `src/core/core.js` 的 `stopRunTest()`；GUI 命令完成后必须调用 `finishHBuilderVConsole()`，否则控制台会一直保持运行状态。`registerRunCommand()` 通过 `setHBuilderVConsoleRestartHandler()` 保存最近一次 GUI 测试命令，宿主重建 Run Adapter 后再次执行。不要再贡献同名 Webview 按钮或自行绘制筛选输入框。
+停止、重新启动与清屏均使用 Run Console 的原生工具栏。停止按钮发送 DAP `terminate`/`disconnect` 请求，适配器复用 `src/core/core.js` 的 `stopRunTest()`；GUI 命令完成后必须调用 `finishHBuilderVConsole()`，否则控制台会一直保持运行状态。`registerRunCommand()` 通过 `setHBuilderVConsoleRestartHandler()` 保存最近一次 GUI 测试命令，宿主重建 Run Adapter 后再次执行。重启调用 `RunTest.main()` 时必须复用同一项目和平台最近一次确认的设备，不能再次打开设备选择窗口；普通菜单启动仍须显示设备窗口。不要再贡献同名 Webview 按钮或自行绘制筛选输入框。
 
 ## 6. 新建自动化测试用例窗口
 

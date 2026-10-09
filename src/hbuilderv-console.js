@@ -64,9 +64,10 @@ class UniAppTestRunAdapter {
         const output = data.filePath
             ? `${data.line.substring(0, data.linkStart)}\x1B]8;;${vscode.Uri.file(data.filePath).toString()}\x07${data.line.substring(data.linkStart, data.linkEnd)}\x1B]8;;\x07${data.line.substring(data.linkEnd)}`
             : data.line;
+        const styledOutput = data.level === 'success' ? `\x1B[32m${output}\x1B[0m` : output;
         const body = {
-            category: data.level === 'error' ? 'stderr' : 'stdout',
-            output: output.endsWith('\n') ? output : `${output}\n`
+            category: data.level === 'error' ? 'stderr' : data.level === 'warning' ? 'console' : 'stdout',
+            output: output.endsWith('\n') ? styledOutput : `${styledOutput}\n`
         };
         if (data.filePath) {
             body.source = { name: path.basename(data.filePath), path: data.filePath };
