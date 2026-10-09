@@ -190,10 +190,6 @@
         "title": "重装测试环境依赖"
       },
       {
-        "command": "unitest.about",
-        "title": "关于"
-      },
-      {
         "command": "unitest.createAgentsMd",
         "title": "创建用于uni测试的AGENTS.md(&G)"
       },
@@ -917,11 +913,6 @@
           "command": "unitest.reloadEnv",
           "title": "重装测试环境依赖",
           "group": "unitest@3"
-        },
-        {
-          "command": "unitest.about",
-          "title": "关于",
-          "group": "unitest@5"
         }
       ]
     }

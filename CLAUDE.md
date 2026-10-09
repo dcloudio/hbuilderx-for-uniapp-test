@@ -22,8 +22,6 @@
 ├── README.md
 ├── extension.js    // 插件注册入口
 ├── package.json    // 插件配置文件
-├── public
-│   └── about.js 
 ├── snippets
 └── src
     ├── HBuilder_Cli.js   // 用于在cmd终端便于HBuilderX CLI 命令调用

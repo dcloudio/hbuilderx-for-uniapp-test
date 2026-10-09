@@ -7,7 +7,6 @@ Module._load = function(request, parent, isMain) {
     return originalModuleLoad.call(this, request, parent, isMain);
 };
 
-const { about, checkUpgrade } = require('./public/about.js');
 const { stopRunTest, setTestOutputView } = require('./src/core/core.js');
 const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file.js');
 
@@ -50,9 +49,6 @@ function normalizeCommandParam(param) {
 
 
 function activate(context) {
-    // 检查升级
-    // checkUpgrade();
-
     context.subscriptions.push(registerHBuilderVConsole(context));
     hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', false);
 
@@ -139,12 +135,6 @@ function activate(context) {
         ['unitest.runCurrentTestAndroid', 'android'],
         ['unitest.runCurrentTestHarmony', 'harmony'],
     ].forEach(([id, platform]) => registerRunCommand(id, platform, 'one'));
-    // about
-    let aboutPlugins = hx.commands.registerCommand('unitest.about', () => {
-        about();
-    });
-    context.subscriptions.push(aboutPlugins);
-
     // stop run
     let stopRun = hx.commands.registerCommand('unitest.stopRunTest', () => {
         stopRunTest();
