@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const hx = require('hbuilderx');
+const vscode = require('vscode');
 
 const { createOutputChannel } = require('./core/core.js');
 
@@ -20,18 +20,13 @@ function getTemplatePath() {
  * @param {Object} param - HBuilderX 传入的参数对象
  */
 async function createAgentsMd(param) {
-    if (!param && (!param?.document && !param?.workspaceFolder)) {
+    if (!param || (!param.document && !param.workspaceFolder)) {
         createOutputChannel('请将焦点置于 uni-app (x) 上后再执行此操作。', 'error');
         return;
     }
 
-    let projectPath = '';
-    if (param.workspaceFolder) {
-        projectPath = param.workspaceFolder.uri.fsPath;
-    };
-    if (param.document) {
-        projectPath = param.document.workspaceFolder.uri.fsPath;
-    };
+    const workspaceFolder = param.workspaceFolder || param.document?.workspaceFolder;
+    let projectPath = workspaceFolder?.uri?.fsPath || '';
     if (projectPath == '') {
         createOutputChannel('无法获取项目路径，请在 uni-app 项目上右键执行此操作。', 'error');
         return;
@@ -47,12 +42,7 @@ async function createAgentsMd(param) {
 
     // 检查目标文件是否已存在
     if (fs.existsSync(outputPath)) {
-        const result = await hx.window.showMessageBox({
-            type: 'question',
-            title: '文件已存在',
-            text: `${OUTPUT_FILE} 文件已存在，是否覆盖？`,
-            buttons: ['覆盖', '取消']
-        });
+        const result = await vscode.window.showWarningMessage(`${OUTPUT_FILE} 文件已存在，是否覆盖？`, '覆盖', '取消');
         if (result !== '覆盖') {
             return;
         }
@@ -63,10 +53,11 @@ async function createAgentsMd(param) {
         fs.writeFileSync(outputPath, templateContent, 'utf-8');
 
         createOutputChannel(`已创建文件: ${outputPath}`);
-        hx.window.setStatusBarMessage(`已创建 ${OUTPUT_FILE}`, 'info', 5000);
+        vscode.window.setStatusBarMessage(`已创建 ${OUTPUT_FILE}`, 5000);
 
         // 打开创建的文件
-        hx.workspace.openTextDocument(outputPath);
+        const document = await vscode.workspace.openTextDocument(outputPath);
+        await vscode.window.showTextDocument(document);
     } catch (error) {
         createOutputChannel(`创建文件失败: ${error.message}`, 'error');
     }

@@ -1,7 +1,9 @@
-const hx = require('hbuilderx');
+const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const os = require("os");
+
+const cfg = require("../core/config.js");
 
 const osName = os.platform();
 
@@ -14,18 +16,19 @@ const browserMap = {
 function checkWebLib(browser, nodeLibPath) {
 
     // 针对linux ai包的特殊处理
-    const ms_playwright_dir = path.join(hx.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
-    if (osName == "linux" && browser == "chrome" && fs.existsSync(ms_playwright_dir)) {
-        let ms_playwright_chrome = "";
-        if (fs.existsSync(ms_playwright_dir)) {
-            const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
-            const chrome_linux_dir = chromium_dir ? fs.readdirSync(path.join(ms_playwright_dir, chromium_dir)).find((item) => item.startsWith("chrome-linux")) : "";
-            ms_playwright_chrome = chrome_linux_dir ? path.join(ms_playwright_dir, chromium_dir, chrome_linux_dir, "chrome") : "";
-        };
-        if (ms_playwright_chrome && fs.existsSync(ms_playwright_chrome)) {
-            return { "exists": true,  "browser": browser}
-        };
-    };
+    // const ms_playwright_dir = path.join(vscode.env.appRoot, "plugins", "hbuilderv-for-uniapp-test-lib", "ms-playwright");
+    // const ms_playwright_dir = path.join(cfg.UNI_TEST_NODE_LIB_ROOT_DIR, "ms-playwright");
+    // if (osName == "linux" && browser == "chrome" && fs.existsSync(ms_playwright_dir)) {
+    //     let ms_playwright_chrome = "";
+    //     if (fs.existsSync(ms_playwright_dir)) {
+    //         const chromium_dir = fs.readdirSync(ms_playwright_dir).find((item) => item.startsWith("chromium-"));
+    //         const chrome_linux_dir = chromium_dir ? fs.readdirSync(path.join(ms_playwright_dir, chromium_dir)).find((item) => item.startsWith("chrome-linux")) : "";
+    //         ms_playwright_chrome = chrome_linux_dir ? path.join(ms_playwright_dir, chromium_dir, chrome_linux_dir, "chrome") : "";
+    //     };
+    //     if (ms_playwright_chrome && fs.existsSync(ms_playwright_chrome)) {
+    //         return { "exists": true,  "browser": browser}
+    //     };
+    // };
 
     const browserName = String(browser || '').toLowerCase();
     const browserTypeName = browserMap[browserName];

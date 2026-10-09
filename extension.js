@@ -82,7 +82,7 @@ function activate(context) {
 
     // 创建 AGENTS.test.md 文件 (uni-app项目根目录，右键菜单)
     let createAgents = hx.commands.registerCommand('unitest.createAgentsMd', (param) => {
-        createAgentsMd(normalizeCommandParam(param));
+        return createAgentsMd(normalizeCommandParam(param));
     });
     context.subscriptions.push(createAgents);
 

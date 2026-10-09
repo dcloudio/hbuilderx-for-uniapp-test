@@ -13,6 +13,9 @@ let PC_APPDATA_DIR = process.env.APPDATA;
 if (osName == "darwin") {
     PC_APPDATA_DIR = path.join( os.homedir(), 'Library', 'Application Support' );
 };
+if (osName == "linux") {
+    PC_APPDATA_DIR = path.join( os.homedir(), '.local', 'share' );
+};
 let HV_UNI_TEST_ENV_DIR = path.join(PC_APPDATA_DIR, "dcloud-uniapp-test")
 
 /**
