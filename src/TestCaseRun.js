@@ -400,6 +400,19 @@ class RunTest extends Common {
         return fs.existsSync(this.UNI_AUTOMATOR_CONFIG);
     };
 
+    async ensureJestConfigFile() {
+        let jestConfigPath = path.join(this.projectPath, 'jest.config.js');
+        if (fs.existsSync(jestConfigPath)) return true;
+        let init = new Initialize();
+        try {
+            await init.CreateTestEnvConfigFile(this.projectPath, 'jest.config.js', true);
+        } catch (error) {
+            console.error('[自动化测试] 使用默认模板创建jest.config.js失败:', error);
+            return false;
+        };
+        return fs.existsSync(jestConfigPath);
+    };
+
     // 主要是为了拉平各个提示语
     testPlatDisplayName(testPlatform) {
         let tpl = testPlatform;
@@ -882,10 +895,6 @@ class RunTest extends Common {
         this.projectVueVersion = projectVueVersion;
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
 
-        // env.js缺失时使用插件默认模板创建，已有文件不会被覆盖
-        let envConfigReady = await this.ensureEnvConfigFile();
-        if (!envConfigReady) return;
-
         // 设置自定义的测试环境变量， 如果无，则使用默认值
         await this.setTestCustomEnvironmentVariables();
 
@@ -923,6 +932,14 @@ class RunTest extends Common {
             if (sResult == undefined || sResult == "noSelected") return;
             testPhoneList = sResult;
         };
+
+        // env.js缺失时使用插件默认模板创建，已有文件不会被覆盖
+        let envConfigReady = await this.ensureEnvConfigFile();
+        if (!envConfigReady) return;
+
+        // 设备选择成功后再创建缺失的jest.config.js，取消选择时不修改项目文件
+        let jestConfigReady = await this.ensureJestConfigFile();
+        if (!jestConfigReady) return;
 
         setTestOutputView('log');
         await hx.commands.executeCommand('setContext', 'hbuildervUniappTestRunning', true);
