@@ -576,19 +576,6 @@ async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}
 
 
 /**
- * @description Run 打开终端并运行某个命令
- */
-async function openAndRunTerminal(runDir, cmd) {
-    let cmdParams = {
-        rootPath: runDir,
-        cmd: cmd,
-    };
-    hx.window.openAndRunTerminal(cmdParams).then(data => {
-        console.log(data);
-    });
-};
-
-/**
  * @description 停止运行测试
  */
 function stopRunTest() {
@@ -768,7 +755,6 @@ module.exports = {
     createOutputChannel,
     setTestOutputView,
     createOutputViewForHyperLinks,
-    openAndRunTerminal,
     runCmd,
     runCmdForHBuilderXCli,
     hxShowMessageBox,

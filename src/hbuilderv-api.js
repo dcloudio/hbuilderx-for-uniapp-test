@@ -200,12 +200,6 @@ const hx = {
         showFileWizardDialog,
         setStatusBarMessage,
         createOutputView,
-        openAndRunTerminal: ({ rootPath, cmd }) => {
-            const terminal = vscode.window.createTerminal({ cwd: rootPath });
-            terminal.show();
-            terminal.sendText(cmd);
-            return Promise.resolve();
-        },
         openWebviewDialog: vscode.window.openWebviewDialog,
         registerUriHandler: (handler) => vscode.window.registerUriHandler(handler),
     },
