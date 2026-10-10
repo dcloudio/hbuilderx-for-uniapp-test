@@ -75,11 +75,11 @@
     "commands": [
       {
         "command": "unitest.initialization",
-        "title": "初始uni-app自动化测试环境(&I)"
+        "title": "初始 uni-app自动化测试环境(&I)"
       },
       {
         "command": "unitest.createTestCase",
-        "title": "新建uni-app (x) 测试用例文件(&N)"
+        "title": "新建 uni-app (x) 测试用例文件(&N)"
       },
       {
         "command": "unitest.stopRunTest",
@@ -706,39 +706,39 @@
       "explorer/context": [
         {
           "command": "unitest.initialization",
-          "group": "openInExplorer",
+          "group": "navigation",
           "when": "explorerResourceCount == 1 && expression.isUniApp && !expression.isCheckTestEnv  && explorerResourceIsWorkspaceFolder"
         },
         {
           "command": "unitest.createTestCase",
-          "group": "new",
+          "group": "navigation",
           "when": "resourceFilename =~ /^pages$/i || resourcePath =~ /[\\\\/]pages[\\\\/][^\\\\/]+$/i || resourceFilename =~ /\\.(vue|nvue)$/i"
         },
         {
           "submenu": "unitest",
-          "group": "openInExplorer",
-          "when": "!resourceScheme || resourceFilename =~ /^pages$/i || resourcePath =~ /[\\\\/]pages$/i"
+          "group": "navigation",
+          "when": "!resourceScheme || resourceFilename =~ /^pages$/i || resourcePath =~ /[\\\\/]pages$/i || resourceFilename =~ /^(env\\.js|jest\\.config\\.js)$/i"
         },
         {
           "command": "unitest.addFilePathToJestConfig",
-          "group": "openInExplorer",
+          "group": "navigation",
           "when": "explorerResourceCount == 1 && expression.isShowRunCurrentTestCaseMenu"
         },
         {
           "submenu": "unitestForCurrent",
-          "group": "openInExplorer",
+          "group": "navigation",
           "when": "resourceFilename =~ /\\.test\\.js$/i || workspaceFolderRelativePath =~ /\\.test\\.js$/i || resourcePath =~ /\\.test\\.js$/i"
         }
       ],
       "editor/context": [
         {
           "command": "unitest.addFilePathToJestConfig",
-          "group": "copy",
+          "group": "navigation",
           "when": "expression.isShowRunCurrentTestCaseMenu"
         },
         {
           "submenu": "unitestForCurrent",
-          "group": "copy",
+          "group": "navigation",
           "when": "resourceFilename =~ /\\.test\\.js$/i || workspaceFolderRelativePath =~ /\\.test\\.js$/i || resourcePath =~ /\\.test\\.js$/i"
         }
       ],
