@@ -105,7 +105,7 @@ async function showTestCaseDialog(options) {
         dialog = await vscode.window.openWebviewDialog({
             viewType: 'uniapp.createTestCase',
             title: '新建自动化测试用例',
-            size: { width: 560, height: 460 },
+            size: { width: 560, height: 410 },
             closeOnClickOutside: false,
             allowMoveToMainWindow: false,
             webviewOptions: { enableScripts: true },
@@ -232,8 +232,14 @@ function testCaseDialogCss() {
         .name-input:focus { outline: 0; border-bottom-color: #1683c5; }
         .templates { overflow: hidden; border: 1px solid var(--vscode-input-border, #ccc); border-radius: 4px; }
         .template-option { display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; }
-        .template-option + .template-option { border-top: 1px solid var(--vscode-panel-border, #ddd); }
         .template-option:has(input:checked) { background: rgba(22, 131, 197, 0.1); }
+        input[type="radio"] { -webkit-appearance: none; appearance: none; display: inline-grid; place-content: center; flex: 0 0 14px; width: 14px; height: 14px; margin: 0; border: 1px solid var(--vscode-checkbox-border, #858585); border-radius: 50%; background: var(--vscode-checkbox-background, transparent); cursor: pointer; transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease; }
+        input[type="radio"]::after { width: 6px; height: 6px; border-radius: 50%; background: var(--vscode-button-foreground, #fff); content: ''; opacity: 0; transform: scale(0.5); transition: opacity 0.12s ease, transform 0.12s ease; }
+        input[type="radio"]:checked { border-color: var(--vscode-focusBorder, #1683c5); background: var(--vscode-focusBorder, #1683c5); }
+        input[type="radio"]:checked::after { opacity: 1; transform: scale(1); }
+        input[type="radio"]:hover { border-color: var(--vscode-focusBorder, #1683c5); }
+        input[type="radio"]:focus-visible { outline: 1px solid var(--vscode-focusBorder, #1683c5); outline-offset: 2px; }
+        input[type="radio"]:disabled { cursor: default; opacity: 0.5; }
         .directory { overflow: hidden; padding: 8px 2px; border-bottom: 1px solid var(--vscode-panel-border, #ddd); color: var(--vscode-descriptionForeground, #777); text-overflow: ellipsis; white-space: nowrap; }
         .message { min-height: 18px; margin-top: 6px; color: #b54747; }
         footer { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 10px 24px; border-top: 1px solid var(--vscode-panel-border, #ddd); background: var(--vscode-editor-background, #fff); }
