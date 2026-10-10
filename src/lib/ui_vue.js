@@ -244,7 +244,7 @@ function createDialogHtml(webview, state) {
                     + (name === 'ios' && state.filter_ios_name ? '未找到匹配的模拟器' : '未检测到设备')
                     + '</div>';
             const deviceList = (name, list) => state.loading
-                ? '<div class="device-loading-state">正在获取设备列表…</div>'
+                ? '<div class="device-loading-state"><span class="loading-spinner" aria-hidden="true"></span><span>正在获取设备列表…</span></div>'
                 : devices(name, list);
 
             document.querySelector('#app').innerHTML = \`
@@ -278,7 +278,7 @@ function createDialogHtml(webview, state) {
                 \` : ''}
                 \${state.access === 'all' || state.access === 'android' ? \`
                     <section>
-                        <div class="section-head">
+                        <div class="section-head section-head-compact">
                             <strong>Android 测试设备</strong>
                             <button class="icon-button" data-refresh="android" aria-label="刷新设备" title="刷新设备"><svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M8 16H3v5"></path></svg></button>
                         </div>
@@ -287,7 +287,7 @@ function createDialogHtml(webview, state) {
                 \` : ''}
                 \${state.access === 'all' || state.access === 'harmony' ? \`
                     <section>
-                        <div class="section-head">
+                        <div class="section-head section-head-compact">
                             <strong>Harmony 测试设备</strong>
                             <button class="icon-button" data-refresh="harmony" aria-label="刷新设备" title="刷新设备"><svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M8 16H3v5"></path></svg></button>
                         </div>
@@ -390,7 +390,7 @@ function dialogCss() {
             background: var(--vscode-editor-background, #fff);
         }
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 22px 28px 72px; }
+        body { margin: 0; padding: 18px 24px 68px; }
         header {
             display: flex;
             justify-content: space-between;
@@ -405,9 +405,10 @@ function dialogCss() {
         .pill { background: #e6f2fa; color: #1678ae; padding: 3px 9px; border-radius: 10px; font-size: 11px; }
         .status { color: #9a6b00; min-height: 18px; }
         .row, .settings { display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 10px 0; border-bottom: 1px solid var(--vscode-panel-border, #ddd); }
-        section { padding: 12px 0; border-bottom: 1px solid var(--vscode-panel-border, #ddd); }
+        section { padding: 9px 0; border-bottom: 1px solid var(--vscode-panel-border, #ddd); }
         .device-sections > section:last-child { border-bottom: 0; }
-        .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .section-head { display: flex; justify-content: space-between; align-items: center; min-height: 28px; margin-bottom: 6px; }
+        .section-head-compact { justify-content: flex-start; gap: 6px; }
         .section-title-group { display: flex; flex: 1; align-items: center; min-width: 0; gap: 8px; }
         .section-title-group strong { flex: 0 0 auto; }
         .icon-button { display: inline-grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: #1683c5; cursor: pointer; }
@@ -442,8 +443,10 @@ function dialogCss() {
         .device-detail { flex: 1; min-width: 0; overflow: hidden; color: var(--vscode-descriptionForeground, #777); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
         .check { display: flex; gap: 8px; align-items: center; font-size: 12px; line-height: 1.5; cursor: pointer; }
         .empty-state { display: grid; place-items: center; min-height: 58px; padding: 8px; color: var(--vscode-descriptionForeground, #777); text-align: center; }
-        .device-loading-state { display: grid; place-items: center; min-height: 58px; color: var(--vscode-descriptionForeground, #777); font-size: 12px; }
-        .settings { display: grid; gap: 6px; padding: 8px 0; border-bottom: 0; }
+        .device-loading-state { display: inline-flex; align-items: center; justify-self: center; gap: 8px; min-height: 192px; color: var(--vscode-descriptionForeground, #777); font-size: 12px; }
+        .loading-spinner { width: 14px; height: 14px; border: 2px solid var(--vscode-input-border, #666); border-top-color: #1683c5; border-radius: 50%; animation: device-loading-spin 0.8s linear infinite; }
+        @keyframes device-loading-spin { to { transform: rotate(360deg); } }
+        .settings { display: grid; gap: 4px; padding: 6px 0; border-bottom: 0; }
         .settings-row { display: flex; flex-wrap: wrap; gap: 8px 18px; }
         .settings label:last-child { display: flex; align-items: center; gap: 10px; }
         .vapor-options { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
