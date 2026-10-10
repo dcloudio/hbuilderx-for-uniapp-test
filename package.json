@@ -3,7 +3,7 @@
   "description": "HBuilderV uni-app自动化测试，支持初始化测试环境，运行测试到 Android、iOS、Web、微信/支付宝小程序、Harmony应用",
   "displayName": "HBuilderV uni-app自动化测试",
   "version": "5.4.0",
-  "publisher": "hbuilderv",
+  "publisher": "dcloud",
   "repository": "https://github.com/dcloudio/hbuilderx-for-uniapp-test/tree/hv",
   "engines": {
     "vscode": "^1.85.0"
@@ -12,6 +12,9 @@
     "Other"
   ],
   "main": "./extension",
+  "scripts": {
+    "build": "npx vsce package --out dcloud.hbuilderv-for-uniapp-test.vsix"
+  },
   "activationEvents": [
     "*"
   ],
