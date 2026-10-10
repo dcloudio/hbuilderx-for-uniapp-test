@@ -3,7 +3,6 @@
  * @date 2021-06-05
  */
 
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
@@ -17,6 +16,7 @@ const {
 const {
     mkdirsSync
 } = require('./utils/utils_files.js');
+const logToCliConsole = require('./utils/cli_console.js');
 
 let {
     UNI_TEST_NODE_LIB_ROOT_DIR,
@@ -127,12 +127,12 @@ class Initialize extends Common {
      * @param {type} isReload 用于菜单【运行】【检查测试环境】
      * @return {Boolean}
      */
-    async checkPluginDependencies(plat='all', isReload=false, terminal_id = "") {
-        // console.log(`[checkPluginDependencies] =`, plat, isReload, terminal_id);
+    async checkPluginDependencies(plat='all', isReload=false, cliConsole) {
+        // console.log(`[checkPluginDependencies] =`, plat, isReload, cliConsole);
         let logger = createOutputChannel;
-        if (terminal_id) {
-            logger = async function (message) {
-                await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+        if (cliConsole) {
+            logger = async function (message, status = 'Info') {
+                await logToCliConsole(cliConsole, message, status);
             };
         };
 
@@ -191,7 +191,7 @@ class Initialize extends Common {
             'target_file': lib_package_path,
         };
         console.error(`[uniapp.test] checkPluginDependencies, lib_version = ${lib_version}, template_version = ${template_version}`);
-        if (lib_version != template_version && terminal_id == "") {
+        if (lib_version != template_version && !cliConsole) {
             if (current_ignore_upgrade) return true;
             actions['action'] = 'upgrade';
             const _i_result = await this.installTestLibs(test_lib_dir, actions);
@@ -204,7 +204,7 @@ class Initialize extends Common {
             fs.copyFileSync(templage_package_path, lib_package_path);
             return false;
         };
-        if (lib_version != template_version && terminal_id != "") {
+        if (lib_version != template_version && cliConsole) {
             await logger(`[uniapp.test] 建议：uni-app自动化测试插件，检测到依赖库有更新，请在菜单【运行 - uni-app自动化测试辅助插件 - 重装测试环境依赖】中，重新安装依赖。`, 'warning');
         };
 
@@ -258,11 +258,11 @@ class Initialize extends Common {
      * @param {String} projectPath 项目路径
      * @return {Boolean}
      */
-    async checkUniappCliProject(projectPath, terminal_id = "") {
+    async checkUniappCliProject(projectPath, cliConsole) {
         let logger = createOutputChannel;
-        if (terminal_id) {
-            logger = async function (message) {
-                await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+        if (cliConsole) {
+            logger = async function (message, status = 'Info') {
+                await logToCliConsole(cliConsole, message, status);
             };
         };
 
@@ -298,9 +298,6 @@ class Initialize extends Common {
         if (msg) {
             await logger(`uniapp-cli项目，${projectPath} 自动化测试运行缺少必要的依赖 ${msg}，需要安装相关依赖。`, 'warning');
             await logger(`打开终端，进入 ${projectPath} 目录，运行命令： npm install --save ${msg}`, 'info');
-            // if (terminal_id == "") {
-            //     this.installTestLibs(projectPath, {}, `npm install --save ${msg}`);
-            // };
             return false;
         };
         return true;

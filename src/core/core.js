@@ -1,10 +1,11 @@
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { spawn, exec } = require('child_process');
 const { applyEdits: applyJsoncEdits, format: formatJsonc, parse: parseJsonc } = require('jsonc-parser');
+const { createHBuilderVConsoleView } = require('../hbuilderv-console.js');
+const logToCliConsole = require('../utils/cli_console.js');
 
 const {
     getHdcPath,
@@ -95,6 +96,30 @@ function hasAnsiColor(line) {
     return /\x1B\[[0-?]*[ -/]*m/.test(line);
 };
 
+function formatAnsiOutput(value) {
+    if (typeof value == 'string') return value;
+    let line = String(value?.line || value || '');
+    if (hasAnsiColor(line)) return line;
+    const colors = {
+        warning: '\x1B[33m',
+        success: '\x1B[32m',
+        error: '\x1B[31m'
+    };
+    const color = colors[value?.level];
+    return color ? `${color}${line}\x1B[0m` : line;
+};
+
+function createAnsiOutputView(title) {
+    const output = vscode.window.createAnsiOutputChannel(title);
+    return {
+        show: () => output.show(true),
+        hide: () => output.hide(),
+        dispose: () => output.dispose(),
+        append: (value) => output.append(formatAnsiOutput(value)),
+        appendLine: (value) => output.appendLine(formatAnsiOutput(value))
+    };
+};
+
 /**
  * @description 创建输出控制台
  * @param {String} msg
@@ -110,10 +135,7 @@ function getOutputView(viewID) {
     let title = viewID != 'log' ? "uni-app自动化测试" : "uni-app自动化测试 - 运行日志";
     let output = uniMap.get(oID);
     if(!output) {
-        output = hx.window.createOutputView({
-            id: oID,
-            title: title
-        });
+        output = viewID == 'log' ? createHBuilderVConsoleView() : createAnsiOutputView(title);
         uniMap.set(oID,output);
         output.show();
     };
@@ -269,6 +291,7 @@ function printTestRunLog(MessagePrefix, msg) {
 
 async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
     let lastMsg = msg.trim();
+    let msgLevel = "info";
     let theFour = msg.substring(0,4);
     if (msg.includes("$RUNTIME_LOG$:") && msg.includes("$RUNTIME_LOG$")) {
         lastMsg = lastMsg.replace(/\$RUNTIME_LOG\$:?\s*/g, '').trim();
@@ -293,7 +316,7 @@ async function printTestRunLogForHBuilderXCli(MessagePrefix, msg, logger) {
     };
     let data = lastMsg.split(/[\r\n|\n]/);
     for (let s of data) {
-        await logger(`${MessagePrefix} ` + s);
+        await logger(`${MessagePrefix} ` + s, msgLevel);
     };
 };
 
@@ -424,11 +447,11 @@ function runCmd(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, isDe
  * @param {Obejct} opts
  * @param {Object} testInfo - {projectName: projectName, testPlatform: testPlatform}
  */
-async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, MsgPrefix, client_id) {
+async function runCmdForHBuilderXCli(jest_for_node = 'node', cmd = [], opts = {}, testInfo = {}, MsgPrefix, cliConsole) {
     let { projectName, testPlatform, deviceId } = testInfo;
 
-    let logger = async function (message) {
-        await hx.cliconsole.log({ clientId: client_id, msg: message, status: 'Info' });
+    let logger = async function (message, status = 'Info') {
+        await logToCliConsole(cliConsole, message, status);
     };
 
     // 解决控制台[]内内容长度太长的问题

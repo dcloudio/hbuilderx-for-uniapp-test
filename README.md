@@ -73,4 +73,4 @@ uni-app (x) 测试依赖, 之所以单独放一个目录，是因为最初设计
 
 本插件同时支持 HBuilderV Extension Host。HBuilderV 使用 VS Code 扩展清单格式，入口通过 `vscode` API 注册命令和 CLI；设备选择窗口使用 `vscode.window.openWebviewDialog`。安装后可从命令面板执行 `uni-app自动化测试` 命令，运行测试所需的 uni-app CLI、设备工具和测试依赖仍需按项目环境安装。
 
-HBuilderV 适配层位于 `src/hbuilderv-api.js`，用于兼容原有业务模块使用的 HBuilderX API。设备选择窗口的 Webview 主机逻辑位于 `src/lib/ui_vue.js`，支持 Android、iOS、Harmony、Web/小程序平台选择、设备刷新、日志配置和 Vapor 选项。
+插件业务模块直接使用 `vscode` API。设备选择窗口的 Webview 主机逻辑位于 `src/lib/ui_vue.js`，支持 Android、iOS、Harmony、Web/小程序平台选择、设备刷新、日志配置和 Vapor 选项。

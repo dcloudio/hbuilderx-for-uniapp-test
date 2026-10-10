@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const os = require('os');
 
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const api_getMobileList = require('./api_getMobileList.js');
 const { getPluginConfig, uniapp_x_is_vapor, isUniAppX } = require('../core/core.js');

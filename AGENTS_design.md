@@ -4,32 +4,21 @@
 
 ## 1. 适配边界
 
-本项目原本面向 HBuilderX，业务模块大量使用 `require('hbuilderx')`。HBuilderV 入口仍使用 VS Code Extension Host，但通过 `src/hbuilderv-api.js` 提供 HBuilderX API 兼容层。
+本项目运行于 HBuilderV 的 VS Code Extension Host，入口和业务模块直接使用 `vscode` API，不再加载 `hbuilderx` API 兼容层。
 
-`extension.js` 在加载业务模块前将 `hbuilderx` 映射到兼容层：
+## 2. HBuilderV API
 
-```js
-Module._load = function(request, parent, isMain) {
-    if (request === 'hbuilderx') return hx;
-    return originalModuleLoad.call(this, request, parent, isMain);
-};
-```
+当前适配原则如下：
 
-业务代码应继续调用 `hx`/`hbuilderx` 兼容 API。只有确实属于 HBuilderV 宿主能力的代码，才直接使用 `vscode`，例如 Run Adapter 注册、Output channel 和扩展路径查询。
-
-## 2. HBuilderV API 兼容层
-
-核心文件是 `src/hbuilderv-api.js`，当前适配原则如下：
-
-- `hx.commands.registerCommand`、`registerCliCommand` 映射到 VS Code 命令 API。
-- `hx.window.openWebviewDialog`、消息框、输入框、保存文件等能力映射到 HBuilderV 提供的窗口 API。
-- 配置读写直接使用 `vscode.workspace.getConfiguration()`，不再经过 HBuilderX 兼容层。
-- `hx.extensions.getExtension(id)` 用于获取 HBuilderV 扩展对象和 `extensionPath`，不要假设插件固定安装路径。
+- GUI 和 CLI 命令分别通过 `vscode.commands.registerCommand()`、`vscode.commands.registerCliCommand()` 注册。
+- Webview Dialog、消息框、输入框、保存文件等能力直接使用 `vscode.window` API。
+- 配置读写直接使用 `vscode.workspace.getConfiguration()`。
+- `vscode.extensions.getExtension(id)` 用于获取 HBuilderV 扩展对象和 `extensionPath`；调用扩展业务 API 时，必要时先执行 `activate()`，再读取 `extension.exports`。
 - HBuilderV SDK 内置插件路径由 `src/core/config.js` 通过扩展查询获得；若独立扩展不存在，再从 SDK `plugins` 目录回退查找。
 - `readJSONValue` 使用 `jsonc-parser` 读取 JSONC，允许配置文件存在注释和尾逗号；不能用裸 `JSON.parse` 替代。
 - CLI 运行通过 `params.cliconsole` 输出，GUI 面板日志和 CLI 日志必须分离。
 
-`createOutputView()` 对普通输出仍使用 `vscode.window.createAnsiOutputChannel()`。只有 ID 为 `hbuilderx.uniapp.test.log` 的测试日志视图，才切换到 `src/hbuilderv-console.js` 提供的原生 Run Console 日志桥接。
+`src/core/core.js` 对普通输出使用 `vscode.window.createAnsiOutputChannel()`；`viewID === 'log'` 的测试日志直接切换到 `src/hbuilderv-console.js` 提供的原生 Run Console 日志桥接。
 
 ## 3. 扩展清单与命令注册
 
@@ -37,7 +26,7 @@ Module._load = function(request, parent, isMain) {
 
 `package.json` 是严格 JSON：禁止注释、尾逗号和单引号。`menus` 中的 `submenu` 必须是已声明 submenu 的字符串 ID，不能传对象或标题文本，否则 HBuilderV 会报“属性 submenu 是必需项，并且必须为 string 类型”。
 
-命令在 `package.json` 声明，在 `extension.js` 通过 `hx.commands.registerCommand` 注册。命令实现不要只依赖编辑器上下文，因为项目管理器右键、空白区域和编辑器右键传入的参数形状不同；统一经过 `normalizeCommandParam()` 补全 `fsPath`、`workspaceFolder` 和 `document`。
+命令在 `package.json` 声明，在 `extension.js` 通过 `vscode.commands.registerCommand` 注册。命令实现不要只依赖编辑器上下文，因为项目管理器右键、空白区域和编辑器右键传入的参数形状不同；统一经过 `normalizeCommandParam()` 补全 `fsPath`、`workspaceFolder` 和 `document`。
 
 ### 3.2 Run Console 清单
 
@@ -55,7 +44,7 @@ Module._load = function(request, parent, isMain) {
 
 ## 4. 设备选择窗口
 
-设备选择窗口的唯一实现是 `src/lib/ui_vue.js` 中的 Webview Dialog，不再维护旧的 `.vue` 文件。窗口通过 `hx.window.openWebviewDialog()` 创建，使用 nonce 和 CSP 生成 HTML，宿主与 Webview 之间使用消息协议通信：
+设备选择窗口的唯一实现是 `src/lib/ui_vue.js` 中的 Webview Dialog，不再维护旧的 `.vue` 文件。窗口通过 `vscode.window.openWebviewDialog()` 创建，使用 nonce 和 CSP 生成 HTML，宿主与 Webview 之间使用消息协议通信：
 
 - `ready`：Webview 首次加载完成，请求初始状态和设备列表。
 - `state`：宿主向 Webview 推送状态。
@@ -126,8 +115,8 @@ api.cli.createCommand('devices', 'list')
 `src/core/core.js` 使用 `activeTestOutputViewID` 管理当前测试输出目标：
 
 - 未指定视图时，写入当前活动测试视图。
-- `viewID === 'log'` 时，使用 `hbuilderx.uniapp.test.log`，由 API 兼容层转入原生 Run Console。
-- CLI 路径继续使用 `hx.cliconsole.log()`，不要把 CLI 日志写到 GUI Run Console。
+- `viewID === 'log'` 时，由 `src/core/core.js` 直接转入原生 Run Console。
+- CLI 路径使用 `vscode.commands.registerCliCommand()` 回调提供的 `params.cliconsole`，并将该对象显式传给下游模块；不要把 CLI 日志写到 GUI Run Console。
 
 GUI 测试命令进入 `RunTest.main()` 后立即调用 `setTestOutputView('log', false)` 设置日志路由，但不主动显示面板。此后的环境检查、依赖检查、配置修改和测试运行日志全部写入独立测试控制台；产生首条日志时才显示面板。移动端在 `select_app_run_devices()` 成功返回、用户点击“确定”之后调用 `setTestOutputView('log')` 主动打开控制台；用户取消或关闭设备窗口且没有日志时，不打开控制台。
 
@@ -186,7 +175,7 @@ GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `
 2. `extension.js` 是否注册 `registerHBuilderVConsole(context)`。
 3. `package.json` 是否声明 `sessionKind: "run"` 和 `type: "hbuilderv:uni-app-test"`。
 4. `RunTest.main()` 是否先调用 `setTestOutputView('log', false)` 设置路由，并在用户确认设备后调用 `setTestOutputView('log')`。
-5. `hbuilderv-api.js` 是否只对 `hbuilderx.uniapp.test.log` 使用 Run Console 桥接。
+5. `src/core/core.js` 是否在 `viewID === 'log'` 时使用 Run Console 桥接。
 
 ### 设备窗口取消后控制台仍弹出
 
@@ -199,7 +188,6 @@ GUI 与 CLI 启动测试时，都检查项目根目录的 `jest.config.js` 和 `
 ```bash
 node --check extension.js
 node --check src/TestCaseRun.js
-node --check src/hbuilderv-api.js
 node --check src/hbuilderv-console.js
 node src/test/test.js
 node -e "JSON.parse(require('fs').readFileSync('package.json'))"

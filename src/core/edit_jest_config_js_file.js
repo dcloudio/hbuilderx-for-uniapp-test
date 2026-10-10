@@ -10,6 +10,7 @@ const {
 const {
     fsWriteFile
 } = require('../utils/utils_files.js');
+const logToCliConsole = require('../utils/cli_console.js');
 
 
 /**
@@ -100,15 +101,15 @@ function extractPathsFromParam(param) {
  * @description 修改jest.config.js testMatch字段（替换模式，用于运行测试）
  * @param {String} scope - 测试范围，全部测试|单一用例测试
  * @param {Object} proj - 项目信息
- * @param {String} client_id - 客户端ID，有此参数表示命令行模式
+ * @param {vscode.commands.CliConsole} cliConsole - CLI日志控制台
  * @return {Boolean} - true|false
  */
-async function modifyJestConfigJSFile(scope="", proj={}, client_id) {
+async function modifyJestConfigJSFile(scope="", proj={}, cliConsole) {
     let { projectPath, selectedFile, is_uniapp_cli } = proj;
     let logger = createOutputChannel;
-    if (client_id) {
-        logger = async function (message) {
-            await hx.cliconsole.log({ clientId: client_id, msg: message, status: 'Info' });
+    if (cliConsole) {
+        logger = async function (message, status = 'Info') {
+            await logToCliConsole(cliConsole, message, status);
         };
     }
 

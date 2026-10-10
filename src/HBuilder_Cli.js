@@ -1,4 +1,3 @@
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const os = require('os');
 const fs = require('fs');
@@ -29,6 +28,7 @@ const {
 
 const { checkWebLib } = require('./utils/check_web_lib.js');
 const {checkNode} = require('./utils/utils_public.js');
+const logToCliConsole = require('./utils/cli_console.js');
 
 const {
     mkdirsSync,
@@ -78,9 +78,9 @@ let unicloud_spaces_info = [];
 UNI_BUNDLE_ID = null;
 
 class Common {
-    async print_cli_log(msg) {
+    async print_cli_log(msg, status = 'Info') {
         let MsgPrefix = "[uniapp.test] ";
-        await hx.cliconsole.log({ clientId: this.terminal_id, msg: MsgPrefix + msg, status: "Info" });
+        await logToCliConsole(this.cliConsole, MsgPrefix + msg, status);
     };
 
     /**
@@ -108,9 +108,9 @@ class Common {
         // 检查插件依赖
         let init = new Initialize();
         if (is_uniapp_cli) {
-            testEnv = await init.checkUniappCliProject(projectPath, this.terminal_id);
+            testEnv = await init.checkUniappCliProject(projectPath, this.cliConsole);
         } else {
-            testEnv = await init.checkPluginDependencies(platform, false, this.terminal_id);
+            testEnv = await init.checkPluginDependencies(platform, false, this.cliConsole);
         };
 
         // 检查测试报告目录是否存在，如不存在则创建
@@ -305,7 +305,7 @@ class RunTestForHBuilderXCli extends Common {
         this.raw_argv_vapor = false;
         this.raw_argv_vapor_render_target = "";
 
-        this.terminal_id = "";
+        this.cliConsole = undefined;
         this.projectName = '';
         this.projectPath = '';
         this.selectedFile = '';
@@ -395,7 +395,7 @@ class RunTestForHBuilderXCli extends Common {
                 testPlatform,
                 deviceId,
                 uniProjectAttributeData,
-                this.terminal_id,
+                this.cliConsole,
                 deviceType
             );
         } catch (error) {
@@ -421,7 +421,7 @@ class RunTestForHBuilderXCli extends Common {
         await this.print_cli_log(`开始在 ${this.raw_argv_uni_platform} 平台运行测试 ....`);
 
         // 检查网络状态
-        await checkNetworkStatus(testPlatform, deviceId, "[uniapp.test] ", this.terminal_id);
+        await checkNetworkStatus(testPlatform, deviceId, "[uniapp.test] ", this.cliConsole);
 
         // 环境变量：用于传递给编译器。用于最终测试报告展示
         let uniTestPlatformInfo = await get_uniTestPlatformInfo(testPlatform, deviceId);
@@ -656,7 +656,7 @@ class RunTestForHBuilderXCli extends Common {
         // };
 
         let testInfo = { "projectName": this.projectName, "testPlatform": testPlatform, "deviceId": deviceId };
-        let testResult = await runCmdForHBuilderXCli(jest_for_node, cmd, cmdOpts, testInfo, '[uniapp.test] ', this.terminal_id);
+        let testResult = await runCmdForHBuilderXCli(jest_for_node, cmd, cmdOpts, testInfo, '[uniapp.test] ', this.cliConsole);
 
         if (testResult == 'run_end') {
             // 不要改此处的文本
@@ -725,13 +725,13 @@ class RunTestForHBuilderXCli extends Common {
     /**
      * @description 测试用例运行主入口文件
      * @param {Object} param cli传递的参数信息
-     * @param {String} terminalID 终端ID，用于区分不同的终端输出日志
+     * @param {vscode.commands.CliConsole} cliConsole CLI日志控制台
      * @param {String} uni_platformName 测试平台名称，来自cli传递的参数
      * @param {String} deviceType 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机
      */
-    async main(params, terminalID, uni_platformName, deviceType = "") {
-        this.terminal_id = terminalID;
-        await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
+    async main(params, cliConsole, uni_platformName, deviceType = "") {
+        this.cliConsole = cliConsole;
+        await logToCliConsole(this.cliConsole, "[uniapp.test] ....... 开始运行测试 ......", 'Info');
 
         let argv_uni_platform = uni_platformName;
         this.raw_argv_uni_platform = uni_platformName;
@@ -755,7 +755,7 @@ class RunTestForHBuilderXCli extends Common {
 
         this.projectName = path.basename(this.projectPath);
         this.UNI_AUTOMATOR_CONFIG = path.join(this.projectPath, 'env.js');
-        await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] 测试项目：" + this.projectPath, status: 'Info' });
+        await logToCliConsole(this.cliConsole, "[uniapp.test] 测试项目：" + this.projectPath, 'Info');
 
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         argv_uni_platform = {
@@ -853,13 +853,13 @@ class RunTestForHBuilderXCli extends Common {
 
         let jse = new Initialize();
         if (!fs.existsSync(jest_config_js_path)) {
-            await jse.CreateTestEnvConfigFile(this.projectPath, "jest.config.js", this.terminal_id)
+            await jse.CreateTestEnvConfigFile(this.projectPath, "jest.config.js", true)
         };
         if (!fs.existsSync(env_js_path)) {
-            await jse.CreateTestEnvConfigFile(this.projectPath, "env.js", this.terminal_id)
+            await jse.CreateTestEnvConfigFile(this.projectPath, "env.js", true)
         };
 
-        let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
+        let changeResult = await modifyJestConfigJSFile(scope, proj, this.cliConsole);
         await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
         if (changeResult == false) return;
 
@@ -899,7 +899,7 @@ class RunTestForHBuilderXCli extends Common {
     };
 };
 
-async function check_cli_args(args, client_id, uni_platformName = "", deviceType = "") {
+async function check_cli_args(args, uni_platformName = "", deviceType = "") {
     let { project, device_id, testcaseFile, vapor, vapor_render_target, uni_app_x_vapor_render_target, peveloperCertificate, provisioningProfile, privateKeyPassword } = args;
     let render_target = vapor_render_target || uni_app_x_vapor_render_target || "";
     if (!fs.existsSync(project)) {
@@ -969,38 +969,37 @@ async function readPluginsPackageJson() {
 async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType="") {
     // 解析命令行参数与输入
     let { args } = params;
-    let client_id = params.cliconsole.clientId;
+    let cliConsole = params.cliconsole;
 
     console.error("[cli参数] args:", args);
     console.error("[cli参数] params:", params);
-    console.error("[cli参数] clientID:", client_id);
 
     const hx_version = config.hx_env_app_version;
     const plugin_version = (await readPluginsPackageJson()).version || '';
     const welcome_msg = `欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具 (${plugin_version}) ！`;
 
-    await hx.cliconsole.log({ clientId: client_id, msg: welcome_msg, status: 'Info' });
-    await hx.cliconsole.log({ clientId: client_id, msg: `HBuilderV Version ${hx_version}`, status: 'Info' });
+    await logToCliConsole(cliConsole, welcome_msg, 'Info');
+    await logToCliConsole(cliConsole, `HBuilderV Version ${hx_version}`, 'Info');
 
     if (uni_platformName == "web") {
         if (!["chrome", "safari", "firefox"].includes(args.browser)) {
-            await hx.cliconsole.log({ clientId: client_id, msg: `web平台测试时，浏览器必须为chrome|safari|firefox`, status: 'Info' });
+            await logToCliConsole(cliConsole, `web平台测试时，浏览器必须为chrome|safari|firefox`, 'Info');
             return;
         };
         uni_platformName = "web-" + (args.browser || "chrome");
     };
 
-    let checkResult = await check_cli_args(args, client_id, uni_platformName, deviceType);
+    let checkResult = await check_cli_args(args, uni_platformName, deviceType);
     console.error("[cli参数校验] checkResult:", checkResult);
     if (checkResult != "") {
-        await hx.cliconsole.log({ clientId: client_id, msg: checkResult, status: 'Info' });
+        await logToCliConsole(cliConsole, checkResult, 'Info');
         return;
     } else {
         try {
             let cli = new RunTestForHBuilderXCli();
-            await cli.main(params.args, client_id, uni_platformName, deviceType);
+            await cli.main(params.args, cliConsole, uni_platformName, deviceType);
         } catch (error) {
-            await hx.cliconsole.log({ clientId: client_id, msg: "运行异常，" + error });
+            await logToCliConsole(cliConsole, "运行异常，" + error, 'Error');
         };
     };
 };

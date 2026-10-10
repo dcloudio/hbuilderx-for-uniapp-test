@@ -1,5 +1,4 @@
 const fs = require('fs');
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 
 const {
@@ -12,6 +11,7 @@ const {
 const {
     fsWriteFile
 } = require('../utils/utils_files.js');
+const logToCliConsole = require('../utils/cli_console.js');
 
 let config = require('./config.js');
 
@@ -30,15 +30,15 @@ const IS_HBUILDERX_VERSION_AT_LEAST_531 = isHBuilderXVersionAtLeast(config.hx_en
 
 /**
  * @description 创建日志记录器
- * @param {String} terminalId - 终端ID
+ * @param {vscode.commands.CliConsole} cliConsole - CLI日志控制台
  * @returns {Function} 日志记录函数
  */
-function createLogger(terminalId) {
-    if (!terminalId) {
+function createLogger(cliConsole) {
+    if (!cliConsole) {
         return createOutputChannel;
     }
     return async function(message, status = 'Info') {
-        await hx.cliconsole.log({ clientId: terminalId, msg: message, status });
+        await logToCliConsole(cliConsole, message, status);
     };
 }
 
@@ -283,19 +283,19 @@ async function handleAlipayPlatform(envjs, envJsPath, logger) {
  * @param {String} testPlatform - 测试平台，如：ios、android、mp-weixin、harmony
  * @param {String} deviceId - 设备信息，数据格式 ios:xxxxxx  android:xxxxxx
  * @param {Object} uniProjectInfo - uni-app项目信息
- * @param {String} terminalId - 终端ID
+ * @param {vscode.commands.CliConsole} cliConsole - CLI日志控制台
  * @param {String} deviceType - 设备类型。目前只有运行到ios真机时，才会用到这个参数。值域：真机 (此方法deviceType参数只有 hbuilderx cli调用时会传值，其他场景调用时不传值，默认为"")
  * @returns {Promise<Boolean>} - 修改成功返回true，失败返回false
  */
-async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectAttributeData = {}, terminalId, deviceType = "") {
+async function editEnvjsFile(envJsPath = "", testPlatform = "", deviceId = "", uniProjectAttributeData = {}, cliConsole, deviceType = "") {
     const {
         is_uniapp_x: isUniappX,
         is_uniapp_x_vapor: isVapor
     } = uniProjectAttributeData;
     console.error("isVapor = ", isVapor);
 
-    const logger = createLogger(terminalId);
-    if (terminalId) {
+    const logger = createLogger(cliConsole);
+    if (cliConsole) {
         await logger(`[uniapp.test] 修改测试配置文件: ${envJsPath}`);
     };
 

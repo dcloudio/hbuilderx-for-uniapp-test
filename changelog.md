@@ -8,6 +8,7 @@
 * feat: 删除过期的src/lib/ui_webview.js
 * feat: 移除过期的fromDilag
 * 优化 对uni-app-x项目的判断
+* refactor: CLI日志、输出视图和扩展查询改用HBuilderV vscode API
 
 ## 5.3.1
 * feat: 适配HBuilderX 5.31版本

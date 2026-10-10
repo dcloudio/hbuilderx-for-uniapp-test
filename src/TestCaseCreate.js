@@ -1,4 +1,3 @@
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');

@@ -1,11 +1,4 @@
-const Module = require('module');
 const vscode = require('vscode');
-const hx = require('./src/hbuilderv-api.js');
-const originalModuleLoad = Module._load;
-Module._load = function(request, parent, isMain) {
-    if (request === 'hbuilderx') return hx;
-    return originalModuleLoad.call(this, request, parent, isMain);
-};
 
 const { stopRunTest, setTestOutputView } = require('./src/core/core.js');
 const { addFilePathToJestConfig } = require('./src/core/edit_jest_config_js_file.js');
@@ -45,6 +38,14 @@ function normalizeCommandParam(param) {
         workspaceFolder: folder,
         document: activeDocument,
     };
+}
+
+function normalizeCliCommandParams(params) {
+    const args = { ...params };
+    delete args.cliconsole;
+    delete args.rawArgv;
+    delete args.cwd;
+    return { ...params, cliconsole: params.cliconsole, args };
 }
 
 
@@ -190,23 +191,23 @@ function activate(context) {
     context.subscriptions.push(moreSet);
 
     // hbuilderx cli 支持
-    let cli_uni = hx.commands.registerCliCommand('uniapp.test', async (params) => {
+    let cli_uni = vscode.commands.registerCliCommand('uniapp.test', async (params) => {
+        params = normalizeCliCommandParams(params);
         let {version} = params.args;
-        let client_id = params.cliconsole.clientId;
         if (version || version == "") {
             let pkg = await readPluginsPackageJson();
             const plugin_version = pkg.version;
             const hx_version = config.hx_env_app_version;
             const msg = `plugin version：${plugin_version}\nHBuilderV version: ${hx_version}`;
-            await hx.cliconsole.log({ hideTime: true, clientId: client_id, msg: msg, status: 'Info' });
+            await params.cliconsole.log(msg);
         };
     });
     context.subscriptions.push(cli_uni);
 
     // 批量注册 CLI 命令
     const registerCli = (cmdId, platform, deviceType) => {
-        const disposable = hx.commands.registerCliCommand(cmdId, async (params) => {
-            await RunTestForHBuilderXCli_main(params, platform, deviceType);
+        const disposable = vscode.commands.registerCliCommand(cmdId, async (params) => {
+            await RunTestForHBuilderXCli_main(normalizeCliCommandParams(params), platform, deviceType);
         });
         context.subscriptions.push(disposable);
     };

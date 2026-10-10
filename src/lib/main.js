@@ -1,13 +1,10 @@
-const hx = require('hbuilderx');
 const os = require('os');
-const fs = require('fs');
-const path = require('path');
 
 const ui_vue = require("./ui_vue.js");
 const api_getMobileList = require("./api_getMobileList.js");
+const { showIosCertDialog, validateIosCert } = require('./ui_ios_cert.js');
 
 const { get_ios_device_type, createOutputChannel } = require('../core/core.js');
-const config = require('../core/config.js');
 
 // 全局：测试设备
 global.global_devicesList = {};
@@ -17,29 +14,6 @@ global.global_uniSettings = {};
 
 // 全局：iOS证书信息（含密码，仅本次启动有效）
 global.global_iosCertInfo = null;
-
-const _certCacheFile = path.join(config.HV_UNI_TEST_ENV_DIR, '.ios_cert_cache.json');
-
-function _loadCertCache() {
-    try {
-        return JSON.parse(fs.readFileSync(_certCacheFile, 'utf8'));
-    } catch (e) {
-        return {};
-    }
-}
-
-function _saveCertCache(data) {
-    try {
-        const dir = path.dirname(_certCacheFile);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        // 只持久化非密码字段
-        fs.writeFileSync(_certCacheFile, JSON.stringify({
-            bundleId: data.bundleId,
-            profilePath: data.profilePath,
-            p12Path: data.p12Path,
-        }), 'utf8');
-    } catch (e) {}
-}
 
 /**
  * @description 内部使用。返回具体的测试设备信息
@@ -77,92 +51,6 @@ async function get_uniTestPlatformInfo(platform, deviceID) {
     };
 };
 
-
-async function _validateIosCert(bundleId, p12Password, profilePath, p12Path) {
-    try {
-        const ext = await hx.extensions.getExtension('uniapp-basic');
-        if (!ext) return { code: 0 };
-        const ret = await ext.verifyAppleCert({
-            iosAppID: bundleId,
-            iosCertPassword: p12Password,
-            iosProfile: profilePath,
-            iosCertfile: p12Path,
-        });
-        if (!ret) return { code: 0 };
-        const errors = [];
-        ret.forEach(v => errors.push(v));
-        return errors.length > 0 ? { code: -1, errorMsg: errors[0] } : { code: 0 };
-    } catch (e) {
-        return { code: 0 };
-    }
-}
-
-async function showIosCertDialog() {
-    try {
-        const prev = global.global_iosCertInfo || _loadCertCache();
-        let result = await hx.window.showFormDialog({
-            title: 'iOS真机证书信息',
-            subtitle: 'iOS真机测试，需要iOS证书对ipa进行签名。',
-            width: 500,
-            height: 320,
-            customButtons: [
-                { text: '确定', role: 'accept', code: 1 },
-                { text: '取消', code: 2 },
-            ],
-            validate: async function(formData) {
-                const { bundleId, profilePath, p12Path, p12Password } = formData;
-                if (!bundleId) { this.showError('Bundle ID (AppID) 不能为空'); return false; }
-                if (!profilePath) { this.showError('证书profile文件 不能为空'); return false; }
-                if (!p12Path) { this.showError('私钥证书 不能为空'); return false; }
-                if (!p12Password) { this.showError('证书私钥密码 不能为空'); return false; }
-                const ret = await _validateIosCert(bundleId, p12Password, profilePath, p12Path);
-                if (ret.code !== 0) { this.showError(ret.errorMsg); return false; }
-                return true;
-            },
-            formItems: [
-                {
-                    type: 'input',
-                    name: 'bundleId',
-                    label: 'Bundle ID (AppID)',
-                    placeholder: '请输入Bundle ID',
-                    value: prev.bundleId || '',
-                },
-                {
-                    type: 'fileSelectInput',
-                    name: 'profilePath',
-                    mode: 'file',
-                    label: '证书profile文件',
-                    placeholder: '请选择.mobileprovision文件',
-                    filters: ['*.mobileprovision'],
-                    value: prev.profilePath || '',
-                },
-                {
-                    type: 'fileSelectInput',
-                    name: 'p12Path',
-                    mode: 'file',
-                    label: '私钥证书',
-                    placeholder: '请选择.p12文件',
-                    filters: ['*.p12'],
-                    value: prev.p12Path || '',
-                },
-                {
-                    type: 'input',
-                    name: 'p12Password',
-                    label: '证书私钥密码',
-                    placeholder: '请输入证书私钥密码',
-                    mode: 'password',
-                    value: prev.p12Password || '',
-                },
-            ],
-        });
-        if (result.buttonIndex !== 0) return null;
-        const { bundleId, profilePath, p12Path, p12Password } = result.result;
-        _saveCertCache({ bundleId, profilePath, p12Path });
-        return { bundleId, profilePath, p12Path, p12Password };
-    } catch (e) {
-        return null;
-    }
-}
 
 /**
  * @description 在webviewdialog内选择要测试的设备
@@ -216,5 +104,5 @@ async function getTestDevices(testPlatform, projectPath="") {
 module.exports = {
     get_uniTestPlatformInfo,
     getTestDevices,
-    validateIosCert: _validateIosCert
+    validateIosCert
 };

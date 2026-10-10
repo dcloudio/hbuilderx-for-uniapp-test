@@ -1,4 +1,3 @@
-const hx = require('hbuilderx');
 const vscode = require('vscode');
 const os = require('os');
 
@@ -26,9 +25,7 @@ async function getHBuilderVFeaturesApi() {
     };
 
     extension_features_api_promise = (async function() {
-        let extension = hx.extensions && hx.extensions.getExtension
-            ? hx.extensions.getExtension(HBUILDERV_FEATURES_EXTENSION_ID)
-            : undefined;
+        let extension = vscode.extensions.getExtension(HBUILDERV_FEATURES_EXTENSION_ID);
         if (!extension) {
             return undefined;
         };

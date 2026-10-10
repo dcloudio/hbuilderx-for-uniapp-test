@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 const os = require('os');
-const hx = require('hbuilderx');
 const { createOutputChannel } = require('../core/core.js');
+const logToCliConsole = require('./cli_console.js');
 
 /**
  * @description 执行shell命令
@@ -89,10 +89,10 @@ async function checkComputerProxyStatus() {
 // checkComputerProxyStatus()
 
 
-async function checkNetworkStatus(testPlatform, deviceId, consoleMsgPrefix, terminal_id = "") {
+async function checkNetworkStatus(testPlatform, deviceId, consoleMsgPrefix, cliConsole) {
     let _colorS = "";
     let _colorE = "";
-    if (terminal_id) {
+    if (cliConsole) {
         _colorS = "\x1b[31m";
         _colorE = "\x1b[0m";
     };
@@ -100,9 +100,9 @@ async function checkNetworkStatus(testPlatform, deviceId, consoleMsgPrefix, term
     if (["android", "harmony"].includes(testPlatform.toLowerCase())) {
 
         let logger = createOutputChannel;
-        if (terminal_id) {
-            logger = async function (message) {
-                await hx.cliconsole.log({ clientId: terminal_id, msg: message, status: 'Info' });
+        if (cliConsole) {
+            logger = async function (message, status = 'Info') {
+                await logToCliConsole(cliConsole, message, status);
             };
         };
 
