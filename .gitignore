@@ -19,3 +19,4 @@ unpackage/dist/dev/
 
 .hbuilderx/code-chat-project-sessions.json
 docs/public-cli-api.md
+*.vsix

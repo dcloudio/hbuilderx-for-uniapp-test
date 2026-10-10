@@ -378,6 +378,8 @@ class RunTestForHBuilderXCli extends Common {
     async run_uni_test(testPlatform, deviceId, deviceType = "") {
         let UNI_APP_X_DOM2 = false;
         let UNI_APP_X_VAPOR_RENDER_TARGET = "";
+        await this.print_cli_log(`参数：是否蒸汽模式 = ${this.raw_argv_vapor}`);
+
         if (this.raw_argv_vapor === true && is_uniapp_x) {
             UNI_APP_X_DOM2 = true;
             UNI_APP_X_VAPOR_RENDER_TARGET = ["bytecode", "nativecode"].includes(this.raw_argv_vapor_render_target) ? this.raw_argv_vapor_render_target : "bytecode";
@@ -387,6 +389,7 @@ class RunTestForHBuilderXCli extends Common {
             "is_uniapp_x_vapor": UNI_APP_X_DOM2
         };
         console.error("uniProjectAttributeData = ", uniProjectAttributeData);
+        await this.print_cli_log(`项目数据: ${JSON.stringify(uniProjectAttributeData, null, 4)}`);
 
         let result;
         try {
@@ -446,7 +449,7 @@ class RunTestForHBuilderXCli extends Common {
                 "UNI_CLI_PATH": config.UNI_CLI_PATH,
                 "UNI_AUTOMATOR_CONFIG": this.UNI_AUTOMATOR_CONFIG,
                 "UNI_PLATFORM": UNI_PLATFORM,
-                "HX_Version": hxVersion,
+                "HX_Version": config.hx_env_app_version,
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
                 "UNI_TEST_UNIAPP_EXTENSION_PATH": config.UNIAPP_UNIAPP_EXTENSION_PATH,
@@ -632,9 +635,9 @@ class RunTestForHBuilderXCli extends Common {
 
         // 适用于uni-app普通项目
         let cmd = [
-            `"${config.JEST_PATH}"`, "-i", "--forceExit", "--json",
-            `--outputFile="${outputFile}"`,
-            `--env="${config.UNI_CLI_ENV}"`, `--globalTeardown="${config.UNI_CLI_teardown}"`
+            config.JEST_PATH, "-i", "--forceExit", "--json",
+            `--outputFile=${outputFile}`,
+            `--env=${config.UNI_CLI_ENV}`, `--globalTeardown=${config.UNI_CLI_teardown}`
         ];
 
         // 适用于uniapp-cli项目
@@ -644,7 +647,7 @@ class RunTestForHBuilderXCli extends Common {
             let cliJest = path.join(this.projectPath, 'node_modules/jest/bin/jest.js');
             cmd = [
                 `${cliJest}`, "-i", "--forceExit", "--json",
-                `--outputFile="${outputFile}"`
+                `--outputFile=${outputFile}`
             ];
         };
 
@@ -697,7 +700,7 @@ class RunTestForHBuilderXCli extends Common {
         let data = await api_getMobileList(testPlatform, "Y", deviceType);
         await this.print_cli_log(`${testPlatform}，设备列表: \n ${JSON.stringify(data, null, 2)}`);
 
-        if (JSON.stringify(data) == '{}') {
+        if (!data || JSON.stringify(data) == '{}') {
             await this.print_cli_log(`未检测到可用的测试设备，测试中止。`);
             return [];
         };
@@ -732,6 +735,7 @@ class RunTestForHBuilderXCli extends Common {
     async main(params, cliConsole, uni_platformName, deviceType = "") {
         this.cliConsole = cliConsole;
         await logToCliConsole(this.cliConsole, "[uniapp.test] ....... 开始运行测试 ......", 'Info');
+        // await logToCliConsole(this.cliConsole, `[uniapp.test] 命令行参数: ${JSON.stringify(params)}`, 'Info');
 
         let argv_uni_platform = uni_platformName;
         this.raw_argv_uni_platform = uni_platformName;
@@ -814,10 +818,15 @@ class RunTestForHBuilderXCli extends Common {
             await this.print_cli_log(`开始获取可用的测试设备列表 ..... `);
             // 选择要运行的设备
             testPhoneList = await this.getTestDevicesList(argv_uni_platform, deviceType);
-            if (testPhoneList.length == 0) return;
+            if (testPhoneList.length == 0) {
+                if (argv_uni_platform == 'android') {
+                    await this.print_cli_log(`未获取到Android设备，请传递参数 --device_id 指定测试设备。`);
+                };
+                return;
+            };
             if (testPhoneList.length > 1) {
                 await this.print_cli_log(`检测到多个测试设备，默认只运行第一个设备 ..... `);
-                testPhoneList = testPhoneList[0];
+                testPhoneList = [testPhoneList[0]];
             };
             await this.print_cli_log(`可用的测试设备列表: ${testPhoneList}`);
             console.error("[自动化测试连接的设备]--->", testPhoneList);
@@ -899,16 +908,24 @@ class RunTestForHBuilderXCli extends Common {
     };
 };
 
-async function check_cli_args(args, uni_platformName = "", deviceType = "") {
+async function check_cli_args(args, uni_platformName = "", deviceType = "", rawArgv = []) {
     let { project, device_id, testcaseFile, vapor, vapor_render_target, uni_app_x_vapor_render_target, peveloperCertificate, provisioningProfile, privateKeyPassword } = args;
     let render_target = vapor_render_target || uni_app_x_vapor_render_target || "";
+    let hasDeviceIdArg = Array.isArray(rawArgv) && rawArgv.some(arg => arg == '--device_id' || String(arg).startsWith('--device_id='));
+    let hasTestcaseFileArg = Array.isArray(rawArgv) && rawArgv.some(arg => arg == '--testcaseFile' || String(arg).startsWith('--testcaseFile='));
+    if (!project) {
+        return "参数 --project 不能为空，请检查。";
+    };
     if (!fs.existsSync(project)) {
         return `项目路径 ${project} 不存在，请检查。`;
     };
-    if (device_id == "") {
+    if (!fs.statSync(project).isDirectory()) {
+        return `参数 --project 必须是项目目录，当前路径 ${project} 不是目录，请检查。`;
+    };
+    if (device_id == "" && (uni_platformName != "android" || hasDeviceIdArg)) {
         return "参数 --device_id 不能为空，请检查。";
     };
-    if (testcaseFile == "") {
+    if (hasTestcaseFileArg && testcaseFile == "") {
         return "参数 --testcaseFile 不能为空，请检查。";
     };
     if (testcaseFile != "" && testcaseFile != undefined) {
@@ -989,8 +1006,12 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType=
         uni_platformName = "web-" + (args.browser || "chrome");
     };
 
-    let checkResult = await check_cli_args(args, uni_platformName, deviceType);
+    let checkResult = await check_cli_args(args, uni_platformName, deviceType, params.rawArgv);
     console.error("[cli参数校验] checkResult:", checkResult);
+    await logToCliConsole(cliConsole, `命令行参数: args = ${JSON.stringify(args)}`, 'Info');
+    await logToCliConsole(cliConsole, `命令行参数: params = ${JSON.stringify(params)}`, 'Info');
+    await logToCliConsole(cliConsole, `基座数据: ${JSON.stringify(config.CFG_project_app_runtime_mapping_data, null, 4)}`, 'Info');
+
     if (checkResult != "") {
         await logToCliConsole(cliConsole, checkResult, 'Info');
         return;

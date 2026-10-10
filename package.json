@@ -4,6 +4,7 @@
   "displayName": "HBuilderV uni-app自动化测试",
   "version": "5.4.0",
   "publisher": "hbuilderv",
+  "repository": "https://github.com/dcloudio/hbuilderx-for-uniapp-test/tree/hv",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -235,7 +236,6 @@
           {
             "name": "version",
             "descption": "查看插件版本号",
-            "usage": "",
             "type": "string",
             "default": ""
           }
@@ -261,16 +261,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "browser",
@@ -302,16 +300,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ]
       },
@@ -334,16 +330,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ]
       },
@@ -366,16 +360,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ]
       },
@@ -398,16 +390,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ]
       },
@@ -430,16 +420,14 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ]
       },
@@ -462,21 +450,18 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "vapor_render_target",
             "descption": "(可选) vapor视图层编译目标，支持bytecode、nativecode",
-            "usage": "",
             "type": "enum",
             "default": "bytecode",
             "enum": "bytecode|nativecode"
@@ -484,7 +469,6 @@
           {
             "name": "device_id",
             "descption": "(可选) Android设备ID，当存在可用设备时，默认使用第一个设备",
-            "usage": "",
             "type": "string",
             "default": ""
           }
@@ -509,21 +493,18 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "vapor_render_target",
             "descption": "(可选) vapor视图层编译目标，支持bytecode、nativecode",
-            "usage": "",
             "type": "enum",
             "default": "bytecode",
             "enum": "bytecode|nativecode"
@@ -531,7 +512,6 @@
           {
             "name": "device_id",
             "descption": "(可选) iOS模拟器设备ID，当存在可用设备时，默认使用第一个设备",
-            "usage": "",
             "type": "string",
             "default": ""
           }
@@ -556,21 +536,18 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
             "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "vapor_render_target",
             "descption": "(可选) vapor视图层编译目标，支持bytecode、nativecode",
-            "usage": "",
             "type": "enum",
             "default": "bytecode",
             "enum": "bytecode|nativecode"
@@ -578,7 +555,6 @@
           {
             "name": "device_id",
             "descption": "(可选) iOS真机设备ID，当存在可用设备时，默认使用第一个设备",
-            "usage": "",
             "type": "string",
             "default": ""
           },
@@ -624,21 +600,18 @@
           {
             "name": "testcaseFile",
             "descption": "(可选) 指定测试用例文件的相对路径（相对于项目根目录），比如pages/index/index.test.js",
-            "usage": "",
             "type": "string",
             "default": ""
           },
           {
             "name": "vapor",
-            "descption": "(可选) 是否启用vapor模式",
-            "usage": "",
+            "descption": "(可选) 是否启用vapor模式, 默认为true",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "vapor_render_target",
             "descption": "(可选) vapor视图层编译目标，支持bytecode、nativecode",
-            "usage": "",
             "type": "enum",
             "default": "bytecode",
             "enum": "bytecode|nativecode"
@@ -646,7 +619,6 @@
           {
             "name": "device_id",
             "descption": "(可选) Harmony设备ID，当存在可用设备时，默认使用第一个设备",
-            "usage": "",
             "type": "string",
             "default": ""
           }
