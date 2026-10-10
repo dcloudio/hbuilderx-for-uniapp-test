@@ -121,7 +121,7 @@ async function modifyJestConfigJSFile(scope="", proj={}, cliConsole) {
     }
 
     // 插件配置项：是否自动修改jest.config.js文件中的testMatch
-    let userConfig = await getPluginConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
+    let userConfig = await getPluginConfig('uniapp-test-cfg.AutomaticModificationTestMatch');
     if (userConfig == false) {
         await logger(`[uniapp.test] 您已关闭自动修改 jest.config.js 配置文件中的 testMatch 字段，跳过此操作。`);
         return true;
@@ -146,7 +146,7 @@ async function modifyJestConfigJSFile(scope="", proj={}, cliConsole) {
         }
 
         // 记录单条用例路径
-        let isRecord = await getPluginConfig('hbuilderx-for-uniapp-test.recordTestCaseList');
+        let isRecord = await getPluginConfig('uniapp-test-cfg.recordTestCaseList');
         if (isRecord) {
             let recordPath = path.join(projectPath, '.hbuilderx', 'testCaseList.json');
             if (fs.existsSync(path.dirname(recordPath))) {

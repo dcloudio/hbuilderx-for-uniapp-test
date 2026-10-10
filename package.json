@@ -16,9 +16,9 @@
   ],
   "contributes": {
     "expressions": {
-      "isAutoTestMatch": "config.hbuilderx-for-uniapp-test.AutomaticModificationTestMatch",
-      "isDebugLog": "config.hbuilderx-for-uniapp-test.isDebug",
-      "isRuntimeLog": "config.hbuilderx-for-uniapp-test.isRuntimeLog",
+      "isAutoTestMatch": "config.uniapp-test-cfg.AutomaticModificationTestMatch",
+      "isDebugLog": "config.uniapp-test-cfg.isDebug",
+      "isRuntimeLog": "config.uniapp-test-cfg.isRuntimeLog",
       "isUniApp": "workspaceFolder.type == 'UniApp_Vue'",
       "isJSFileForEnv": "file.exists <- '${workspaceFolder}/env.js'",
       "isJSFileForJestConfig": "file.exists <- '${workspaceFolder}/jest.config.js'",
@@ -26,11 +26,11 @@
       "isUniPageDir": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/[^\\/]*$/",
       "isUniPageFile": "workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.[vue|nvue]$/",
       "isTestConfigFile": "workspaceFolderRelativePath == 'env.js' || workspaceFolderRelativePath == 'jest.config.js'",
-      "isRecordTestCaseList": "config.hbuilderx-for-uniapp-test.recordTestCaseList",
+      "isRecordTestCaseList": "config.uniapp-test-cfg.recordTestCaseList",
       "isShowCreateTestCase": "expression.isCheckTestEnv && (expression.isUniPageDir || expression.isUniPageFile)",
       "isShowRunCurrentTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && (workspaceFolderRelativePath =~ /^(src\\/pages|pages)\\/.*\\.test\\.js$/ || workspaceFolderRelativePath =~ /^\\pages\\/autotest\\/uni.*/)",
       "isShowRunALLTestCaseMenu": "expression.isUniApp && expression.isJSFileForEnv && expression.isJSFileForJestConfig && (explorerResourceIsWorkspaceFolder || expression.isTestConfigFile)",
-      "iSOtherTestReport": "config.hbuilderx-for-uniapp-test.storageTestReportOutPutDirType == '其它'"
+      "iSOtherTestReport": "config.uniapp-test-cfg.storageTestReportOutPutDirType == '其它'"
     },
     "snippets": [
       {
@@ -183,49 +183,49 @@
       },
       {
         "command": "uniapp.test web",
-        "title": "uniapp.test web for hbuilderx cli"
+        "title": "uniapp.test web for cli"
       },
       {
         "command": "uniapp.test web-chrome",
-        "title": "uniapp.test web-chrome for hbuilderx cli"
+        "title": "uniapp.test web-chrome for cli"
       },
       {
         "command": "uniapp.test web-safari",
-        "title": "uniapp.test web-safari for hbuilderx cli"
+        "title": "uniapp.test web-safari for cli"
       },
       {
         "command": "uniapp.test web-firefox",
-        "title": "uniapp.test web-firefox for hbuilderx cli"
+        "title": "uniapp.test web-firefox for cli"
       },
       {
         "command": "uniapp.test mp-weixin",
-        "title": "uniapp.test mp-weixin for hbuilderx cli"
+        "title": "uniapp.test mp-weixin for cli"
       },
       {
         "command": "uniapp.test mp-alipay",
-        "title": "uniapp.test mp-alipay for hbuilderx cli"
+        "title": "uniapp.test mp-alipay for cli"
       },
       {
         "command": "uniapp.test app-android",
-        "title": "uniapp.test app-android for hbuilderx cli"
+        "title": "uniapp.test app-android for cli"
       },
       {
         "command": "uniapp.test app-ios-simulator",
-        "title": "uniapp.test app-ios-simulator for hbuilderx cli"
+        "title": "uniapp.test app-ios-simulator for cli"
       },
       {
         "command": "uniapp.test app-harmony",
-        "title": "uniapp.test app-harmony for hbuilderx cli"
+        "title": "uniapp.test app-harmony for cli"
       },
       {
         "command": "uniapp.test",
-        "title": "uniapp.test app-harmony for hbuilderx cli"
+        "title": "uniapp.test app-harmony for cli"
       }
     ],
     "clicommands": [
       {
         "name": "uniapp.test",
-        "descption": "使用HBuilderX cli运行uni-app (x)自动化测试到Web、微信/支付宝小程序、Android、iOS、Harmony等平台",
+        "descption": "使用 cli 运行uni-app (x)自动化测试到Web、微信/支付宝小程序、Android、iOS、Harmony等平台",
         "doc": "\nDocument: https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\nUsages:\n  cli uniapp.test web --project <ProjectPath> --browser chrome \n  cli uniapp.test web-chrome --project <ProjectPath>\n  cli uniapp.test web-safari --project <ProjectPath>\n  cli uniapp.test web-firefox --project <ProjectPath>\n  cli uniapp.test mp-weixin --project <ProjectPath>\n  cli uniapp.test mp-alipay --project <ProjectPath>\n  cli uniapp.test app-android --project <ProjectPath> \n  cli uniapp.test app-ios-simulator --project <ProjectPath> \n  cli uniapp.test app-ios --project <ProjectPath> --peveloperCertificate <p12Path> --provisioningProfile <mobileprovisionPath> --privateKeyPassword <password> \n  # 指定测试设备、指定测试用例文件  \n  cli uniapp.test app-harmony --project <ProjectPath> --testcaseFile <testcase_file_path> --device_id <id> \n  # 以蒸汽模式运行、指定视图层编译目标 \n  cli uniapp.test app-android --project <ProjectPath> --vapor true --vapor_render_target nativecode",
         "args": [
           {
@@ -654,14 +654,14 @@
       }
     ],
     "configuration": {
-      "title": "",
+      "title": "uni-app (x) 自动化测试",
       "properties": {
-        "hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir": {
+        "uniapp-test-cfg.customTestEnvironmentDependencyDir": {
           "type": "string",
           "default": "",
-          "description": "uni-app自动化测试依赖：自定义依赖目录。<span style='font-size: 12px;'><br/>1. 配置方法：HBuilderX安装目录/hbuilderx-for-uniapp-test/src/environment目录下<br/>2. 拷贝package.json到你要自定义的目录，执行npm install。<br/>3. <span style='color: #4E9ADE;'>注意：请谨慎操作。路径必须要以node_modules结尾。如非专业人员，建议使用默认，不要修改此项。</span></span>"
+          "description": "uni-app自动化测试依赖：自定义依赖目录。1. 配置方法：插件hbuilderv-for-uniapp-test/src/environment目录下 2. 拷贝package.json到你要自定义的目录，执行npm install。3. 注意：请谨慎操作。路径必须要以node_modules结尾。如非专业人员，建议使用默认，不要修改此项。"
         },
-        "hbuilderx-for-uniapp-test.storageTestReportOutPutDirType": {
+        "uniapp-test-cfg.storageTestReportOutPutDirType": {
           "type": "string",
           "default": "项目目录",
           "enum": [
@@ -670,38 +670,38 @@
           ],
           "description": "uni-app自动化测试插件，测试报告，存储类型。"
         },
-        "hbuilderx-for-uniapp-test.testReportOutPutDir": {
+        "uniapp-test-cfg.testReportOutPutDir": {
           "type": "string",
           "default": "",
-          "description": "uni-app自动化测试插件，测试报告输出路径。<br/><span style='font-size: 12px;color: #4E9ADE;'>当测试报告存储类型，选择 [其它] 时生效。</span>",
+          "description": "uni-app自动化测试插件，测试报告输出路径。当测试报告存储类型，选择 [其它] 时生效。",
           "when": "iSOtherTestReport"
         },
-        "hbuilderx-for-uniapp-test.AutomaticModificationTestMatch": {
+        "uniapp-test-cfg.AutomaticModificationTestMatch": {
           "type": "boolean",
           "default": true,
-          "description": "自动修改jest.config.js文件中的testMatch。<br/><span style='font-size: 12px;color: #4E9ADE;'>默认规范：测试用例在pages页面目录下。如测试用例在其它目录，请不要勾选此项。</span>"
+          "description": "自动修改jest.config.js文件中的testMatch。默认规范：测试用例在pages页面目录下。如测试用例在其它目录，请不要勾选此项。"
         },
-        "hbuilderx-for-uniapp-test.jestNodeType": {
+        "uniapp-test-cfg.jestNodeType": {
           "type": "boolean",
           "default": true,
-          "description": "自动化测试时，使用HBuilderX内置的Node运行Jest测试程序。"
+          "description": "自动化测试时，使用编辑器内置的Node运行Jest测试程序。"
         },
-        "hbuilderx-for-uniapp-test.uniappCompileNodeType": {
+        "uniapp-test-cfg.uniappCompileNodeType": {
           "type": "boolean",
           "default": true,
-          "description": "自动化测试时，使用HBuilderX内置的Node程序编译uni-app项目。"
+          "description": "自动化测试时，使用编辑器内置的Node程序编译uni-app项目。"
         },
-        "hbuilderx-for-uniapp-test.recordTestCaseList": {
+        "uniapp-test-cfg.recordTestCaseList": {
           "type": "boolean",
           "default": false,
           "description": "当运行单条test.js用例文件，记录测试用例文件路径到.hbuilderx目录下。"
         },
-        "hbuilderx-for-uniapp-test.isDebug": {
+        "uniapp-test-cfg.isDebug": {
           "type": "boolean",
           "default": false,
           "description": "是否正在调试，当勾选后，将会在控制台输出更多日志。"
         },
-        "hbuilderx-for-uniapp-test.isRuntimeLog": {
+        "uniapp-test-cfg.isRuntimeLog": {
           "type": "boolean",
           "default": true,
           "description": "是否输出运行时日志。"

@@ -147,7 +147,7 @@ class Initialize extends Common {
             await this.createFile("package.json", templage_package_path, lib_package_path);
         };
 
-        // 主要是检查设置项：hbuilderx-for-uniapp-test.customTestEnvironmentDependencyDir。
+        // 主要是检查设置项：uniapp-test-cfg.customTestEnvironmentDependencyDir。
         let isCustomEnv = await checkCustomTestEnvironmentDependency();
 		// console.error(`【hbuilderx-for-uniapp-test】自定义测试依赖设置项: ${isCustomEnv}`);
 

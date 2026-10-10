@@ -108,9 +108,9 @@ async function createInitialState(testPlatform, projectPath) {
         android_list: [],
         harmony_list: [],
         selected_list: { ios: [], android: [], harmony: [] },
-        cfg_isDebug: await getBooleanConfig('hbuilderx-for-uniapp-test.isDebug', true),
-        cfg_isRuntimeLog: await getBooleanConfig('hbuilderx-for-uniapp-test.isRuntimeLog', true),
-        cfg_AutomaticModificationTestMatch: await getBooleanConfig('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch', true),
+        cfg_isDebug: await getBooleanConfig('uniapp-test-cfg.isDebug', true),
+        cfg_isRuntimeLog: await getBooleanConfig('uniapp-test-cfg.isRuntimeLog', true),
+        cfg_AutomaticModificationTestMatch: await getBooleanConfig('uniapp-test-cfg.AutomaticModificationTestMatch', true),
         cfg_uniapp_test_vapor_mode: false,
         uni_app_x_vapor_render_target: 'bytecode',
         is_show_vapor_mode_element: Boolean(isUniAppXProject && projectPath),
@@ -144,9 +144,9 @@ function setDefaultDevice(state) {
 
 async function updateSetting(name, value) {
     const names = {
-        cfg_isDebug: 'hbuilderx-for-uniapp-test.isDebug',
-        cfg_isRuntimeLog: 'hbuilderx-for-uniapp-test.isRuntimeLog',
-        cfg_AutomaticModificationTestMatch: 'hbuilderx-for-uniapp-test.AutomaticModificationTestMatch',
+        cfg_isDebug: 'uniapp-test-cfg.isDebug',
+        cfg_isRuntimeLog: 'uniapp-test-cfg.isRuntimeLog',
+        cfg_AutomaticModificationTestMatch: 'uniapp-test-cfg.AutomaticModificationTestMatch',
     };
     if (!names[name]) return;
     const config = await vscode.workspace.getConfiguration();

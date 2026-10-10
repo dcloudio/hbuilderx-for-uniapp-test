@@ -137,8 +137,8 @@ function activate(context) {
 
     let AutotestMatch = vscode.commands.registerCommand('unitest.isAutotestMatch', () => {
         let config = vscode.workspace.getConfiguration();
-        let result = config.get('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch');
-        config.update('hbuilderx-for-uniapp-test.AutomaticModificationTestMatch', !result).then( () => {
+        let result = config.get('uniapp-test-cfg.AutomaticModificationTestMatch');
+        config.update('uniapp-test-cfg.AutomaticModificationTestMatch', !result).then( () => {
             let text = result ? '取消' : '启用';
             vscode.window.setStatusBarMessage(`已 ${text} 自动修改testMatch。`, 10000);
         });
@@ -148,8 +148,8 @@ function activate(context) {
     // 是否输出调试日志
     let debugLog = vscode.commands.registerCommand('unitest.enableDebugLog', () => {
         let config = vscode.workspace.getConfiguration();
-        let result = config.get('hbuilderx-for-uniapp-test.isDebug');
-        config.update('hbuilderx-for-uniapp-test.isDebug', !result).then( () => {
+        let result = config.get('uniapp-test-cfg.isDebug');
+        config.update('uniapp-test-cfg.isDebug', !result).then( () => {
             let text = result ? '取消' : '启用';
             vscode.window.setStatusBarMessage(`已 ${text} 自动修改调试日志输出。`, 10000);
         });
@@ -159,8 +159,8 @@ function activate(context) {
     // 是否输出运行时日志
     let runtimeLog = vscode.commands.registerCommand('unitest.enableRuntimeLog', () => {
         let config = vscode.workspace.getConfiguration();
-        let result = config.get('hbuilderx-for-uniapp-test.isRuntimeLog');
-        config.update('hbuilderx-for-uniapp-test.isRuntimeLog', !result).then( () => {
+        let result = config.get('uniapp-test-cfg.isRuntimeLog');
+        config.update('uniapp-test-cfg.isRuntimeLog', !result).then( () => {
             let text = result ? '取消' : '启用';
             vscode.window.setStatusBarMessage(`已 ${text} 运行时日志输出。`, 10000);
         });
@@ -170,8 +170,8 @@ function activate(context) {
     // 记录单条用例到文件
     let recordTestCaseList = vscode.commands.registerCommand('unitest.recordTestCaseList', () => {
         let config = vscode.workspace.getConfiguration();
-        let result = config.get('hbuilderx-for-uniapp-test.recordTestCaseList');
-        config.update('hbuilderx-for-uniapp-test.recordTestCaseList', !result).then( () => {
+        let result = config.get('uniapp-test-cfg.recordTestCaseList');
+        config.update('uniapp-test-cfg.recordTestCaseList', !result).then( () => {
             let text = result ? '取消' : '启用';
             vscode.window.setStatusBarMessage(`已 ${text} 运行单条test.js时记录到文件。`, 10000);
         });
@@ -186,7 +186,7 @@ function activate(context) {
 
     // 更多设置
     let moreSet = vscode.commands.registerCommand('unitest.moreSettings', () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', '@id:hbuilderx-for-uniapp-test.uniappCompileNodeType')
+        vscode.commands.executeCommand('workbench.action.openSettings', '@id:uniapp-test-cfg.uniappCompileNodeType')
     });
     context.subscriptions.push(moreSet);
 

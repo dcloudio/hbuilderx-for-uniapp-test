@@ -93,7 +93,7 @@ class Common {
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
-        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+        isUseBuiltNodeRunJest = await getPluginConfig('uniapp-test-cfg.jestNodeType');
 
         let testEnv = true;
         if ((nodeStatus == undefined || nodeStatus == 'N') && isUseBuiltNodeRunJest != true ) {
@@ -167,7 +167,7 @@ class Common {
             await this.print_cli_log(config.i18n.msg_warning_uts_env);
         };
 
-        this.isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        this.isDebug = await getPluginConfig("uniapp-test-cfg.isDebug");
         return testEnv;
     };
 
@@ -243,7 +243,7 @@ class Common {
     // 获取测试报告目录
     async getReportOutputDir(projectName, testPlatform) {
         // 使用用户自定义的目录
-        const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        const userSet = (await getPluginConfig("uniapp-test-cfg.testReportOutPutDir"))?.trim();
         if (userSet) {
             if (!fs.existsSync(userSet)) {
                 await this.print_cli_log(config.i18n.invalid_custom_test_report_path);
@@ -318,10 +318,10 @@ class RunTestForHBuilderXCli extends Common {
      */
     async setTestCustomEnvironmentVariables() {
         // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
-        isUseBuiltNodeCompileUniapp = await getPluginConfig('hbuilderx-for-uniapp-test.uniappCompileNodeType');
+        isUseBuiltNodeCompileUniapp = await getPluginConfig('uniapp-test-cfg.uniappCompileNodeType');
 
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
-        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+        isUseBuiltNodeRunJest = await getPluginConfig('uniapp-test-cfg.jestNodeType');
 
         let isCustom = await checkCustomTestEnvironmentDependency();
         if (isCustom) {

@@ -94,7 +94,7 @@ class Common {
      */
     async checkAndSetEnv(platform = undefined, projectPath) {
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
-        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+        isUseBuiltNodeRunJest = await getPluginConfig('uniapp-test-cfg.jestNodeType');
         console.log("[使用使用内置Node版本] ........ ", isUseBuiltNodeRunJest);
         // checkNode()
         //     .then(result => console.log('结果:', result))
@@ -280,7 +280,7 @@ class Common {
 
     // 获取测试报告目录
     async getReportOutputDir(projectName, testPlatform) {
-        const storagePathType = await getPluginConfig("hbuilderx-for-uniapp-test.storageTestReportOutPutDirType");
+        const storagePathType = await getPluginConfig("uniapp-test-cfg.storageTestReportOutPutDirType");
         if (storagePathType == "项目目录" || storagePathType == "项目下") {
             let ProjectReportDir = path.join(this.projectPath, '.hbuilderx', 'test-report', testPlatform);
             mkdirsSync(ProjectReportDir);
@@ -288,7 +288,7 @@ class Common {
         };
 
         // 使用用户自定义的目录
-        const userSet = (await getPluginConfig("hbuilderx-for-uniapp-test.testReportOutPutDir"))?.trim();
+        const userSet = (await getPluginConfig("uniapp-test-cfg.testReportOutPutDir"))?.trim();
         if (userSet) {
             if (!fs.existsSync(userSet)) {
                 createOutputChannel(config.i18n.invalid_custom_test_report_path);
@@ -347,10 +347,10 @@ class RunTest extends Common {
      */
     async setTestCustomEnvironmentVariables() {
         // 配置项：获取用户是否设置使用内置Node版本进行uni-app编译
-        isUseBuiltNodeCompileUniapp = await getPluginConfig('hbuilderx-for-uniapp-test.uniappCompileNodeType');
+        isUseBuiltNodeCompileUniapp = await getPluginConfig('uniapp-test-cfg.uniappCompileNodeType');
 
         // 配置项：获取用户是否设置使用内置Node版本进行jest测试
-        isUseBuiltNodeRunJest = await getPluginConfig('hbuilderx-for-uniapp-test.jestNodeType');
+        isUseBuiltNodeRunJest = await getPluginConfig('uniapp-test-cfg.jestNodeType');
 
         let isCustom = await checkCustomTestEnvironmentDependency();
         if (isCustom) {
@@ -642,11 +642,11 @@ class RunTest extends Common {
         };
 
         // automator:* 用于uniapp编译器，可以输出更多详细的自动化测试日志
-        let is_Debug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        let is_Debug = await getPluginConfig("uniapp-test-cfg.isDebug");
         if (is_Debug) {
             cmdOpts.env.DEBUG = "automator:*";
         };
-        let is_Runtime_Log = await getPluginConfig("hbuilderx-for-uniapp-test.isRuntimeLog");
+        let is_Runtime_Log = await getPluginConfig("uniapp-test-cfg.isRuntimeLog");
         if (is_Runtime_Log) {
             cmdOpts.env.UNI_AUTOMATOR_OUTPUT_RUNTIME_LOGS = "true";
         };
