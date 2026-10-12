@@ -20,3 +20,5 @@ unpackage/dist/dev/
 .hbuilderx/code-chat-project-sessions.json
 docs/public-cli-api.md
 *.vsix
+
+run_deploy_server.sh
