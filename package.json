@@ -4,6 +4,7 @@
   "displayName": "uni-app自动化测试",
   "version": "5.4.1",
   "publisher": "dcloud",
+  "icon": "resources/icon.png",
   "repository": "https://github.com/dcloudio/hbuilderx-for-uniapp-test/tree/hv",
   "engines": {
     "vscode": "^1.85.0"
