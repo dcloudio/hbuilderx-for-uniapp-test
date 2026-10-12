@@ -2,7 +2,7 @@
   "name": "hbuilderv-for-uniapp-test",
   "description": "uni-app自动化测试，支持运行测试到 Android、iOS、Web、微信/支付宝小程序、Harmony应用",
   "displayName": "uni-app自动化测试",
-  "version": "5.4.1",
+  "version": "5.4.2",
   "publisher": "dcloud",
   "icon": "resources/icon.png",
   "repository": "https://github.com/dcloudio/hbuilderx-for-uniapp-test/tree/hv",

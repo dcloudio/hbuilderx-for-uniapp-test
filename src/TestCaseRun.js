@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
-const { 
+const {
     get_test_device_cpu_arch
 } = require("./core/core.js");
 const checkNetworkStatus = require('./utils/check_network.js');
@@ -137,7 +137,7 @@ class Common {
         if (["android", "ios"].includes(platform)) {
             plugin_list["launcher"] = config.LAUNCHER_ANDROID;
         };
-        
+
         // HBuilderV不需要这个
         // if (is_uniapp_x) {
         //     plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
@@ -163,7 +163,7 @@ class Common {
             if (fs.existsSync(plugin_list[e]) == false) {
                 uni_plugin_check = false;
                 const pluginDisplayName = config.HX_PLUGINS_DISPLAYNAME_LIST[e] ? config.HX_PLUGINS_DISPLAYNAME_LIST[e] : e;
-                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击菜单【工具 - 插件安装】，安装【${pluginDisplayName}】插件。`;
+                const log_for_plugin = `[提示]：测试环境检查，未安装 ${e} 。点击扩展，查找并安装【${pluginDisplayName}】插件。`;
                 createOutputChannel(log_for_plugin, 'info');
             };
         };
@@ -849,7 +849,7 @@ class RunTest extends Common {
         // 检查：HBuilderX测试环境，包含插件是否安装完整、测试依赖库是否安装等
         let env = await this.checkAndSetEnv(argv_uniPlatform, projectPath);
         if (!env) return;
-        
+
         if (["h5-chrome", "h5-safari", "h5-firefox", "mp-alipay"].includes(argv_uniPlatform)) {
             let _browserName = argv_uniPlatform.replace(/^h5-/, "");
             if (argv_uniPlatform == "mp-alipay") {

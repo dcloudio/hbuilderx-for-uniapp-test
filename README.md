@@ -1,6 +1,6 @@
-# hbuilderx-for-uniapp-test
+# hbuilderv-for-uniapp-test
 
-本插件，用于在HBuilderX内运行uni-app自动化测试。
+本插件，用于在HBuilderV内运行uni-app X 自动化测试。
 
 主要功能有：
 
@@ -8,17 +8,11 @@
 - 运行测试 (运行项目下所有测试用例、运行某一个测试用例)
 - 新建测试用例 （uni-app pages页面，右键菜单【新建测试用例】）
 
-## 测试注意事项
+## CLI
 
-1. 本插件支持`uni-app (x) 普通项目`和`uniapp-cli项目`。uniapp-cli项目，运行自动化测试，需要在当前项目下安装自动化测试依赖。
-2. Windows电脑，不支持运行测试到`iOS平台`。
-3. MacOSX电脑，运行到iOS平台，仅支持`iOS模拟器`，不支持iOS真机。
-4. 运行测试到H5，仅支持`chrome`浏览器，不支持其它浏览器。HBuilderX 3.2.10+版本，支持safari和firefox。 
-6. node: 当本机未安装node时，将使用HBuilderX内置的node运行自动化测试。反之，本机安装了node，则使用本机的node。
+此插件也支持用CLI命令行运行 uni-app (x) 自动化测试到 Web、微信/支付宝小程序、Android、iOS 和 Harmony。
 
-## HBuilderX CLI
-
-插件 4.1.0版本起，支持被HBuilderX CLI调用了， 支持使用HBuilderX CLI命令行运行 uni-app (x) 自动化测试到 Web、微信/支付宝小程序、Android、iOS 和 Harmony。
+cli位置：`/Applications/HBuilderV.app/Contents/Resources/app/bin/cli`
 
 ```shell
 // 查看帮助
@@ -57,20 +51,3 @@ cli uniapp.test <platform> --project <ProjectPath>
   - `--device_id <id>`：指定设备 ID（仅适用于 `app-harmony`）。
   - `--help`：显示命令帮助信息。
   - `--version`：查看插件版本号。
-
-## 特别说明
-
-#### 为什么将测试依赖放到hbuilderx-for-uniapp-test-lib下？
-
-uni-app (x) 测试依赖, 之所以单独放一个目录，是因为最初设计的时候，依赖了playwrite、puppeteer等库，安装完后1个多G。所以将其独立。
-
-## 扩展
-
-- [uni-app自动化测试API](https://uniapp.dcloud.io/collocation/auto/quick-start)
-- [jest官方文档](https://www.jestjs.cn/)
-
-# HBuilderV 适配
-
-本插件同时支持 HBuilderV Extension Host。HBuilderV 使用 VS Code 扩展清单格式，入口通过 `vscode` API 注册命令和 CLI；设备选择窗口使用 `vscode.window.openWebviewDialog`。安装后可从命令面板执行 `uni-app自动化测试` 命令，运行测试所需的 uni-app CLI、设备工具和测试依赖仍需按项目环境安装。
-
-插件业务模块直接使用 `vscode` API。设备选择窗口的 Webview 主机逻辑位于 `src/lib/ui_vue.js`，支持 Android、iOS、Harmony、Web/小程序平台选择、设备刷新、日志配置和 Vapor 选项。
