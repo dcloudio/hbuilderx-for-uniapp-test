@@ -8,6 +8,17 @@ const osName = os.platform();
 
 const hx_env_app_root = hx.env.appRoot;
 
+// 统一测试依赖目录
+let PC_APPDATA_DIR = process.env.APPDATA;
+if (osName == "darwin") {
+    PC_APPDATA_DIR = path.join( os.homedir(), 'Library', 'Application Support' );
+};
+if (osName == "linux") {
+    PC_APPDATA_DIR = path.join( os.homedir(), '.local', 'share' );
+};
+let CFG_DCLOUD_UNI_TEST_ENV_DIR = path.join(PC_APPDATA_DIR, "dcloud-uniapp-test")
+
+// HBuilderX plugins目录
 const HBuilderX_PATH = path.join(hx.env.appRoot, "plugins");
 
 // HBuilderX自带的node目录
@@ -53,10 +64,12 @@ let UTS_DEVELOPMENT_ANDROID_PATH = path.join(hx_env_app_root, "plugins", "uts-de
 // 测试报告默认输出路径
 var testReportOutPutDir = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test');
 
-// uni-app自动化测试依赖目录。默认为：HBuilderX安装目录/plugis/hbuilderx-for-uniapp-test-lib/node_modules
-let NODE_LIB_PATH = path.join(hx_env_app_root, 'plugins', "hbuilderx-for-uniapp-test-lib/node_modules");
-let CROSS_ENV_PATH = path.join(hx_env_app_root, 'plugins', "hbuilderx-for-uniapp-test-lib/node_modules/cross-env/src/bin/cross-env.js");
-let JEST_PATH = path.join(hx_env_app_root, 'plugins', 'hbuilderx-for-uniapp-test-lib/node_modules/jest/bin/jest.js');
+// uni-app自动化测试依赖目录。默认为：$APPDATA_DIR/hbuilderx-for-uniapp-test-lib/node_modules
+let CFG_UNI_TEST_NODE_LIB_ROOT_DIR = path.join(CFG_DCLOUD_UNI_TEST_ENV_DIR, "hbuilderv-for-uniapp-test-lib");
+
+let NODE_LIB_PATH = path.join(CFG_UNI_TEST_NODE_LIB_ROOT_DIR, "node_modules");
+let CROSS_ENV_PATH = path.join(CFG_UNI_TEST_NODE_LIB_ROOT_DIR, "node_modules/cross-env/src/bin/cross-env.js");
+let JEST_PATH = path.join(CFG_UNI_TEST_NODE_LIB_ROOT_DIR, 'node_modules/jest/bin/jest.js');
 
 
 // uts插件编译所需
@@ -65,7 +78,7 @@ let UTS_GRADLE_HOME = '';
 let UTS_APP_ROOT = hx_env_app_root;
 
 // uts插件编译所需, 可随意指定目录
-let UTS_USER_DATA_PATH = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test_cache');
+let UTS_USER_DATA_PATH = path.join(CFG_DCLOUD_UNI_TEST_ENV_DIR, 'hbuilderx-for-uniapp-test_cache');
 
 const HX_PLUGINS_DISPLAYNAME_LIST = {
     "uniapp-cli-vite": "uni-app (vue3)编译器",
@@ -102,6 +115,8 @@ let CFG_project_app_runtime_mapping_data = {
 
 module.exports = {
     i18n,
+    CFG_DCLOUD_UNI_TEST_ENV_DIR,
+    CFG_UNI_TEST_NODE_LIB_ROOT_DIR,
 
     HBuilderX_PATH,
     HBuilderX_BuiltIn_Node_Dir,

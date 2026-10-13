@@ -118,22 +118,6 @@ function installPlugin() {
 };
 
 /**
- * @description 安装终端
- * @param {Object} options
- */
-async function installTerminal() {
-    hxShowMessageBox("提示", "uni-app自动化测试环境安装，依赖终端插件，请安装终端插件。\n\n 安装方法：点击顶部菜单【工具】【插件安装】，安装新插件，找到内置终端，点击安装。", ["我知道了"]).then( btn => {
-        return btn;
-    });
-    // let userSelected = await hxShowMessageBox("提示", "uni-app自动化测试环境安装，依赖终端插件，请安装终端插件", ["安装"]).then( btn => {
-    //     return btn;
-    // });
-    // if (userSelected == "安装") {
-    //     installPlugin();
-    // };
-};
-
-/**
  * @description 获取插件配置
  */
 async function getPluginConfig(options) {
@@ -753,7 +737,6 @@ module.exports = {
     isUniAppCli,
     isUniAppX,
     stopRunTest,
-    installTerminal,
     checkCustomTestEnvironmentDependency,
     checkUtsProject,
     readUniappManifestJson,
