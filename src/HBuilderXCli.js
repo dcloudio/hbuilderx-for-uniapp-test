@@ -174,6 +174,13 @@ class Common {
         };
 
         this.isDebug = await getPluginConfig("hbuilderx-for-uniapp-test.isDebug");
+        if (this.cli_args.isDebug != true) {
+            this.isDebug = false;
+        };
+        this.is_Runtime_Log = await getPluginConfig("hbuilderx-for-uniapp-test.isRuntimeLog");
+        if (this.cli_args.isRuntimeLog != true) {
+            this.is_Runtime_Log = false;
+        };
         return testEnv;
     };
 
@@ -331,7 +338,9 @@ class Common {
 class RunTestForHBuilderXCli extends Common {
     constructor() {
         super();
+        this.cli_args = {};
         this.isDebug = false;
+        this.is_Runtime_Log = false;
         this.consoleMsgPrefix = "[uniapp.test] ";
         this.raw_argv_uni_platform = "";
         this.raw_argv_vapor = false;
@@ -594,6 +603,9 @@ class RunTestForHBuilderXCli extends Common {
             await this.print_cli_log(`\x1b[31m自动化测试运行，读取到已设置 DEBUG="automator:*"，会输出更多Debug调试日志，如果您是再AI中调用，建议在HBuilderX中关闭。\x1b[0m`);
             cmdOpts.env.DEBUG = "automator:*";
         };
+        if (this.is_Runtime_Log) {
+            cmdOpts.env.UNI_AUTOMATOR_OUTPUT_RUNTIME_LOGS = "true";
+        };
 
         // 是否是vue3，决定UNI_CLI_PATH值
         if (is_uniapp_3) {
@@ -773,6 +785,9 @@ class RunTestForHBuilderXCli extends Common {
         await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[uniapp.test] ....... 开始运行测试 ......", status: 'Info' });
 
         let argv_uni_platform = uni_platformName;
+        this.cli_args = params;
+        await hx.cliconsole.log({ clientId: this.terminal_id, msg: "[main]方法 = 参数: "  + JSON.stringify(this.cli_args, null, 2), status: 'Info' });
+
         this.raw_argv_uni_platform = uni_platformName;
         this.raw_argv_vapor = params.vapor;
         this.raw_argv_vapor_render_target = params.vapor_render_target || params.uni_app_x_vapor_render_target || "";
@@ -903,9 +918,12 @@ class RunTestForHBuilderXCli extends Common {
             await jse.CreateTestEnvConfigFile(this.projectPath, "env.js", this.terminal_id)
         };
 
-        let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
-        await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
-        if (changeResult == false) return;
+        await this.print_cli_log(`是否自动修改jest.config.js中的testMatch: ${this.cli_args.automaticModificationTestMatch}`);
+        if (this.cli_args.automaticModificationTestMatch == true) {
+            let changeResult = await modifyJestConfigJSFile(scope, proj, this.terminal_id);
+            await this.print_cli_log(`jest.config.js 测试范围检查，结果: ${changeResult}`);
+            if (changeResult == false) return;
+        };
 
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uni_platform) {
@@ -1019,9 +1037,12 @@ async function RunTestForHBuilderXCli_main(params, uni_platformName, deviceType=
     let client_id = params.cliconsole.clientId;
 
     console.error("[cli参数] args:", args);
+    await hx.cliconsole.log({ clientId: client_id, msg: `[cli参数] args: ${JSON.stringify(args, null, 2)}`, status: 'Info' });
     console.error("[cli参数] params:", params);
+    // await hx.cliconsole.log({ clientId: client_id, msg: `[cli参数] params: ${JSON.stringify(params)}`, status: 'Info' });
     console.error("[cli参数] clientID:", client_id);
-
+    // await hx.cliconsole.log({ clientId: client_id, msg: `[cli参数] clientID: ${client_id}`, status: 'Info' });
+    
     const hx_version = hx.env.appVersion;
     const plugin_version = (await readPluginsPackageJson()).version || '';
     const welcome_msg = `欢迎使用 HBuilderX CLI uni-app (x) 自动化测试命令行工具 (${plugin_version}) ！`;

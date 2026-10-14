@@ -267,6 +267,25 @@
                         "type": "enum",
                         "default": "",
                         "enum": "chrome|safari|firefox"
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -300,6 +319,25 @@
                         "usage": "",
                         "type": "boolean",
                         "default": false
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -332,6 +370,25 @@
                         "usage": "",
                         "type": "boolean",
                         "default": false
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -364,6 +421,25 @@
                         "usage": "",
                         "type": "boolean",
                         "default": false
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -396,6 +472,25 @@
                         "usage": "",
                         "type": "boolean",
                         "default": false
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -428,6 +523,25 @@
                         "usage": "",
                         "type": "boolean",
                         "default": false
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -475,6 +589,25 @@
                         "usage": "",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -522,6 +655,25 @@
                         "usage": "",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -590,6 +742,25 @@
                         "usage": "require",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             },
@@ -637,6 +808,25 @@
                         "usage": "",
                         "type": "string",
                         "default": ""
+                    },
+                    {
+                        "name": "automaticModificationTestMatch",
+                        "descption": "(可选) 是否自动修改jest.config.js文件中的testMatch；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "name": "isDebug",
+                        "descption": "(可选) 是否开启调试模式，输出更多日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "isRuntimeLog",
+                        "descption": "(可选) 是否输出运行时日志；不传则使用插件配置默认值",
+                        "usage": "",
+                        "type": "boolean"
                     }
                 ]
             }
