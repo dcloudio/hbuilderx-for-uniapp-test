@@ -1,5 +1,11 @@
 # 更新日志
 
+## 5.5.0
+* 适配 测试依赖默认设置到电脑APP_DATA目录
+* feat: cli 增加自动化测试配置选项，支持调试模式和运行时日志输出
+* 移除 废弃的获取测试设备列表的代码
+* feat: package.json 修改自动化测试配置，默认使用HBuilderX内置Node运行Jest测试程序
+
 ## 5.4.0
 * feat: 新增 针对android和harmony，增加环境变量`UNI_APP_X_TARGET_ARCHS`
 * feat: extension.js 注释掉自动检查升级功能
