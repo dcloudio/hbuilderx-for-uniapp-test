@@ -19,50 +19,72 @@ if (osName == "linux") {
 let CFG_DCLOUD_UNI_TEST_ENV_DIR = path.join(PC_APPDATA_DIR, "dcloud-uniapp-test")
 
 // HBuilderX plugins目录
-const HBuilderX_PATH = path.join(hx.env.appRoot, "plugins");
+const CFG_HX_PLUGIN_DIR = path.join(hx.env.appRoot, "plugins");
+
+/**
+ * @description 获取hbuilderv插件地址
+ * @param {*} plugin_name 
+ * @returns 
+ */
+function get_hbuilder_plugin_path(plugin_name) {
+    return path.join(CFG_HX_PLUGIN_DIR, plugin_name);
+};
 
 // HBuilderX自带的node目录
-const HBuilderX_BuiltIn_Node_Dir = path.join(hx_env_app_root, "plugins", "node");
+const HBuilderX_BuiltIn_Node_Dir = get_hbuilder_plugin_path("node");
 let node_program_name = osName == 'win32' ? 'node.exe' : 'node';
 const HBuilderX_BuiltIn_Node_Path = path.join(HBuilderX_BuiltIn_Node_Dir, node_program_name);
 
 // HBuilderX自带的npm路径
-const HBuilderX_NPM_PATH = path.join(hx_env_app_root, "plugins", "npm", "npm");
+const CFG_NPM_PLUGIN_DIR = get_hbuilder_plugin_path("npm");
+const HBuilderX_NPM_PATH = path.join(CFG_NPM_PLUGIN_DIR, "npm");
 
-// HBuilderX 基座路径
-const LAUNCHER_PATH = path.join(hx_env_app_root, "plugins", "launcher");
-const LAUNCHER_ANDROID = path.join(LAUNCHER_PATH, "base/android_base.apk");
-const LAUNCHER_IOS_IPA = path.join(LAUNCHER_PATH, "base/iPhone_base.ipa");
-const LAUNCHER_VERSION_TXT = path.join(LAUNCHER_PATH, "base", "version.txt");
+// 基座: uni-app 1.0 插件路径
+const cfg_launcher_plugin_dir = get_hbuilder_plugin_path("launcher");
+const cfg_launcher_ios_simulator_plugin_dir = get_hbuilder_plugin_path("launcher-ios-simulator");
+const cfg_launcher_ios_simulator_arm64_plugin_dir = get_hbuilder_plugin_path("launcher-ios-simulator-arm64");
+
+const LAUNCHER_ANDROID = path.join(cfg_launcher_plugin_dir, "base/android_base.apk");
+const LAUNCHER_IOS_IPA = path.join(cfg_launcher_plugin_dir, "base/iPhone_base.ipa");
+const LAUNCHER_VERSION_TXT = path.join(cfg_launcher_plugin_dir, "base/version.txt");
 
 // 插件
-const UNIAPP_LAUNCHER_HARMONY_PATH = path.join(hx_env_app_root, "plugins", "launcher-harmony");
-const UNIAPP_UNIAPP_EXTENSION_PATH = path.join(hx_env_app_root, "plugins", "uniapp-extension");
+const UNIAPP_LAUNCHER_HARMONY_PATH = get_hbuilder_plugin_path("launcher-harmony");
+const UNIAPP_UNIAPP_EXTENSION_PATH = get_hbuilder_plugin_path("uniapp-extension");
 
-const UNIAPP_X_LAUNCHER_PATH = path.join(hx_env_app_root, "plugins", "uniappx-launcher");
-const UNIAPP_X_LAUNCHER_IOS_IPA = path.join(UNIAPP_X_LAUNCHER_PATH, "base/iPhone_base.ipa");
-const UNIAPP_X_LAUNCHER_ANDROID = path.join(UNIAPP_X_LAUNCHER_PATH, "base/android_base.apk");
-const UNIAPP_X_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_LAUNCHER_PATH, "base", "version.txt");
+// 基座: uni-app x vdom 路径
+const cfg_uniappx_launcher_plugin_dir = get_hbuilder_plugin_path("uniappx-launcher");
+const cfg_launcher_x_vdom_ios_simulator_plugin_dir = get_hbuilder_plugin_path("launcher-x-vdom-ios-simulator");
+const cfg_launcher_x_vdom_ios_simulator_arm64_plugin_dir = get_hbuilder_plugin_path("launcher-x-vdom-ios-simulator-arm64");
 
-const UNIAPP_X_VAPOR_LAUNCHER_PATH = path.join(hx_env_app_root, "plugins", "uniappx-vapor-launcher");
-const UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/iPhone_base.ipa");
-const UNIAPP_X_VAPOR_LAUNCHER_ANDROID = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base/android_base.apk");
-const UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT = path.join(UNIAPP_X_VAPOR_LAUNCHER_PATH, "base", "version.txt");
+const UNIAPP_X_LAUNCHER_IOS_IPA = path.join(cfg_uniappx_launcher_plugin_dir, "base/iPhone_base.ipa");
+const UNIAPP_X_LAUNCHER_ANDROID = path.join(cfg_uniappx_launcher_plugin_dir, "base/android_base.apk");
+const UNIAPP_X_LAUNCHER_VERSION_TXT = path.join(cfg_uniappx_launcher_plugin_dir, "base/version.txt");
+
+// 基座: uni-app x vapor 路径
+const cfg_uniappx_vapor_launcher_plugin_dir = get_hbuilder_plugin_path("uniappx-vapor-launcher");
+const cfg_launcher_x_vapor_ios_simulator_plugin_dir = get_hbuilder_plugin_path("launcher-x-vapor-ios-simulator");
+const cfg_launcher_x_vapor_ios_simulator_arm64_plugin_dir = get_hbuilder_plugin_path("launcher-x-vapor-ios-simulator-arm64");
+
+const UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA = path.join(cfg_uniappx_vapor_launcher_plugin_dir, "base/iPhone_base.ipa");
+const UNIAPP_X_VAPOR_LAUNCHER_ANDROID = path.join(cfg_uniappx_vapor_launcher_plugin_dir, "base/android_base.apk");
+const UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT = path.join(cfg_uniappx_vapor_launcher_plugin_dir, "base/version.txt");
 
 // HBuilderX uniapp-cli路径
-let UNI_CLI_PATH = path.join(hx_env_app_root, "plugins", "uniapp-cli");
-let UNI_CLI_VITE_PATH = path.join(hx_env_app_root, "plugins", "uniapp-cli-vite");
+let UNI_CLI_PATH = get_hbuilder_plugin_path("uniapp-cli");
+let UNI_CLI_VITE_PATH = get_hbuilder_plugin_path("uniapp-cli-vite");
 let UNI_CLI_ENV = path.join(UNI_CLI_PATH, 'node_modules/@dcloudio/uni-automator/dist/environment.js');
 let UNI_CLI_teardown = path.join(UNI_CLI_PATH, 'node_modules/@dcloudio/uni-automator/dist/teardown.js');
 
 // HBuilderX UTS插件。
 // 2023-01-31 如下参数，暂时无用。以后可能用得到。先不清除。
-let UNIAPP_RUNEXTENSION_PATH = path.join(hx_env_app_root, "plugins", "uniapp-runextension");
-let UNIAPP_UTS_V1_PATH = path.join(hx_env_app_root, "plugins", "uniapp-uts-v1");
-let UTS_DEVELOPMENT_ANDROID_PATH = path.join(hx_env_app_root, "plugins", "uts-development-android");
+let UNIAPP_RUNEXTENSION_PATH = get_hbuilder_plugin_path("uniapp-runextension");
+let UNIAPP_UTS_V1_PATH = get_hbuilder_plugin_path("uniapp-uts-v1");
+let UTS_DEVELOPMENT_ANDROID_PATH = get_hbuilder_plugin_path("uts-development-android");
 
-// 测试报告默认输出路径
-var testReportOutPutDir = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test');
+// 测试报告默认输出路径 (2026.10.27 改为CFG_DCLOUD_UNI_TEST_ENV_DIR目录)
+// var testReportOutPutDir = path.join(hx.env.appData, 'hbuilderx-for-uniapp-test');
+var testReportOutPutDir = path.join(CFG_DCLOUD_UNI_TEST_ENV_DIR, 'test_reports')
 
 // uni-app自动化测试依赖目录。默认为：$APPDATA_DIR/hbuilderx-for-uniapp-test-lib/node_modules
 let CFG_UNI_TEST_NODE_LIB_ROOT_DIR = path.join(CFG_DCLOUD_UNI_TEST_ENV_DIR, "hbuilderv-for-uniapp-test-lib");
@@ -94,22 +116,22 @@ const HX_PLUGINS_DISPLAYNAME_LIST = {
 // 2026-09 ios-27上市，ios模拟器需要拆封为intel和arm。
 let CFG_project_app_runtime_mapping_data = {
     "uniapp-1.0": {
-        "launcher_android_apk_file": path.join(hx_env_app_root, 'plugins', "launcher/base/android_base.apk"),
-        "launcher_ios_simulator_app_for_old": path.join(hx_env_app_root, 'plugins', "launcher/base/Pandora_simulator.app"),
-        "launcher_ios_simulator_app_file": path.join(hx_env_app_root, 'plugins', 'launcher-ios-simulator/base/Pandora_simulator.app'),
-        "launcher_ios_simulator_app_arm64_file": path.join(hx_env_app_root, 'plugins', 'launcher-ios-simulator-arm64/base/Pandora_simulator.app')
+        "launcher_android_apk_file": path.join(cfg_launcher_plugin_dir, "base/android_base.apk"),
+        "launcher_ios_simulator_app_for_old": path.join(cfg_launcher_plugin_dir, "base/Pandora_simulator.app"),
+        "launcher_ios_simulator_app_file": path.join(cfg_launcher_ios_simulator_plugin_dir, 'base/Pandora_simulator.app'),
+        "launcher_ios_simulator_app_arm64_file": path.join(cfg_launcher_ios_simulator_arm64_plugin_dir, 'base/Pandora_simulator.app')
     },
     "uniapp-x-vdom": {
-        "launcher_android_apk_file": path.join(hx_env_app_root, 'plugins', "uniappx-launcher/base/android_base.apk"),
-        "launcher_ios_simulator_app_for_old": path.join(hx_env_app_root, 'plugins', "uniappx-launcher/base/Pandora_simulator.app"),
-        "launcher_ios_simulator_app_file": path.join(hx_env_app_root, 'plugins', 'launcher-x-vdom-ios-simulator/base/Pandora_simulator.app'),
-        "launcher_ios_simulator_app_arm64_file": path.join(hx_env_app_root, 'plugins', 'launcher-x-vdom-ios-simulator-arm64/base/Pandora_simulator.app')
+        "launcher_android_apk_file": path.join(cfg_uniappx_launcher_plugin_dir, "base/android_base.apk"),
+        "launcher_ios_simulator_app_for_old": path.join(cfg_uniappx_launcher_plugin_dir, "base/Pandora_simulator.app"),
+        "launcher_ios_simulator_app_file": path.join(cfg_launcher_x_vdom_ios_simulator_plugin_dir, 'base/Pandora_simulator.app'),
+        "launcher_ios_simulator_app_arm64_file": path.join(cfg_launcher_x_vdom_ios_simulator_arm64_plugin_dir, 'base/Pandora_simulator.app')
     },
     "uniapp-x-vapor": {
-        "launcher_android_apk_file": path.join(hx_env_app_root, 'plugins', "uniappx-vapor-launcher/base/android_base.apk"),
-        "launcher_ios_simulator_app_for_old": path.join(hx_env_app_root, 'plugins', "uniappx-vapor-launcher/base/Pandora_simulator.app"),
-        "launcher_ios_simulator_app_file": path.join(hx_env_app_root, 'plugins', 'launcher-x-vapor-ios-simulator/base/Pandora_simulator.app'),
-        "launcher_ios_simulator_app_arm64_file": path.join(hx_env_app_root, 'plugins', 'launcher-x-vapor-ios-simulator-arm64/base/Pandora_simulator.app')
+        "launcher_android_apk_file": path.join(cfg_uniappx_vapor_launcher_plugin_dir, "base/android_base.apk"),
+        "launcher_ios_simulator_app_for_old": path.join(cfg_uniappx_vapor_launcher_plugin_dir, "base/Pandora_simulator.app"),
+        "launcher_ios_simulator_app_file": path.join(cfg_launcher_x_vapor_ios_simulator_plugin_dir, 'base/Pandora_simulator.app'),
+        "launcher_ios_simulator_app_arm64_file": path.join(cfg_launcher_x_vapor_ios_simulator_arm64_plugin_dir, 'base/Pandora_simulator.app')
     }
 }
 
@@ -118,19 +140,19 @@ module.exports = {
     CFG_DCLOUD_UNI_TEST_ENV_DIR,
     CFG_UNI_TEST_NODE_LIB_ROOT_DIR,
 
-    HBuilderX_PATH,
+    CFG_HX_PLUGIN_DIR,
     HBuilderX_BuiltIn_Node_Dir,
     HBuilderX_BuiltIn_Node_Path,
     HBuilderX_NPM_PATH,
 
     HX_PLUGINS_DISPLAYNAME_LIST,
 
-    LAUNCHER_PATH,
+    cfg_launcher_plugin_dir,
     LAUNCHER_ANDROID,
     LAUNCHER_IOS_IPA,
     LAUNCHER_VERSION_TXT,
 
-    UNIAPP_X_LAUNCHER_PATH,
+    cfg_uniappx_launcher_plugin_dir,
     UNIAPP_X_LAUNCHER_ANDROID,
     UNIAPP_X_LAUNCHER_IOS_IPA,
     UNIAPP_X_LAUNCHER_VERSION_TXT,
@@ -138,7 +160,7 @@ module.exports = {
     UNIAPP_LAUNCHER_HARMONY_PATH,
     UNIAPP_UNIAPP_EXTENSION_PATH,
 
-    UNIAPP_X_VAPOR_LAUNCHER_PATH,
+    cfg_uniappx_vapor_launcher_plugin_dir,
     UNIAPP_X_VAPOR_LAUNCHER_ANDROID,
     UNIAPP_X_VAPOR_LAUNCHER_IOS_IPA,
     UNIAPP_X_VAPOR_LAUNCHER_VERSION_TXT,

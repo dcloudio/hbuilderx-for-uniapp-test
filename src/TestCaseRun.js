@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
-const { 
+const {
     get_test_device_cpu_arch
 } = require("./core/core.js");
 const checkNetworkStatus = require('./utils/check_network.js');
@@ -147,11 +147,11 @@ class Common {
         };
 
         if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+            plugin_list["uniappx-launcher"] = config.cfg_uniappx_launcher_plugin_dir;
         };
 
         if (project_manifestJson_vapor) {
-            plugin_list["uniappx-vapor-launcher"] = config.UNIAPP_X_VAPOR_LAUNCHER_PATH;
+            plugin_list["uniappx-vapor-launcher"] = config.cfg_uniappx_vapor_launcher_plugin_dir;
         };
 
         if (is_uts_project || is_uniapp_x) {
@@ -828,7 +828,7 @@ class RunTest extends Common {
         };
 
         // 判断：HBuilderX路径空格
-        if (config.HBuilderX_PATH.indexOf(" ") != -1) {
+        if (config.CFG_HX_PLUGIN_DIR.indexOf(" ") != -1) {
             createOutputChannel(config.i18n.hx_install_path_space_prompt, 'warning');
             return;
         };

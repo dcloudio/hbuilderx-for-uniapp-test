@@ -143,7 +143,7 @@ class Common {
         };
 
         if (is_uniapp_x) {
-            plugin_list["uniappx-launcher"] = config.UNIAPP_X_LAUNCHER_PATH;
+            plugin_list["uniappx-launcher"] = config.cfg_uniappx_launcher_plugin_dir;
         };
 
         if (is_uts_project || is_uniapp_x) {
