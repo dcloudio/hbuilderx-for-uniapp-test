@@ -22,12 +22,20 @@ let CFG_DCLOUD_UNI_TEST_ENV_DIR = path.join(PC_APPDATA_DIR, "dcloud-uniapp-test"
 const CFG_HX_PLUGIN_DIR = path.join(hx.env.appRoot, "plugins");
 
 /**
- * @description 获取hbuilderv插件地址
+ * @description 获取hbuilder插件地址
  * @param {*} plugin_name 
  * @returns 
  */
 function get_hbuilder_plugin_path(plugin_name) {
-    return path.join(CFG_HX_PLUGIN_DIR, plugin_name);
+    // 优先使用 hx.extensions.getExtensionInfo 返回的插件安装目录，低版本回退到 appRoot/plugins
+    let extensionPath;
+    try {
+        extensionPath = hx.extensions?.getExtensionInfo?.(plugin_name)?.extensionPath;
+    } catch (e) {
+        extensionPath = undefined;
+    };
+    // console.error("[get_hbuilder_plugin_path] ====> ", plugin_name, "is", extensionPath);
+    return extensionPath || path.join(CFG_HX_PLUGIN_DIR, plugin_name);
 };
 
 // HBuilderX自带的node目录
