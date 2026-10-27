@@ -59,6 +59,7 @@ const LAUNCHER_VERSION_TXT = path.join(cfg_launcher_plugin_dir, "base/version.tx
 // 插件
 const UNIAPP_LAUNCHER_HARMONY_PATH = get_hbuilder_plugin_path("launcher-harmony");
 const UNIAPP_UNIAPP_EXTENSION_PATH = get_hbuilder_plugin_path("uniapp-extension");
+const cfg_launcher_tools_plugin_dir = get_hbuilder_plugin_path("launcher-tools");
 
 // 基座: uni-app x vdom 路径
 const cfg_uniappx_launcher_plugin_dir = get_hbuilder_plugin_path("uniappx-launcher");
@@ -154,7 +155,8 @@ module.exports = {
     HBuilderX_NPM_PATH,
 
     HX_PLUGINS_DISPLAYNAME_LIST,
-
+    cfg_launcher_tools_plugin_dir,
+    
     cfg_launcher_plugin_dir,
     LAUNCHER_ANDROID,
     LAUNCHER_IOS_IPA,

@@ -491,6 +491,8 @@ class RunTestForHBuilderXCli extends Common {
                 "uniTestProjectName": this.projectName,
                 "uniTestPlatformInfo": uniTestPlatformInfo,
                 "UNI_TEST_UNIAPP_EXTENSION_PATH": config.UNIAPP_UNIAPP_EXTENSION_PATH,
+                "UNI_TEST_LAUNCHER_PLUGIN_DIR": config.cfg_launcher_plugin_dir,
+                "UNI_TEST_LAUNCHER_TOOLS_PLUGIN_DIR": config.cfg_launcher_tools_plugin_dir,
                 "UNI_AUTOMATOR_PORT": UNI_AUTOMATOR_PORT,
                 "HX_CONFIG_ADB_PATH": "",
                 // "LANG": "en_US.UTF-8",
