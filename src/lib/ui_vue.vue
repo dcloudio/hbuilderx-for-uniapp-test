@@ -2,19 +2,19 @@
     <q-scroll-view layout='vbox' id="scrollView">
 
         <!-- 复选框：小程序 -->
-        <q-view layout='hbox' v-if="access == 'all'">
+        <q-view layout='hbox' v-if="access == 'all' || access == 'mp-weixin' || access == 'mp-alipay'">
             <q-label text="小程序: " id="labelView"></q-label>
-            <q-checkbox id="elCheckBox" text=" 微信小程序" :checked='mp_weixin' accessibleName="mp_weixin" @clicked="el_set" />
-            <q-checkbox id="elCheckBox" text=" 支付宝小程序" :checked='mp_alipay' accessibleName="mp_alipay" @clicked="el_set" />
+            <q-checkbox id="elCheckBox" text=" 微信小程序" :checked='mp_weixin' accessibleName="mp_weixin" @clicked="el_set" v-if="access == 'all' || access == 'mp-weixin'" />
+            <q-checkbox id="elCheckBox" text=" 支付宝小程序" :checked='mp_alipay' accessibleName="mp_alipay" @clicked="el_set" v-if="access == 'all' || access == 'mp-alipay'" />
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 
         <!-- 复选框：h5 -->
-        <q-view layout='hbox' v-if="access == 'all'">
+        <q-view layout='hbox' v-if="access == 'all' || access == 'h5-chrome' || access == 'h5-safari' || access == 'h5-firefox'">
             <q-label text="浏览器: " id="labelView"></q-label>
-            <q-checkbox id="elCheckBox" text=" Chrome" :checked='h5_chrome' accessibleName="h5_chrome" @clicked="el_set" />
-            <q-checkbox id="elCheckBox" text=" Firefox" :checked='h5_firefox' accessibleName="h5_firefox" @clicked="el_set" />
-            <q-checkbox id="elCheckBox" text=" Safari" :checked='h5_safari' accessibleName="h5_safari" @clicked="el_set" />
+            <q-checkbox id="elCheckBox" text=" Chrome" :checked='h5_chrome' accessibleName="h5_chrome" @clicked="el_set" v-if="access == 'all' || access == 'h5-chrome'" />
+            <q-checkbox id="elCheckBox" text=" Firefox" :checked='h5_firefox' accessibleName="h5_firefox" @clicked="el_set" v-if="access == 'all' || access == 'h5-firefox'" />
+            <q-checkbox id="elCheckBox" text=" Safari" :checked='h5_safari' accessibleName="h5_safari" @clicked="el_set" v-if="access == 'all' || access == 'h5-safari'" />
             <q-view horizontal-size-policy="Expanding"></q-view>
         </q-view>
 

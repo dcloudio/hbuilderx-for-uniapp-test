@@ -901,7 +901,7 @@ class RunTest extends Common {
         };
 
         let testPhoneList = [];
-        if (['all', 'ios', 'android', 'harmony'].includes(argv_uniPlatform)) {
+        if (['all', 'ios', 'android', 'harmony', 'h5-chrome', 'h5-safari', 'h5-firefox', 'mp-weixin', 'mp-alipay'].includes(argv_uniPlatform)) {
             const sResult = await this.select_app_run_devices(argv_uniPlatform);
             // console.error("=====>", sResult);
             if (sResult == undefined || sResult == "noSelected") return;
@@ -933,21 +933,23 @@ class RunTest extends Common {
         // 注意：以前叫h5, 后来uni-app x要求改名为web。为了兼容以前的命令行参数，虽然入参是web，但是转化为h5。
         switch (argv_uniPlatform) {
             case 'h5':
-            case 'h5-chrome':
                 // 兼容，不可删除
                 this.run_uni_test('h5-chrome');
                 break;
+            case 'h5-chrome':
+                this.run_more_test('h5-chrome', testPhoneList);
+                break;
             case 'h5-safari':
-                this.run_uni_test('h5-safari');
+                this.run_more_test('h5-safari', testPhoneList);
                 break;
             case 'h5-firefox':
-                this.run_uni_test('h5-firefox');
+                this.run_more_test('h5-firefox', testPhoneList);
                 break;
             case 'mp-weixin':
-                this.run_uni_test('mp-weixin');
+                this.run_more_test('mp-weixin', testPhoneList);
                 break;
             case 'mp-alipay':
-                this.run_uni_test('mp-alipay');
+                this.run_more_test('mp-alipay', testPhoneList);
                 break;
             case 'ios':
                 this.run_more_test('ios', testPhoneList);

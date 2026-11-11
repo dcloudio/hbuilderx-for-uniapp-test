@@ -13,16 +13,23 @@ async function ui_vue(testPlatform, projectPath="") {
     hx.vue.defineComponent('uniTest', path.resolve(__dirname, "./ui_vue.vue"));
 
     let window_height = 750;
-    if (osName == "win32") {
+    if (['h5-chrome', 'h5-safari', 'h5-firefox', 'mp-weixin', 'mp-alipay'].includes(testPlatform)) {
+        window_height = 320;
+    } else if (osName == "win32") {
         window_height = testPlatform == "all" ? 580 : 480;
     } else {
         window_height = testPlatform == "all" ? 780 : 480;
     };
 
-    let subtitle = "选择要测试的手机设备或模拟器";
-    // subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
-    subtitle = osName == 'darwin' ? subtitle + '。' : subtitle + '，Windows不支持ios自动化测试。';
-    subtitle = subtitle + '<a href="https://uniapp.dcloud.net.cn/tutorial/run/installSimulator.html">如何安装?</a>'
+    let subtitle;
+    if (['h5-chrome', 'h5-safari', 'h5-firefox', 'mp-weixin', 'mp-alipay'].includes(testPlatform)) {
+        subtitle = "选择要测试的浏览器或小程序平台";
+    } else {
+        subtitle = "选择要测试的手机设备或模拟器";
+        // subtitle = osName == 'darwin' ? subtitle + '，ios自动化测试仅支持iOS模拟器。' : subtitle + '，Windows不支持ios自动化测试。';
+        subtitle = osName == 'darwin' ? subtitle + '。' : subtitle + '，Windows不支持ios自动化测试。';
+        subtitle = subtitle + '<a href="https://uniapp.dcloud.net.cn/tutorial/run/installSimulator.html">如何安装?</a>'
+    };
 
     const footer1 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-extension\">插件教程</a>";
     const footer2 = "<a href=\"https://uniapp.dcloud.net.cn/worktile/auto/hbuilderx-cli-uniapp-test.html\">使用CLI测试</a>";
@@ -97,6 +104,11 @@ async function ui_vue(testPlatform, projectPath="") {
                 "is_show_vapor_mode_element": is_show_vapor_ui,
                 cfg_uniapp_test_vapor_mode,
                 uni_app_x_vapor_render_target,
+                h5_chrome: testPlatform == 'h5-chrome',
+                h5_firefox: testPlatform == 'h5-firefox',
+                h5_safari: testPlatform == 'h5-safari',
+                mp_weixin: testPlatform == 'mp-weixin',
+                mp_alipay: testPlatform == 'mp-alipay',
                 cfg_isDebug,
                 cfg_isRuntimeLog,
                 cfg_AutomaticModificationTestMatch
@@ -210,11 +222,31 @@ function validate_value(data, that) {
        that.showError("请至少选择一个iOS测试设备");
        return;
    };
-   if (access == "harmony" && harmony_list == 0) {
-       that.showError("请至少选择一个harmony测试设备");
-       return;
-   };
-   return true;
+    if (access == "harmony" && harmony_list == 0) {
+        that.showError("请至少选择一个harmony测试设备");
+        return;
+    };
+    if (access == "h5-chrome" && !h5_chrome) {
+        that.showError("请勾选 Chrome 浏览器");
+        return;
+    };
+    if (access == "h5-safari" && !h5_safari) {
+        that.showError("请勾选 Safari 浏览器");
+        return;
+    };
+    if (access == "h5-firefox" && !h5_firefox) {
+        that.showError("请勾选 Firefox 浏览器");
+        return;
+    };
+    if (access == "mp-weixin" && !mp_weixin) {
+        that.showError("请勾选微信小程序");
+        return;
+    };
+    if (access == "mp-alipay" && !mp_alipay) {
+        that.showError("请勾选支付宝小程序");
+        return;
+    };
+    return true;
 };
 
 
